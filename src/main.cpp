@@ -15,4 +15,8 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-int main () {}
+#include "main.h"
+
+int main () {
+    Server (8080).run();
+}
