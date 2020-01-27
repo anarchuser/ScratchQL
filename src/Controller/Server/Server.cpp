@@ -24,13 +24,11 @@ Server::Server (int port) : port{port} {
 
 void Server::run() {
     while (true) {
-        static int socket = accept (server_fd, (struct sockaddr *) & address, (socklen_t *) & addr_len);
+        int socket = accept (server_fd, (struct sockaddr *) & address, (socklen_t *) & addr_len);
         if (socket < 0) {
             throw (std::runtime_error ("Couldn't accept connection"));
         }
-
-        std::cout << "Connection received." << std::endl;
-        Connection_Handler (socket, mock);
+        new Connection_Handler (socket, mock);
     }
 }
 
