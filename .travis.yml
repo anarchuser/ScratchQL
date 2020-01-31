@@ -6,6 +6,7 @@ addons:
     update: true
     packages:
         - cmake
+        - libgoogle-glog-dev
 
 git:
   depth: 3
