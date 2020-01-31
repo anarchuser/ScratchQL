@@ -1,1 +1,8 @@
 #!/bin/bash
+#
+# Hook running after `git pull`, removing branches deleted on origin
+
+git fetch -p
+for branch in `git branch -vv | grep ": gone]" | cut -d" " -f3`
+do git branch -D "$branch"
+done
