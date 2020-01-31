@@ -1,3 +1,4 @@
+dist: bionic
 language: cpp
 compiler: gcc
 
@@ -6,6 +7,7 @@ addons:
     update: true
     packages:
         - cmake
+        - libgoogle-glog-dev
 
 git:
   depth: 3

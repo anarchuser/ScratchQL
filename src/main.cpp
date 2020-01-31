@@ -15,4 +15,14 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 
-int main () {}
+#include "main.h"
+
+int main (int argc, char * argv[]) {
+    google::InitGoogleLogging(argv [0]);
+
+    LOG (INFO) << "Start Running";
+
+    /* ... */
+
+    LOG (INFO) << "Stop Running";
+}
