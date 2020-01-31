@@ -1,0 +1,5 @@
+#!/bin/bash
+#
+# Print the log data for the commit run previously
+
+git log -1 HEAD
