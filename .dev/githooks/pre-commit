@@ -2,8 +2,7 @@
 #
 # Run tests before committing, and abort if the tests fail
 
-cmake --build build --target Test
-../.././build/Test
+cmake --build cmake-build-debug --target Test && ./cmake-build-debug/Test
 result=$?
 if test $result -ne 0
 then echo "Your tests are failing - Aborting commit"
