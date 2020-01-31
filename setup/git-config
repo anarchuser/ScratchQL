@@ -1,0 +1,5 @@
+#!/bin/bash
+
+git config core.hooksPath   .dev/githooks
+git config pull.rebase      true
+git config rerere.enabled   true
