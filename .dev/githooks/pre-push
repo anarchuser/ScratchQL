@@ -1,1 +1,10 @@
 #!/bin/bash
+#
+# Run tests before pushing, and abort if the tests fail
+
+cmake --build cmake-build-debug --target Test && ./cmake-build-debug/Test
+result=$?
+if test $result -ne 0
+then echo "Your tests are failing - Aborting push"
+fi
+exit $result
