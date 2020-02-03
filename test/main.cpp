@@ -14,4 +14,4 @@ int main (int argc, char * argv[]) {
     return result;
 }
 
-/* Copyright (C) 2020 Aaron Alef */
+/* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

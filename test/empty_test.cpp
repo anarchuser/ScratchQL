@@ -4,4 +4,4 @@ TEST_CASE ("Empty test case") {
     REQUIRE_NOTHROW (true);
 }
 
-/* Copyright (C) 2020 Aaron Alef */
+/* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
