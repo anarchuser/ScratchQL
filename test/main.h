@@ -6,4 +6,4 @@
 
 #endif //DATABASE_MAIN_H
 
-/* Copyright (C) 2020 Aaron Alef */
+/* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
