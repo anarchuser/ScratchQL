@@ -23,6 +23,7 @@ Also, latency shall be minimised at the cost of bandwidth.
 * Make sure the following tools are installed:
   * an ISO C++20-compliant compiler
   * catch2, glog, make, cmake
+* Run `bash setup/git-config` to setup git hooks
 * We recommend JetBrain’s CLion due to its integrated build automation.
   If you use other IDEs, update the `.gitignore` file accordingly.
 
@@ -35,7 +36,7 @@ Also, latency shall be minimised at the cost of bandwidth.
   * Create Pull Requests for changes
   * PR titles should follow the commit guidelines
   * At least one review is required for approval
-  * Merge through Squash’n Merge or Rebase, depending on your commit history
+  * Merge through Squash’n Merge
 * All production code belongs in `/src/*` which mirrors
   * our Model-View-Controller architecture
   * our use of our object orientation
