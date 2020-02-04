@@ -1,4 +1,4 @@
-# ScratchQL [![Build Status](https://travis-ci.com/anarchuser/Database.svg?branch=master)](https://travis-ci.com/anarchuser/Database)
+# ScratchQL [![Build Status](https://travis-ci.com/anarchuser/ScratchQL.svg?branch=master)](https://travis-ci.com/anarchuser/ScratchQL)
 #### A relational database management system from scratch
 ----
 ### This page is about
