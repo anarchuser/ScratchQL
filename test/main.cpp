@@ -7,6 +7,8 @@ int main (int argc, char * argv[]) {
 
     LOG (INFO) << "Start Testing";
 
+    LOG (INFO) << PROJECT_ROOT;
+
     int result = Catch::Session().run (argc, argv);
 
     LOG (INFO) << "Stop Testing";
