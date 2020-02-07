@@ -22,6 +22,7 @@ int main (int argc, char * argv[]) {
     google::InitGoogleLogging(argv [0]);
 
     LOG (INFO) << "Start Running";
+    LOG (INFO) << PROJECT_ROOT;
 
     /* ... */
 

@@ -3,7 +3,7 @@ project(Database)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_CXX_FLAGS "-lglog")
+set(CMAKE_REQUIRED_LIBRARIES "-lglog")
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.cpp)
 file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.cpp)
@@ -16,11 +16,5 @@ include(CTest)
 include(Catch)
 catch_discover_tests(Test)
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-target_link_libraries(Database Threads::Threads)
-target_link_libraries(Test Threads::Threads)
-
-find_library(GLOG_LIBRARY glog)
 target_link_libraries(Database glog)
 target_link_libraries(Test glog)
