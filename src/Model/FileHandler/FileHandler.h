@@ -1,7 +1,7 @@
 #ifndef DATABASE_FILEHANDLER_H
 #define DATABASE_FILEHANDLER_H
 
-#include "../main.h"
+#include "../../main.h"
 
 #include <cstdio>
 #include <iostream>

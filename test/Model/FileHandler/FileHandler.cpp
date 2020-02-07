@@ -1,5 +1,5 @@
-#include "../main.h"
-#include "../../src/Model/FileHandler.h"
+#include "../../main.h"
+#include "../../../src/Model/FileHandler/FileHandler.h"
 
 SCENARIO ("Reading from and writing to a file is executed correctly") {
     GIVEN ("A file and some test strings") {
