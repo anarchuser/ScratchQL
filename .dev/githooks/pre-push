@@ -2,6 +2,7 @@
 #
 # Run tests before pushing, and abort if the tests fail
 
+export SCRATCHQL_ROOT=$PWD
 cmake --build cmake-build-debug --target Test && ./cmake-build-debug/Test
 result=$?
 if test $result -ne 0
