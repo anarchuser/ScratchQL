@@ -9,6 +9,14 @@ static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 
 using cell = std::variant<bool, long, double, std::string>;
 
+enum KeyTypes {
+    NORMAL,
+    PRIMARY,
+    UNIQUE,
+    FOREIGN,
+    INDEXED,
+};
+
 #endif //DATABASE_CONFIG_H
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
