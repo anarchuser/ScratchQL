@@ -7,11 +7,16 @@
 #include <variant>
 #include <vector>
 
+#include <iostream>
+
 class Table {
 private:
     std::vector <std::string> header;
     std::vector <KeyTypes> meta;
     std::unordered_map <std::string, std::vector <cell>> table;
+
+    std::size_t rows = 0;
+    std::size_t columns;
 
     void removePadding();
 
@@ -27,6 +32,9 @@ public:
     const Table & operator [] (const std::string & key) const;
           Table & operator [] (std::size_t index);
     const Table & operator [] (std::size_t index) const;
+
+    std::size_t getRows();
+    std::size_t getColumns();
 };
 
 
