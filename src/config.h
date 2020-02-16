@@ -5,9 +5,9 @@
 #include <cstdlib>
 #include <variant>
 
-static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
+#include "Model/Cell/Cell.h"
 
-using cell = std::variant<bool, long, double, std::string>;
+static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 
 enum KeyTypes {
     NORMAL,
