@@ -16,8 +16,6 @@ SCENARIO ("I can create a table and modify it") {
         Table t1 (columns, keyTypes);
         REQUIRE_NOTHROW (Table (columns, keyTypes));
 
-
-
         WHEN ("I add lines to it") {
             std::vector <std::vector <Cell>> rows;
             std::vector <Cell> row1 {1l, Cell ("John"), Cell ("2020-02-02")};
@@ -37,11 +35,11 @@ SCENARIO ("I can create a table and modify it") {
                 CHECK (t1.getRowCount() == rows.size ());
             }
 
-//            THEN ("I can successfully modify lines") {
-//                for (int i = 0; i < rows.size(); i++) {
-//                    t1.updateRow (rows[(i + 1) % rows.size()], i);
-//                }
-//            }
+            THEN ("I can successfully modify lines") {
+                for (int i = 0; i < rows.size(); i++) {
+                    CHECK_NOTHROW (t1.updateRow (rows[(i + 1) % rows.size()], i));
+                }
+            }
 
             THEN ("I can successfully delete lines") {
                 for (int i = 0; i < rows.size(); i++) {
