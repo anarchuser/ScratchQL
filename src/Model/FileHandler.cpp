@@ -4,6 +4,15 @@
 
 FileHandler::FileHandler (std::string  path) : path{std::move(path)} {}
 
+void FileHandler::createDatabase(std::string name){
+    std::filesystem::create_directory(DATABASE_DIR);
+    std::filesystem::create_directory(DATABASE_DIR + name);
+}
+
+void FileHandler::createTable(std::string database, std::string name){
+    std::filesystem::create_directory(DATABASE_DIR + database + '/' + name);
+}
+
 void FileHandler::createLine (const std::string & content) {
     std::ofstream out (path, std::ios::app);
     if (!out.is_open ()) {
@@ -31,7 +40,22 @@ std::string FileHandler::readLine (long index) {
 }
 
 void FileHandler::updateLine (const std::string & content, long index) {}
-void FileHandler::deleteLine (long index) {}
+void FileHandler::deleteLine (long index) {
+    std::cout << "hi, still working" << std::endl;
+    std::fstream file (path, std::ios::in | std::ios::out);
+    std::string tmpline;
+    int tmplength;
+    int i = 0;
+
+    while (getline (file, tmpline)){
+        if (i++ == index) {
+            tmplength = tmpline.length();
+            tmpline = std::string (tmplength, ' ');
+        }
+        file << tmpline;
+    }
+    file.close();
+}
 
 void FileHandler::deleteTable() {
     std::remove (path.data());

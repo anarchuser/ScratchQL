@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <filesystem>
 
 struct FileHandler {
 public:
@@ -21,8 +23,9 @@ public:
     void deleteTable ();
 
 private:
+    void createTable(std::string database, std::string name);
+    void createDatabase(std::string name);
     void removePadding ();
-
 };
 
 

@@ -35,6 +35,17 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                 }
             }
         }
+        SECTION ("We \"delete\" lines from a file") {
+            WHEN ("we delete one line"){
+                for (auto & str : test_strings) fh.createLine(str);
+                std::string oldstring (fh.readLine(0));
+                CHECK(oldstring != "");
+                int strlength;
+                CHECK_NOTHROW(strlength = oldstring.length());
+                fh.deleteLine(0);
+                CHECK (std::string (strlength, ' ') != oldstring);
+            }
+        }
 
         SECTION ("A file can be deleted - twice") {
             CHECK_NOTHROW (fh.deleteTable());

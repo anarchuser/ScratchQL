@@ -1,0 +1,4 @@
+#!/bin/bash
+
+export SCRATCHQL_ROOT="$(pwd)/.."
+../cmake-build-debug/Database
