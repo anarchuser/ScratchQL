@@ -23,7 +23,7 @@ void Table::removePadding () {
 }
 
 void Table::createRow (const std::vector <Cell> & row) {
-    if (row.size() != columns) throw std::range_error ("Invalid amount of columns to insert");
+    if (row.size() != columns) THROW (std::range_error ("Invalid amount of columns to insert"));
 
     for (int i = 0; i < row.size(); i++) {
         table [header [i]].push_back (row[i]);

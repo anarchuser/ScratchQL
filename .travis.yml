@@ -21,4 +21,4 @@ before_install:
 script:
   - cmake -H. -Bbuild
   - cmake --build build --target Test && mkdir tmp && ./build/Test
-  - cmake --build build --target Table
+  - cmake --build build --target Database
