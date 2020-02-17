@@ -1,6 +1,6 @@
 #include "Cell.h"
 
-bool operator ! (Cell cell) {
+bool operator ! (const Cell & cell) {
     switch (cell.index()) {
         case 0:
             return std::get <bool> (cell) == 0;
@@ -14,6 +14,16 @@ bool operator ! (Cell cell) {
             throw std::logic_error ("Fix 'Cell::operator !' !!!");
     }
 }
+
+std::ostream & operator << (std::ostream & os, const Cell & cell) {
+    std::visit (Visitor {os}, cell);
+    return os;
+}
+
+void Visitor::operator () (bool val) {os << val;}
+void Visitor::operator () (long val) {os << val;}
+void Visitor::operator () (double val) {os << val;}
+void Visitor::operator () (const std::string & val) {os << val;}
 
 void toNull (Cell & cell) {
     switch (cell.index()) {

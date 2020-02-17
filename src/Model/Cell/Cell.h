@@ -9,10 +9,22 @@
 
 using Cell = std::variant<bool, long, double, std::string>;
 
-bool operator ! (Cell);
+bool operator ! (const Cell &);
+std::ostream & operator << (std::ostream &, const Cell &);
 
 void toNull (Cell &);
 
+class Visitor {
+    std::ostream & os;
+
+public:
+    explicit Visitor (std::ostream & os) : os {os} {}
+
+    void operator () (bool);
+    void operator () (long);
+    void operator () (double);
+    void operator () (const std::string &);
+};
 
 #endif //DATABASE_CELL_H
 

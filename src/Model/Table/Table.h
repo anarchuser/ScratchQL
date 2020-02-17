@@ -24,17 +24,18 @@ public:
     Table (std::vector <std::string> header, std::vector <KeyTypes> meta);
 
     void createRow (const std::vector <Cell> & row);
-    void updateRow (const std::vector <Cell> & row, std::size_t index);
-    const std::unordered_map <std::string, Cell> & readRow (std::size_t index) const;
+    void updateRow (std::size_t index, const std::vector <Cell> & row);
+    std::unordered_map <std::string, Cell> readRow (std::size_t index) const;
+    std::vector <Cell> readRowAsVector (std::size_t index) const;
     void deleteRow (std::size_t index);
 
     bool isRowEmpty (std::size_t index) const;
     bool isCellEmpty (const std::string & key, std::size_t index) const;
 
-          Table & operator [] (const std::string & key);
-    const Table & operator [] (const std::string & key) const;
-          Table & operator [] (std::size_t index);
-    const Table & operator [] (std::size_t index) const;
+          std::vector <Cell> & operator [] (const std::string & key);
+    const std::vector <Cell> & operator [] (const std::string & key) const;
+
+    std::unordered_map <std::string, Cell> operator [] (std::size_t index);
 
     void removePadding();
 
