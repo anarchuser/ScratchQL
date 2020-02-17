@@ -1,6 +1,6 @@
 #include "Logger.h"
 
-void THROW (const std::runtime_error & e) {
+void THROW (const std::exception & e) {
     LOG (ERROR) << e.what ();
     throw e;
 }

@@ -5,26 +5,12 @@
 #include <string>
 #include <variant>
 
-#include <iostream>
+using Cell = std::variant <std::monostate, bool, long, double, std::string>;
 
-using Cell = std::variant<bool, long, double, std::string>;
+bool operator ! (const Cell & cell);
+std::ostream & operator << (std::ostream & os, const Cell & cell);
 
-bool operator ! (const Cell &);
-std::ostream & operator << (std::ostream &, const Cell &);
-
-void toNull (Cell &);
-
-class Visitor {
-    std::ostream & os;
-
-public:
-    explicit Visitor (std::ostream & os) : os {os} {}
-
-    void operator () (bool);
-    void operator () (long);
-    void operator () (double);
-    void operator () (const std::string &);
-};
+void toNull (Cell & cell);
 
 #endif //DATABASE_CELL_H
 
