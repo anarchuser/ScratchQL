@@ -7,8 +7,8 @@
 
 using Cell = std::variant <std::monostate, bool, long, double, std::string>;
 
-bool operator ! (const Cell & cell);
-std::ostream & operator << (std::ostream & os, const Cell & cell);
+bool operator ! (Cell const & cell);
+std::ostream & operator << (std::ostream & os, Cell const & cell);
 
 void toNull (Cell & cell);
 

@@ -13,10 +13,10 @@ public:
 
     explicit FileHandler (std::string  path);
 
-    void createLine (const std::string & content);                  // Appends a line
-    std::string readLine (long index);                              //
-    void updateLine (const std::string & content, long index);      // Writes a line
-    void deleteLine (long index);                                   // Removes a line
+    void createLine (std::string const & content);                         // Appends a line
+    std::string readLine (std::size_t index);                              //
+    void updateLine (std::string const & content, std::size_t index);      // Writes a line
+    void deleteLine (std::size_t index);                                   // Removes a line
 
     void deleteTable ();
 

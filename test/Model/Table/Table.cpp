@@ -26,7 +26,7 @@ SCENARIO ("I can create a table and modify it") {
             rows.push_back (row3);
 
             int row_counter = 0;
-            for (auto & row : rows) {
+            for (auto const & row : rows) {
                 CHECK (t1.getRowCount() == row_counter++);
                 CHECK_NOTHROW (t1.createRow (row));
             }

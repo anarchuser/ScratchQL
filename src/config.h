@@ -4,9 +4,9 @@
 #include <string>
 #include <cstdlib>
 #include <variant>
+#include <glog/logging.h>
 
 #include "Model/Cell/Cell.h"
-#include "Logger/Logger.h"
 
 static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 

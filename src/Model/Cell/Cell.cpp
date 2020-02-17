@@ -1,10 +1,10 @@
 #include "Cell.h"
 
-bool operator ! (const Cell & cell) {
+bool operator ! (Cell const & cell) {
     return !cell.index();
 }
 
-std::ostream & operator << (std::ostream & os, const Cell & cell) {
+std::ostream & operator << (std::ostream & os, Cell const & cell) {
     std::visit([& os] (auto const & val) {os << val;}, cell);
     return os;
 }
