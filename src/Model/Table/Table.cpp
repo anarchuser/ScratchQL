@@ -25,57 +25,60 @@ void Table::removePadding () {
 void Table::createRow (std::vector <Cell> const & row) {
     if (row.size() != columns) throw (std::range_error ("Invalid amount of columns to insert"));
 
-    for (int i = 0; i < row.size(); i++) {
-        table [header [i]].push_back (row[i]);
+    matrix.emplace_back (std::vector <std::reference_wrapper <Cell const>> ());
+    for (int col_index = 0; col_index < row.size(); col_index++) {
+        table [header [col_index]].push_back (row [col_index]);
+        matrix [rows].push_back (std::reference_wrapper <Cell const> (table [header [col_index]] [rows]));
     }
     rows++;
 }
-void Table::updateRow (std::size_t row_i, std::vector <Cell> const & row) {
+void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
     if (row.size() != columns) throw (std::range_error ("Invalid amount of columns to update"));
-    if (row_i >= rows) throw (std::range_error ("Index for updateRow out of bounds"));
+    if (row_index >= rows) throw (std::range_error ("Index for updateRow out of bounds"));
 
-    for (std::size_t col_i = 0; col_i < row.size(); col_i++) {
-        table [header [col_i]] [row_i] = row [col_i];
+    for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
+        table [header [col_index]] [row_index] = row [col_index];
+        matrix [col_index] [row_index] = std::reference_wrapper <Cell> (table [header [col_index]] [row_index]);
     }
 }
-std::unordered_map <std::string, Cell> Table::readRow (std::size_t index) const {
-    if (index >= rows) throw (std::range_error ("Index for readRow out of bounds"));
+std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) const {
+    if (row_index >= rows) throw (std::range_error ("Index for readRow out of bounds"));
 
     std::unordered_map <std::string, Cell> row;
-    int i = 0;
     for (auto const & key : header) {
-        row.insert (std::make_pair (key, table.at(key) [index]));
+        row.insert (std::make_pair (key, table.at (key) [row_index]));
     }
     return row;
 }
-std::vector <Cell> Table::readRowAsVector (std::size_t index) const {
-    if (index >= rows) throw (std::range_error ("Index for readRow out of bounds"));
+std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const {
+    if (row_index >= rows) throw (std::range_error ("Index for readRow out of bounds"));
 
    std::vector <Cell> row;
    for (auto const & key : header) {
-       row.push_back (table.at(key) [index]);
+       row.push_back (table.at (key) [row_index]);
    }
    return row;
 }
-void Table::deleteRow (std::size_t index) {
-    if (index >= rows) throw (std::range_error ("Index for deleteRow out of bounds"));
+void Table::deleteRow (std::size_t row_index) {
+    if (row_index >= rows) throw (std::range_error ("Index for deleteRow out of bounds"));
 
     for (auto const & key : header) {
-        toNull (table [key] [index]);
+        toNull (table [key] [row_index]);
     }
 }
 
-bool Table::isRowEmpty(std::size_t index) const {
-    if (index >= rows) throw (std::range_error ("Index for isRowEmpty out of bounds"));
+bool Table::isRowEmpty(std::size_t row_index) const {
+    if (row_index >= rows) throw (std::range_error ("Index for isRowEmpty out of bounds"));
+
     for (const auto & key : header) {
-        if (!isCellEmpty (key, index)) return false;
+        if (!isCellEmpty (key, row_index)) return false;
     }
     return true;
 }
 
-bool Table::isCellEmpty (std::string const & key, std::size_t index) const {
-    if (index >= rows) throw (std::range_error ("Index for isCellEmpty out of bounds"));
-    return !table.at (key) [index];
+bool Table::isCellEmpty (std::string const & key, std::size_t row_index) const {
+    if (row_index >= rows) throw (std::range_error ("Index for isCellEmpty out of bounds"));
+    return !table.at (key) [row_index];
 }
 
 std::vector <Cell> & Table::operator [] (std::string const & key) {
@@ -84,8 +87,8 @@ std::vector <Cell> & Table::operator [] (std::string const & key) {
 const std::vector <Cell> & Table::operator [] (std::string const & key) const {
     return table.at (key);
 }
-std::unordered_map <std::string, Cell> Table::operator [] (std::size_t index) {
-    return readRow (index);
+std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index) {
+    return readRow (row_index);
 }
 
 std::size_t Table::getRowCount() const {
