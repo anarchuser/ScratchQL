@@ -37,7 +37,7 @@ void Table::createRow (std::vector <Cell> const & row) {
     matrix.emplace_back (std::vector <std::reference_wrapper <Cell const>> ());
     for (int col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]].push_back (row [col_index]);
-        matrix [rows].push_back (std::reference_wrapper <Cell const> (table [header [col_index]] [rows]));
+        matrix [rows].push_back (table [header [col_index]] [rows]);
     }
     rows++;
 
@@ -57,7 +57,7 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
 
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]] [row_index] = row [col_index];
-        matrix [col_index] [row_index] = std::reference_wrapper <Cell> (table [header [col_index]] [row_index]);
+        matrix [col_index] [row_index] = table [header [col_index]] [row_index];
     }
 
     LOG (INFO) << "Updated Row in Table.";
