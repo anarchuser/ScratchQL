@@ -2,7 +2,7 @@
 
 #include <utility>
 
-FileHandler::FileHandler (std::string  path) : path{std::move(path)} {}
+FileHandler::FileHandler (std::string path) : path{std::move(path)} {}
 
 void FileHandler::createDatabase(std::string name){
     std::filesystem::create_directory(DATABASE_DIR);
@@ -13,7 +13,7 @@ void FileHandler::createTable(std::string database, std::string name){
     std::filesystem::create_directory(DATABASE_DIR + database + '/' + name);
 }
 
-void FileHandler::createLine (const std::string & content) {
+void FileHandler::createLine (std::string const & content) {
     std::ofstream out (path, std::ios::app);
     if (!out.is_open ()) {
         LOG (ERROR) << "Could not open '" << path << "'";
@@ -25,7 +25,7 @@ void FileHandler::createLine (const std::string & content) {
 }
 
 // TODO: rewrite
-std::string FileHandler::readLine (long index) {
+std::string FileHandler::readLine (std::size_t index) {
     std::ifstream in (path, std::ios::in);
     if (!in.is_open ()) {
         LOG (ERROR) << "Could not open '" << path << "'";
@@ -39,8 +39,8 @@ std::string FileHandler::readLine (long index) {
     return line;
 }
 
-void FileHandler::updateLine (const std::string & content, long index) {}
-void FileHandler::deleteLine (long index) {
+void FileHandler::updateLine (std::string const & content, std::size_t index) {}
+void FileHandler::deleteLine (std::size_t index) {}
     std::cout << "hi, still working" << std::endl;
     std::fstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;

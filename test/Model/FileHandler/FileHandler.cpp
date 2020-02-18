@@ -1,5 +1,5 @@
-#include "../main.h"
-#include "../../src/Model/FileHandler.h"
+#include "../../main.h"
+#include "../../../src/Model/FileHandler/FileHandler.h"
 
 SCENARIO ("Reading from and writing to a file is executed correctly") {
     GIVEN ("A file and some test strings") {
@@ -24,12 +24,12 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
             }
 
             WHEN ("We append lines to a file") {
-                for (auto & str : test_strings) {
+                for (auto const & str : test_strings) {
                     REQUIRE_NOTHROW (fh.createLine (str));
                 }
                 THEN ("We can successfully read them") {
                     int i = 0;
-                    for (auto & str : test_strings) {
+                    for (auto const & str : test_strings) {
                         CHECK (fh.readLine (i++) == str);
                     }
                 }

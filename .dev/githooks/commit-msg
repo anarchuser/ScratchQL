@@ -9,7 +9,7 @@ do scopes="$scopes$a|";
 done < "$scopes_file";
 scopes="${scopes%\|})"
 
-grep -Eq "(fix|feat|docs|style|refactor|test|chore|rework|release|example)(\($scopes\))?: [a-z]" < "$1"
+grep -Eq "(fix|feat|docs|style|refactor|test|chore|rework|release|example|log)(\($scopes\))?: [a-z]" < "$1"
 result=$?
 if test $result -ne 0
 then echo "Invalid Commit Message (Check http://karma-runner.github.io/4.0/dev/git-commit-msg.html and .dev/scopes.txt)"
