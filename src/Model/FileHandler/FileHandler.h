@@ -1,7 +1,7 @@
 #ifndef DATABASE_FILEHANDLER_H
 #define DATABASE_FILEHANDLER_H
 
-#include "../main.h"
+#include "../../main.h"
 
 #include <cstdio>
 #include <iostream>
@@ -15,10 +15,10 @@ public:
 
     explicit FileHandler (std::string  path);
 
-    void createLine (const std::string & content);                  // Appends a line
-    std::string readLine (long index);                              //
-    void updateLine (const std::string & content, long index);      // Writes a line
-    void deleteLine (long index);                                   // Removes a line
+    void createLine (std::string const & content);                         // Appends a line
+    std::string readLine (std::size_t ndex);                                     //
+    void updateLine (std::string const & content, std::size_t index);      // Writes a line
+    void deleteLine (std::size_t index);                                   // Removes a line
 
     void deleteTable ();
 

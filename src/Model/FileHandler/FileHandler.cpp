@@ -40,7 +40,7 @@ std::string FileHandler::readLine (std::size_t index) {
 }
 
 void FileHandler::updateLine (std::string const & content, std::size_t index) {}
-void FileHandler::deleteLine (std::size_t index) {}
+void FileHandler::deleteLine (std::size_t index) {
     std::cout << "hi, still working" << std::endl;
     std::fstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;
