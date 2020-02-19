@@ -16,6 +16,19 @@ Table::Table (std::vector <std::string> const & header)
     }
 }
 
+Table::~Table () {
+    if (diskMode) delete file;
+}
+
+void Table::initDiskMode (std::string database, std::string table) {
+    database = std::move (database);
+    name = std::move (table);
+
+    file = new FileHandler ("database, table");
+
+    diskMode = true;
+}
+
 void Table::removePadding () {
     LOG (INFO) << "Removing Padding of Table...";
     LOG_ASSERT (row_count <= table.at (header [0]).size());
@@ -27,6 +40,8 @@ void Table::removePadding () {
             }
         }
     }
+
+//    file->removePadding ();
 
     LOG_ASSERT (row_count == table.at (header [0]).size());
     LOG (INFO) << "Removed Padding of Table.";
