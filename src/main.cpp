@@ -24,7 +24,10 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
-    /* ... */
+    DBMS dbms;
+    Parser parser (dbms);
+    Server <Parser> server (parser);
+    server.listen (0, 0);
 
     LOG (INFO) << "Stop Running";
 }
