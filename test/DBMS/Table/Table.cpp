@@ -1,5 +1,5 @@
 #include "../../main.h"
-#include "../../../src/Model/Table/Table.h"
+#include "../../../src/DBMS/Table/Table.h"
 
 SCENARIO ("I can create a table and modify it") {
     GIVEN ("Some test data") {
