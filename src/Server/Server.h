@@ -7,9 +7,9 @@ private:
     T object;                                           // Function Object to pass requests to
 
 public:
-    explicit Server (T object);
+    explicit Server (T object) : object {object} {};
 
-    void listen (unsigned long IP, unsigned int port);
+    void listen (unsigned long IP, unsigned int port) {}
 };
 
 
