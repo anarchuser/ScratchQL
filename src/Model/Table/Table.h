@@ -24,7 +24,7 @@ private:
 public:
     Table (std::vector <std::string> header, std::vector <KeyTypes> meta);
 
-    void createRow (std::vector <Cell> const & row);
+    void createRow (std::vector <Cell> const & row_index);
     void updateRow (std::size_t row_index, std::vector <Cell> const & row);
     std::unordered_map <std::string, Cell> readRow (std::size_t row_index) const;
     std::vector <Cell> readRowAsVector (std::size_t row_index) const;

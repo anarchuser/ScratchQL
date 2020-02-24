@@ -4,52 +4,80 @@
 SCENARIO ("Reading from and writing to a file is executed correctly") {
     GIVEN ("A file and some test strings") {
         std::string test_path = PROJECT_ROOT + "/tmp/fileHandlerTest.tsv";
-        FileHandler fh (test_path);
+        std::string testdb = "testdb";
+        std::string testtable = "testtable";
+        FileHandler * fh;
 
         std::vector<std::string> test_strings = {
-                "Hello, World!",
-                "jifjesoijfesoifj",
-                "test",
-                "",
-                "xyz\rabc"
+                "Hello, world!",
+                "1234567890fghij",
+                "I'm a test",
+                "abcde",
+                "vwxyz"
         };
-
-        SECTION ("We read lines from a file") {
-            WHEN ("The file does not exist") {
-                FileHandler fh_tmp ("\r\r\r.\r");
-                THEN ("The reading throws an error") {
-                    fh_tmp.deleteTable();
-                    CHECK_THROWS_AS (fh_tmp.readLine (0), std::ios_base::failure);
+        SECTION("We create database and table with the filehandler"){
+            FileHandler *fhbadtest;
+            std::string badname = "!&nogooddbname";
+            WHEN("Database and table name are valid"){
+                THEN("The constructor creates Folders for database and table and the table file"){
+                    REQUIRE_NOTHROW(fhbadtest = new FileHandler(testdb, testtable));
                 }
             }
-
+            WHEN("We delete the Database"){
+                THEN("The filehandler removes the directory of the database with all subdirectories"){
+                    REQUIRE_NOTHROW(fhbadtest->deleteDatabase());
+                }
+            }
+            WHEN("The database name is invalid"){
+                THEN("The constructor throws an exception"){
+                    REQUIRE_THROWS_AS(fhbadtest = new FileHandler(badname, testtable), std::invalid_argument);
+                };
+            }
+            fhbadtest->deleteDatabase();
+            WHEN("The table name is invalid"){
+                THEN("The constructor throws an exception"){
+                    REQUIRE_THROWS_AS(fhbadtest = new FileHandler(testdb, badname), std::invalid_argument);
+                };
+            }
+            fhbadtest->deleteDatabase();
+        }
+        SECTION ("We read lines from a file") {
+            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
             WHEN ("We append lines to a file") {
                 for (auto const & str : test_strings) {
-                    REQUIRE_NOTHROW (fh.createLine (str));
+                    REQUIRE_NOTHROW (fh->createLine (str));
                 }
                 THEN ("We can successfully read them") {
                     int i = 0;
                     for (auto const & str : test_strings) {
-                        CHECK (fh.readLine (i++) == str);
+                        CHECK (fh->readLine (i++) == str);
                     }
                 }
             }
+            fh->deleteDatabase();
         }
         SECTION ("We \"delete\" lines from a file") {
-            WHEN ("we delete one line"){
-                for (auto & str : test_strings) fh.createLine(str);
-                std::string oldstring (fh.readLine(0));
-                CHECK(oldstring != "");
+            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
+            WHEN ("We delete one line"){
+                for (auto & str : test_strings) fh->createLine(str);
+                int del_index = 0;
                 int strlength;
-                CHECK_NOTHROW(strlength = oldstring.length());
-                fh.deleteLine(0);
-                CHECK (std::string (strlength, ' ') != oldstring);
+                THEN("It's characters are replaced with spaces"){
+                    std::string del_string (fh->readLine(del_index));
+                    CHECK(del_string != "");
+                    CHECK_NOTHROW(strlength = del_string.length());
+                    fh->deleteLine(del_index);
+                    del_string = fh->readLine(del_index);
+                    CHECK (std::string (strlength, ' ') == del_string);
+                }
             }
         }
 
         SECTION ("A file can be deleted - twice") {
-            CHECK_NOTHROW (fh.deleteTable());
-            CHECK_NOTHROW (fh.deleteTable());
+            CHECK_NOTHROW (fh->deleteTable());
+            CHECK_NOTHROW (fh->deleteTable());
+            CHECK_NOTHROW (fh->deleteDatabase());
+            CHECK_NOTHROW (fh->deleteDatabase());
         }
     }
 }

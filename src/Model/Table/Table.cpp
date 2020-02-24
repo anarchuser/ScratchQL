@@ -26,17 +26,17 @@ void Table::removePadding () {
     LOG (INFO) << "Removed Padding of Table.";
 }
 
-void Table::createRow (std::vector <Cell> const & row) {
+void Table::createRow (std::vector <Cell> const & row_index) {
     LOG (INFO) << "Creating Row in Table...";
 
-    if (row.size() != columns) {
+    if (row_index.size() != columns) {
         LOG (ERROR) << "Invalid amount of columns";
         throw (std::range_error ("Invalid amount of columns to insert"));
     }
 
     matrix.emplace_back (std::vector <std::reference_wrapper <Cell const>> ());
-    for (int col_index = 0; col_index < row.size(); col_index++) {
-        table [header [col_index]].push_back (row [col_index]);
+    for (int col_index = 0; col_index < row_index.size(); col_index++) {
+        table [header [col_index]].push_back (row_index [col_index]);
         matrix [rows].push_back (table [header [col_index]] [rows]);
     }
     rows++;
