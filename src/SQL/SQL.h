@@ -1,7 +1,7 @@
 #ifndef DATABASE_SQL_H
 #define DATABASE_SQL_H
 
-#include "../../config.h"
+#include "../config.h"
 #include "Query/Query.h"
 
 #include <memory>
