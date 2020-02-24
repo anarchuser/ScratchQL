@@ -5,8 +5,11 @@
 #include <cstdlib>
 #include <variant>
 #include <glog/logging.h>
+#include <netinet/in.h>
 
 #include "DBMS/Cell/Cell.h"
+
+#define IP_ADDRESS_FAMILY AF_INET
 
 static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 

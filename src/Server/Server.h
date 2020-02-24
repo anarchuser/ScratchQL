@@ -1,15 +1,31 @@
 #ifndef DATABASE_SERVER_H
 #define DATABASE_SERVER_H
 
-template <class T>
+#include "../config.h"
+
+#include <libnet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+#include <iostream>
+
 class Server {
 private:
-    T object;                                           // Function Object to pass requests to
+    unsigned int IP;
+    unsigned int port;
+    int server_fd;
+    struct sockaddr_in address;
+    int address_length = 0;
 
 public:
-    explicit Server (T object) : object {object} {};
+    Server (unsigned int IP, unsigned int port);
 
-    void listen (unsigned long IP, unsigned int port) {}
+    template <class T>
+    void listen (T && action) {
+        T ();
+    }
+
+    static std::string hexToAddr (unsigned int IP);
 };
 
 
