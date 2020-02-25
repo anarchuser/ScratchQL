@@ -70,7 +70,26 @@ std::string FileHandler::readLine (std::size_t index) {
     return line;
 }
 
-void FileHandler::updateLine (std::string const & content, std::size_t index) {}
+void FileHandler::updateLine (std::string const & content, std::size_t index) {
+    std::fstream file (path, std::ios::in | std::ios::out);
+    std::string tmpline;
+
+    int write_pos;
+    int i = 0;
+    int iterating_pos = write_pos = file.tellg();
+
+    while (getline (file, tmpline)){
+        if (i++ == index) {
+            tmpline = content;
+            write_pos = iterating_pos;
+            break;
+        }
+        iterating_pos = file.tellg();
+    }
+    file.seekp(write_pos);
+    file << tmpline;
+    file.close();
+}
 
 void FileHandler::deleteLine (std::size_t index) {
     std::fstream file (path, std::ios::in | std::ios::out);
@@ -84,12 +103,12 @@ void FileHandler::deleteLine (std::size_t index) {
         if (i++ == index) {
             tmpline = std::string (tmpline.length(), ' ');
             write_pos = iterating_pos;
+            file.seekp(write_pos);
+            file << tmpline;
             break;
         }
         iterating_pos = file.tellg();
     }
-    file.seekp(write_pos);
-    file << tmpline;
     file.close();
 }
 

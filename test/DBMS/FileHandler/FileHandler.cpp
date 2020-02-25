@@ -54,30 +54,43 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                     }
                 }
             }
-            fh->deleteDatabase();
+            CHECK_NOTHROW(fh->deleteDatabase());
         }
         SECTION ("We \"delete\" lines from a file") {
             REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
-            WHEN ("We delete one line"){
+            WHEN ("We delete one line with valid index"){
                 for (auto & str : test_strings) fh->createLine(str);
-                int del_index = 0;
+                int del_valid_index = 0;
                 int strlength;
                 THEN("It's characters are replaced with spaces"){
-                    std::string del_string (fh->readLine(del_index));
+                    std::string del_string (fh->readLine(del_valid_index));
                     CHECK(del_string != "");
                     CHECK_NOTHROW(strlength = del_string.length());
-                    fh->deleteLine(del_index);
-                    del_string = fh->readLine(del_index);
+                    fh->deleteLine(del_valid_index);
+                    del_string = fh->readLine(del_valid_index);
                     CHECK (std::string (strlength, ' ') == del_string);
+                }
+            }
+            WHEN ("We try to delete one line with invalid index"){
+                for (auto & str : test_strings) fh->createLine(str);
+                int del_invalid_index = 100;
+                std::string old_string;
+                THEN("No changes are made to the line"){
+                    std:: string del_string (fh->readLine(del_invalid_index));
+                    old_string = del_string;
+                    CHECK(del_string == "");
+                    fh->deleteLine(del_invalid_index);
+                    del_string = fh->readLine(del_invalid_index);
+                    CHECK(old_string == del_string);
                 }
             }
         }
 
         SECTION ("A file can be deleted - twice") {
-            CHECK_NOTHROW (fh->deleteTable());
-            CHECK_NOTHROW (fh->deleteTable());
-            CHECK_NOTHROW (fh->deleteDatabase());
-            CHECK_NOTHROW (fh->deleteDatabase());
+//            CHECK_NOTHROW (fh->deleteTable());
+//            CHECK_NOTHROW (fh->deleteTable());
+//            CHECK_NOTHROW (fh->deleteDatabase());
+//            CHECK_NOTHROW (fh->deleteDatabase());
         }
     }
 }
