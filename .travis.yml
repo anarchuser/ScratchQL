@@ -8,7 +8,6 @@ addons:
     packages:
         - cmake
         - libgoogle-glog-dev
-        - capnproto
 
 env:
   - SCRATCHQL_ROOT=$PWD
@@ -17,6 +16,12 @@ git:
   depth: 3
 
 before_install:
+  - curl -O https://capnproto.org/capnproto-c++-0.7.0.tar.gz
+  - tar zxf capnproto-c++-0.7.0.tar.gz
+  - cd capnproto-c++-0.7.0
+  - ./configure
+  - make -j6 check
+  - sudo make install
   - wd="$PWD" && cd .. && git clone https://github.com/catchorg/Catch2.git && cd Catch2 && cmake -Bbuild -H. -DBUILD_TESTING=OFF && sudo cmake --build build/ --target install && cd $wd
 
 script:
