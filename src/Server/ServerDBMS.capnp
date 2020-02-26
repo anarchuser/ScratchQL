@@ -1,11 +1,11 @@
 @0xeae6fc23a157ce01;
 
-interface Database {
-    struct TableE {
+interface RPCServer {
+    struct Table {
         header @0: List(Text);
-        content @1: List(List(CellE));
+        content @1: List(List(Cell));
 
-        struct CellE {
+        struct Cell {
             data :union {
                 unary @0 :Void;
                 binary @1 :Bool;
@@ -17,5 +17,5 @@ interface Database {
         }
     }
 
-    sendQuery @0 (query :Text) -> (table :TableE);
+    sendQuery @0 (query :Text) -> (table :Table);
 }

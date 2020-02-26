@@ -1,6 +1,6 @@
 #!/bin/bash
 
-file="encodedTable"
+file="ServerDBMS"
 
 capnp compile -oc++ "$file.capnp"
 mv $file.capnp.* generated/
