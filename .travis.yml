@@ -8,6 +8,7 @@ addons:
     packages:
         - cmake
         - libgoogle-glog-dev
+        - capnproto
 
 env:
   - SCRATCHQL_ROOT=$PWD
