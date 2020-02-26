@@ -58,39 +58,90 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
         }
         SECTION ("We \"delete\" lines from a file") {
             REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
-            WHEN ("We delete one line with valid index"){
-                for (auto & str : test_strings) fh->createLine(str);
+            for (auto &str : test_strings) fh->createLine(str);
+            WHEN ("We delete one line with valid index") {
                 int del_valid_index = 0;
                 int strlength;
-                THEN("It's characters are replaced with spaces"){
-                    std::string del_string (fh->readLine(del_valid_index));
-                    CHECK(del_string != "");
+                THEN("It's characters are replaced with spaces") {
+                    std::string del_string(fh->readLine(del_valid_index));
+                    CHECK(!del_string.empty());
                     CHECK_NOTHROW(strlength = del_string.length());
                     fh->deleteLine(del_valid_index);
                     del_string = fh->readLine(del_valid_index);
-                    CHECK (std::string (strlength, ' ') == del_string);
+                    CHECK (std::string(strlength, ' ') == del_string);
                 }
             }
-            WHEN ("We try to delete one line with invalid index"){
-                for (auto & str : test_strings) fh->createLine(str);
+            WHEN ("We try to delete one line with invalid index") {
                 int del_invalid_index = 100;
                 std::string old_string;
-                THEN("No changes are made to the line"){
-                    std:: string del_string (fh->readLine(del_invalid_index));
+                THEN("No changes are made to the line") {
+                    std::string del_string(fh->readLine(del_invalid_index));
                     old_string = del_string;
-                    CHECK(del_string == "");
+                    CHECK(del_string.empty());
                     fh->deleteLine(del_invalid_index);
                     del_string = fh->readLine(del_invalid_index);
                     CHECK(old_string == del_string);
                 }
             }
+            CHECK_NOTHROW (fh->deleteDatabase());
+        }
+        SECTION("We update lines of a file"){
+            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
+            for (auto &str : test_strings) fh->createLine(str);
+            std::ifstream testfile (fh->path, std::ios::in);
+            WHEN ("We update one line with valid index"){
+                int replace_index = 0;
+                int strlength;
+                std::string target_string = "Goodbye, World - Sayonara";
+                THEN("It's characters are replaced with a new string"){
+                    std::string old_string (fh->readLine(replace_index));
+                    CHECK(!old_string.empty());
+                    CHECK_NOTHROW(strlength = old_string.length());
+                    fh->updateLine(replace_index, target_string);
+                    if (target_string.length() <= old_string.length()){
+                        std::string new_string = fh->readLine(replace_index);
+                        CHECK (target_string == new_string);
+                    }
+                    else {
+                        std::string string_old_pos = fh->readLine(replace_index);
+                        CHECK(string_old_pos == std::string (string_old_pos.length(), ' '));
+                        std::string current_line;
+                        std::string last_line;
+                        while (getline(testfile, current_line)){
+                            if (!current_line.empty()) last_line = current_line;
+                        }
+                        CHECK(target_string == last_line);
+                    }
+                }
+            }
+            WHEN ("We try to replace one line with invalid index"){
+                int invalid_num = 100;
+                std::string old_string;
+                std::string new_string = "Goodbye, World - Sayonara";
+                THEN("No changes are made to the line"){
+                    std::string replaceable_string(fh->readLine(invalid_num));
+                    old_string = replaceable_string;
+                    CHECK(replaceable_string.empty());
+                    fh->updateLine(invalid_num, new_string);
+                    std::string current_line;
+                    std::vector <std::string> newfile {};
+                    while (getline (testfile, current_line)){
+                        newfile.push_back(current_line);
+                    }
+                    CHECK(test_strings == newfile);
+                    replaceable_string = fh->readLine(invalid_num);
+                    CHECK(old_string == replaceable_string);
+                    testfile.close();
+                }
+            }
+            CHECK_NOTHROW (fh->deleteDatabase());
         }
 
         SECTION ("A file can be deleted - twice") {
-//            CHECK_NOTHROW (fh->deleteTable());
-//            CHECK_NOTHROW (fh->deleteTable());
-//            CHECK_NOTHROW (fh->deleteDatabase());
-//            CHECK_NOTHROW (fh->deleteDatabase());
+            CHECK_NOTHROW (fh->deleteTable());
+            CHECK_NOTHROW (fh->deleteTable());
+            CHECK_NOTHROW (fh->deleteDatabase());
+            CHECK_NOTHROW (fh->deleteDatabase());
         }
     }
 }

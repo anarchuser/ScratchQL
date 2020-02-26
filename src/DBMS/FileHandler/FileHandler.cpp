@@ -46,7 +46,6 @@ void FileHandler::createLine (std::string const & content) {
         std::cerr << e.what() << std::endl;
     }
     if (!out.is_open ()) {
-        std::cerr << "WAAAAAA" << std::endl;
         LOG (ERROR) << "Could not open '" << path << "'";
         std::cerr << "The filesystem exists: " << std::filesystem::exists(path) << std::endl;
         throw (std::ios_base::failure ("Could not open file"));
@@ -70,24 +69,36 @@ std::string FileHandler::readLine (std::size_t index) {
     return line;
 }
 
-void FileHandler::updateLine (std::string const & content, std::size_t index) {
+void FileHandler::updateLine (std::size_t index, std::string content) {
     std::fstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;
 
     int write_pos;
+    int tmp_len;
     int i = 0;
+    int content_len = content.length();
     int iterating_pos = write_pos = file.tellg();
 
     while (getline (file, tmpline)){
         if (i++ == index) {
+            tmp_len = tmpline.length();
+            if (content_len <= tmp_len){
+                int len_diff = tmp_len - content_len;
+                content.append(std::string (len_diff, ' '));
+            }
+            else if (content_len > tmp_len){
+                createLine(content);
+                deleteLine(index);
+                break;
+            }
             tmpline = content;
             write_pos = iterating_pos;
+            file.seekp(write_pos);
+            file << tmpline;
             break;
         }
         iterating_pos = file.tellg();
     }
-    file.seekp(write_pos);
-    file << tmpline;
     file.close();
 }
 

@@ -21,7 +21,7 @@ public:
 
     void createLine (std::string const & content);                         // Appends a line
     std::string readLine (std::size_t index);                                     //
-    void updateLine (std::string const & content, std::size_t index);      // Writes a line
+    void updateLine (std::size_t index, std::string content);              // Writes a line
     void deleteLine (std::size_t index);                                   // Removes a line
 
     void removePadding ();
