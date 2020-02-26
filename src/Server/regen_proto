@@ -1,0 +1,6 @@
+#!/bin/bash
+
+file="encodedTable"
+
+capnp compile -oc++ "$file.capnp"
+mv $file.capnp.* generated/
