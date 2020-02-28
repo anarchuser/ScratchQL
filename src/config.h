@@ -1,6 +1,9 @@
 #ifndef DATABASE_CONFIG_H
 #define DATABASE_CONFIG_H
 
+/// Minimum LOG level. 0 = Everything, 1 = Ignore LOG (INFO), ...
+#define GOOGLE_STRIP_LOG 0
+
 #include <string>
 #include <cstdlib>
 #include <variant>
