@@ -30,8 +30,7 @@ void Table::createRow (std::vector <Cell> const & row) {
     LOG (INFO) << "Creating Row in Table...";
 
     if (row.size() != columns) {
-        LOG (ERROR) << "Invalid amount of columns";
-        throw (std::range_error ("Invalid amount of columns to insert"));
+        THROW (std::range_error ("Invalid amount of columns to insert"));
     }
 
     matrix.emplace_back (std::vector <std::reference_wrapper <Cell const>> ());
@@ -47,12 +46,10 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
     LOG (INFO) << "Updating Row in Table...";
 
     if (row.size() != columns) {
-        LOG (ERROR) << "Columns index out of bounds";
-        throw (std::range_error ("Invalid amount of columns to update"));
+        THROW (std::range_error ("Invalid amount of columns to update"));
     }
     if (row_index >= rows) {
-        LOG (ERROR) << "Row index out of bounds";
-        throw (std::range_error ("Index for updateRow out of bounds"));
+        THROW (std::range_error ("Index for updateRow out of bounds"));
     }
 
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
@@ -66,8 +63,7 @@ std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) co
     LOG (INFO) << "Reading Row from Table...";
 
     if (row_index >= rows) {
-        LOG (ERROR) << "Row index out of  bounds";
-        throw (std::range_error ("Index for readRow out of bounds"));
+        THROW (std::range_error ("Index for readRow out of bounds"));
     }
 
     std::unordered_map <std::string, Cell> row;
@@ -83,8 +79,7 @@ std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const {
     LOG (INFO) << "Reading Row as Vector from Table...";
 
     if (row_index >= rows) {
-        LOG (ERROR) << "Row index out of  bounds";
-        throw (std::range_error ("Index for readRow out of bounds"));
+        THROW (std::range_error ("Index for readRow out of bounds"));
     }
 
    std::vector <Cell> row;
@@ -100,8 +95,7 @@ void Table::deleteRow (std::size_t row_index) {
     LOG (INFO) << "Deleting Row from Table...";
 
     if (row_index >= rows) {
-        LOG (ERROR) << "Row index out of  bounds";
-        throw (std::range_error ("Index for deleteRow out of bounds"));
+        THROW (std::range_error ("Index for deleteRow out of bounds"));
     }
 
     for (auto const & key : header) {
@@ -115,8 +109,7 @@ bool Table::isRowEmpty(std::size_t row_index) const {
     LOG (INFO) << "Checking if Row in Table is empty...";
 
     if (row_index >= rows) {
-        LOG (ERROR) << "Row index out of  bounds";
-        throw (std::range_error ("Index for isRowEmpty out of bounds"));
+        THROW (std::range_error ("Index for isRowEmpty out of bounds"));
     }
 
     for (const auto & key : header) {
@@ -132,8 +125,7 @@ bool Table::isCellEmpty (std::string const & key, std::size_t row_index) const {
     LOG (INFO) << "Checking if Cell is empty...";
 
     if (row_index >= rows) {
-        LOG (ERROR) << "Row index out of  bounds";
-        throw (std::range_error ("Index for isCellEmpty out of bounds"));
+        THROW (std::range_error ("Index for isCellEmpty out of bounds"));
     }
     bool isEmpty = !table.at (key) [row_index];
 
