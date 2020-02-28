@@ -27,27 +27,7 @@ int main (int argc, char * argv[]) {
     DBMS dbms;
     Parser parser (dbms);
 
-    capnp::EzRpcClient client(ADDRESS);
-    RPCServer::Client DBMS = client.getMain<RPCServer>();
-
-    auto & waitScope = client.getWaitScope();
-    {
-        std::string query;
-        while (query != "exit") {
-            std::cout << ">>> ";
-            std::cout.flush();
-
-            // Request input
-            std::cin >> query;
-
-            // Set up the request
-            auto request = DBMS.sendQueryRequest();
-            request.setQuery (query);
-
-            // Send the request and wait for the result
-            auto response = request.send().wait (waitScope);
-        }
-    }
+    Client().connect (ADDRESS);
 
     LOG (INFO) << "Stop Running";
 }

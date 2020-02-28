@@ -13,7 +13,7 @@
  */
 
 class Server final : public RPCServer::Server {
-
+public:
 };
 
 
