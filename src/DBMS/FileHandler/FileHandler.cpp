@@ -5,8 +5,7 @@ FileHandler::FileHandler (std::string  path) : path{std::move(path)} {}
 void FileHandler::createLine (std::string const & content) {
     std::ofstream out (path, std::ios::app);
     if (!out.is_open ()) {
-        LOG (ERROR) << "Could not open '" << path << "'";
-        throw (std::ios_base::failure ("Could not open file"));
+        THROW (std::ios_base::failure ("Could not open file"));
     }
 
     out << content << std::endl;
@@ -17,8 +16,7 @@ void FileHandler::createLine (std::string const & content) {
 std::string FileHandler::readLine (std::size_t index) {
     std::ifstream in (path, std::ios::in);
     if (!in.is_open ()) {
-        LOG (ERROR) << "Could not open '" << path << "'";
-        throw (std::ios_base::failure ("Could not open file"));
+        THROW (std::ios_base::failure ("Could not open file"));
     }
 
     std::string header, line;

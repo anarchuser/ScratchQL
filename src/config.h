@@ -4,11 +4,14 @@
 /// Minimum LOG level. 0 = Everything, 1 = Ignore LOG (INFO), ...
 #define GOOGLE_STRIP_LOG 0
 
+#define THROW(error)                \
+    LOG (ERROR) << error.what();    \
+    throw error;
+
 #include <string>
 #include <cstdlib>
 #include <variant>
 #include <glog/logging.h>
-#include <netinet/in.h>
 
 #include "DBMS/Cell/Cell.h"
 
