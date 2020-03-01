@@ -3,4 +3,9 @@
 file="ServerDBMS"
 
 capnp compile -oc++ "$file.capnp"
+status=$?
+if test $status -eq 0
+then
 mv $file.capnp.* generated/
+exit $status
+fi

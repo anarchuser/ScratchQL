@@ -2,8 +2,13 @@
 
 interface RPCServer {
     struct Table {
-        header @0: List(Text);
-        content @1: List(List(Cell));
+        header @0 :List(Text);
+        meta @1 :List(UInt8);
+        content @2 :List(Row);
+
+        struct Row {
+            data @0 :List(Cell);
+        }
 
         struct Cell {
             data :union {

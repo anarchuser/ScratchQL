@@ -16,7 +16,7 @@ class DatabaseImpl final : public RPCServer::Server {
 public:
     kj::Promise <void> sendQuery (SendQueryContext context) override {
         auto params = context.getParams();
-//        context.getResults().setTable (convert (evalQuery (params.getQuery())));
+        convertTable (context.getResults(), evalQuery (params.getQuery()));
         return kj::READY_NOW;
     }
 
@@ -25,7 +25,7 @@ public:
     }
 
 private:
-    ::RPCServer::Table::Reader convert (Table const & table) {}
+    void convertTable (SendQueryResults::Builder builder, Table const & table) {}
 
     Table const & evalQuery (std::string const & query) {}
 };
