@@ -18,4 +18,5 @@ interface RPCServer {
     }
 
     sendQuery @0 (query :Text) -> (table :Table);
+    connect @1 () -> ();
 }

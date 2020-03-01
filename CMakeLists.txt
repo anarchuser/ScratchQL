@@ -16,6 +16,11 @@ include(CTest)
 include(Catch)
 catch_discover_tests(Test)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+target_link_libraries(Database Threads::Threads)
+target_link_libraries(Test Threads::Threads)
+
 target_link_libraries(Database glog)
 target_link_libraries(Test glog)
 

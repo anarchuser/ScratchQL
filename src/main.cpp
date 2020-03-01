@@ -27,7 +27,16 @@ int main (int argc, char * argv[]) {
     DBMS dbms;
     Parser parser (dbms);
 
-    Client().connect (ADDRESS);
+
+    capnp::EzRpcServer server (kj::heap <DatabaseImpl>(), "*");
+    uint port = server.getPort().wait (server.getWaitScope ());
+    std::cout << ADDRESS << ":" << port << std::endl;
+
+    Client client (ADDRESS, port);
+
+    client.startInterface([] (Table const & t) {
+        std::cout << "Received Query!" << std::endl;
+    });
 
     LOG (INFO) << "Stop Running";
 }
