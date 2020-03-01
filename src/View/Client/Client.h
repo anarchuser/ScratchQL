@@ -19,14 +19,12 @@ private:
     RPCServer::Client * client;
     kj::WaitScope & waitScope;
 
-    void connect ();
-
-    Table const & sendQuery (std::string const & query);
-    Table const & extractTable (::RPCServer::Table::Reader const & tableReader);
-
 public:
     explicit Client (std::string const & address, uint port);
     ~Client();
+
+    void connect ();
+    Table sendQuery (std::string const & query);
 
     void startInterface (std::function <void (Table const &)> const & action);
 };

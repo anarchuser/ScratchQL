@@ -24,11 +24,7 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
-    DBMS dbms;
-    Parser parser (dbms);
-
-
-    capnp::EzRpcServer server (kj::heap <DatabaseImpl>(), "*");
+    capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>>(), "*");
     uint port = server.getPort().wait (server.getWaitScope ());
     std::cout << ADDRESS << ":" << port << std::endl;
 

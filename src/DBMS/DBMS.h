@@ -5,11 +5,10 @@
 
 #include <memory>
 
-class DBMS {
-public:
-    DBMS () = default;
+struct DBMS {
+    DBMS() = delete;
 
-    std::unique_ptr <Table> operator () ();
+    static std::unique_ptr <Table> evalQuery (std::string const & query);
 };
 
 

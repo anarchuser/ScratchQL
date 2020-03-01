@@ -5,14 +5,8 @@
 
 #include <memory>
 
-class Parser {
-private:
-    DBMS dbms;
-
-public:
-    explicit Parser (DBMS const & dbms);
-
-    std::unique_ptr <std::string> operator () (std::string const & query);
+namespace Parser {
+    std::unique_ptr <std::string> parseQuery (std::string const & query);
 };
 
 

@@ -2,6 +2,7 @@
 #define DATABASE_SERVER_H
 
 #include "../DBMS/DBMS.h"
+#include "Wrapper/Wrapper.h"
 
 #include "generated/ServerDBMS.capnp.h"
 #include <kj/debug.h>
@@ -12,11 +13,19 @@
  * https://github.com/capnproto/capnproto/blob/master/c%2B%2B/samples/calculator-server.c%2B%2B
  */
 
+template <class T>
 class DatabaseImpl final : public RPCServer::Server {
 public:
     kj::Promise <void> sendQuery (SendQueryContext context) override {
-        auto params = context.getParams();
-        convertTable (context.getResults(), evalQuery (params.getQuery()));
+        capnp::MallocMessageBuilder messageBuilder;
+
+        ::RPCServer::SendQueryResults::Builder result = messageBuilder.initRoot <::RPCServer::SendQueryResults>();
+//        result.setTable (Wrapper::wrapTable (* evalQuery (context.getParams().getQuery())));
+
+        /* Dereferencing this produces seg faults */
+        evalQuery (context.getParams().getQuery());
+
+        context.setResults (result.asReader());
         return kj::READY_NOW;
     }
 
@@ -25,9 +34,10 @@ public:
     }
 
 private:
-    void convertTable (SendQueryResults::Builder builder, Table const & table) {}
-
-    Table const & evalQuery (std::string const & query) {}
+    std::unique_ptr <Table> const & evalQuery (std::string const & query) {
+        //TODO: make this fool proof
+        return T::evalQuery (query);
+    }
 };
 
 #endif //DATABASE_SERVER_H

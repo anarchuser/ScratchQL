@@ -22,17 +22,13 @@ void Client::connect () {
     }
 }
 
-Table const & Client::sendQuery (std::string const & query) {
+Table Client::sendQuery (std::string const & query) {
     // Set up the request
     auto request = client->sendQueryRequest ();
     request.setQuery (query);
 
     // Send the request and wait for the result
-    return extractTable (request.send().wait (waitScope).getTable());
-}
-
-Table const & Client::extractTable (::RPCServer::Table::Reader const & tableReader) {
-    return std::move (Table (std::vector <std::string>(), std::vector <KeyTypes>()));
+    return Wrapper::unwrapTable (request.send().wait (waitScope).getTable());
 }
 
 void Client::startInterface (std::function <void (Table const &)> const & action) {

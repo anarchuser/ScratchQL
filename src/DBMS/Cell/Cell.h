@@ -5,7 +5,15 @@
 #include <string>
 #include <variant>
 
-using Cell = std::variant <std::monostate, bool, long, double, std::string>;
+using Cell = std::variant <std::monostate, bool, short, long, std::string>;
+
+enum CellTypes {
+    UNARY,
+    BINARY,
+    SHORT,
+    LONG,
+    TEXT,
+};
 
 bool operator ! (Cell const & cell);
 std::ostream & operator << (std::ostream & os, Cell const & cell);
