@@ -1,5 +1,6 @@
 #include "../../main.h"
 
+#include <iostream>
 #include <string>
 
 TEST_CASE ("I can store different data in Cells and modify and retrieve it") {
@@ -12,10 +13,12 @@ TEST_CASE ("I can store different data in Cells and modify and retrieve it") {
     Cell LONG (Long);
     Cell STRING (String);
 
-//    std::cout << BOOL.index() << ": " << std::get <bool> (BOOL) << std::endl;
-//    std::cout << SHORT.index() << ": " << std::get <short> (SHORT) << std::endl;
-//    std::cout << LONG.index() << ": " << std::get <long> (LONG) << std::endl;
-//    std::cout << STRING.index() << ": " << std::get <std::string> (STRING) << std::endl;
+
+    std::stringstream ss;
+    CHECK_NOTHROW (ss << BOOL << std::endl);
+    CHECK_NOTHROW (ss << SHORT << std::endl);
+    CHECK_NOTHROW (ss << LONG << std::endl);
+    CHECK_NOTHROW (ss << STRING << std::endl);
 
     CHECK (std::get <bool> (BOOL) == Bool);
     CHECK (std::get <short> (SHORT) == Short);

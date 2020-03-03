@@ -1,6 +1,8 @@
 #ifndef DATABASE_CELL_H
 #define DATABASE_CELL_H
 
+#include "../../config.h"
+
 #include <stdexcept>
 #include <string>
 #include <variant>

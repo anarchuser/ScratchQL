@@ -4,11 +4,12 @@
 #include "Table/Table.h"
 
 #include <memory>
+#include "kj/async.h"
 
 struct DBMS {
     DBMS() = delete;
 
-    static std::unique_ptr <Table> evalQuery (std::string const & query);
+    static kj::Own <Table const> evalQuery (std::string const & query);
 };
 
 

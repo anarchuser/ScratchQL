@@ -1,14 +1,9 @@
 #include "Client.h"
 
 Client::Client (std::string const & address, uint port) :
-        ezClient {new capnp::EzRpcClient (address, port)},
-        client {new RPCServer::Client (ezClient->getMain <RPCServer>())},
+        ezClient {kj::heap<capnp::EzRpcClient> (address, port)},
+        client {kj::heap <RPCServer::Client> (ezClient->getMain <RPCServer>())},
         waitScope {ezClient->getWaitScope()} {}
-
-Client::~Client() {
-    delete ezClient;
-    delete client;
-}
 
 void Client::connect () {
     while (true) {
@@ -22,7 +17,7 @@ void Client::connect () {
     }
 }
 
-Table Client::sendQuery (std::string const & query) {
+kj::Own <Table> Client::sendQuery (std::string const & query) {
     // Set up the request
     auto request = client->sendQueryRequest ();
     request.setQuery (query);
@@ -43,7 +38,7 @@ void Client::startInterface (std::function <void (Table const &)> const & action
         std::cin >> query;
         if (query == "exit") return;
 
-        action (sendQuery (query));
+        action (* sendQuery (query));
     }
 }
 

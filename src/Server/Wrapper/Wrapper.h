@@ -4,22 +4,28 @@
 #include "../../DBMS/Table/Table.h"
 #include "../generated/ServerDBMS.capnp.h"
 
+#include <capnp/message.h>
+
 namespace Wrapper {
-    ::RPCServer::Table::Reader wrapTable (Table const & table);
-    Table unwrapTable (::RPCServer::Table::Reader const & reader);
+kj::Own <capnp::MallocMessageBuilder> wrapTable (kj::Own <Table const> table);
+kj::Own <Table> unwrapTable (::RPCServer::Table::Reader const & reader);
 
-    ::RPCServer::Table::Cell::Reader wrapCell (Cell const & cell);
-    Cell unwrapCell (::RPCServer::Table::Cell::Data::Reader const & field);
+kj::Own <capnp::MallocMessageBuilder> wrapCell (Cell const & cell);
+Cell unwrapCell (RPCServer::Table::Cell::Reader const & cell);
 
-    namespace {
-        template <class Builder, class V>
-        void duplicateList (Builder & builder, V const & vector) {
-            std::size_t index = 0;
-            for (auto const & element : vector) builder.set (index++, element);
-        }
-    }
-};
+inline RPCServer::Table::Cell::Reader _wrapCell (Cell const & cell) {
+    return wrapCell (cell)->getRoot <RPCServer::Table::Cell>();
+}
 
+namespace {
+template <class Builder, class V>
+void duplicateList (Builder & builder, V const & vector) {
+    std::size_t index = 0;
+    for (auto const & element : vector) builder.set (index++, element);
+}
+
+} // private Wrapper
+} // Wrapper
 
 #endif //DATABASE_WRAPPER_H
 

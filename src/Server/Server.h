@@ -17,15 +17,13 @@ template <class T>
 class DatabaseImpl final : public RPCServer::Server {
 public:
     kj::Promise <void> sendQuery (SendQueryContext context) override {
-        capnp::MallocMessageBuilder messageBuilder;
-
-        ::RPCServer::SendQueryResults::Builder result = messageBuilder.initRoot <::RPCServer::SendQueryResults>();
-//        result.setTable (Wrapper::wrapTable (* evalQuery (context.getParams().getQuery())));
-
-        /* Dereferencing this produces seg faults */
-        evalQuery (context.getParams().getQuery());
-
-        context.setResults (result.asReader());
+        try {
+            Wrapper::wrapTable (evalQuery (context.getParams().getQuery()));
+//            context.getResults().setTable (Wrapper::wrapTable (evalQuery (context.getParams().getQuery())));
+        } catch (kj::Exception & e) {
+            std::cerr << "Failed to set the encoded table: " << e.getDescription () << std::endl;
+            KJ_FAIL_REQUIRE (e.getDescription ());
+        }
         return kj::READY_NOW;
     }
 
@@ -34,7 +32,7 @@ public:
     }
 
 private:
-    std::unique_ptr <Table> const & evalQuery (std::string const & query) {
+    kj::Own <Table const> evalQuery (std::string const & query) const {
         //TODO: make this fool proof
         return T::evalQuery (query);
     }

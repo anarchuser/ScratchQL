@@ -15,16 +15,15 @@
 
 class Client final {
 private:
-    capnp::EzRpcClient * ezClient;
-    RPCServer::Client * client;
+    kj::Own <capnp::EzRpcClient> ezClient;
+    kj::Own <RPCServer::Client> client;
     kj::WaitScope & waitScope;
 
 public:
     explicit Client (std::string const & address, uint port);
-    ~Client();
 
     void connect ();
-    Table sendQuery (std::string const & query);
+    kj::Own <Table> sendQuery (std::string const & query);
 
     void startInterface (std::function <void (Table const &)> const & action);
 };
