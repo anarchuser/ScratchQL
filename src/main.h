@@ -3,9 +3,14 @@
 
 #include "config.h"
 
-#include "Server/Server.h"
 #include "Parser/Parser.h"
 #include "DBMS/DBMS.h"
+
+#include "View/Client/Client.h"
+
+#include "Server/generated/ServerDBMS.capnp.h"
+#include <capnp/ez-rpc.h>
+#include <kj/debug.h>
 
 #endif //DATABASE_MAIN_H
 

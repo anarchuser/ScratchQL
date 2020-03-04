@@ -144,6 +144,15 @@ std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index
     return readRow (row_index);
 }
 
+std::vector <std::string> const & Table::getHeader() const {
+    return header;
+}
+std::vector <KeyTypes> const & Table::getMeta() const {
+    return meta;
+}
+std::vector <std::vector <std::reference_wrapper <Cell const>>> const & Table::getContent() const {
+    return matrix;
+}
 std::size_t Table::getRowCount() const {
     return rows;
 }

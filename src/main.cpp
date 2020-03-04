@@ -24,10 +24,15 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
-    DBMS dbms;
-    Parser parser (dbms);
-    Server <Parser> server (parser);
-    server.listen (0, 0);
+    capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>>(), "*");
+    uint port = server.getPort().wait (server.getWaitScope ());
+    std::cout << ADDRESS << ":" << port << std::endl;
+
+    Client client (ADDRESS, port);
+
+    client.startInterface([] (Table const & t) {
+        std::cout << "Received Query!" << std::endl;
+    });
 
     LOG (INFO) << "Stop Running";
 }

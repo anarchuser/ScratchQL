@@ -5,7 +5,25 @@ bool operator ! (Cell const & cell) {
 }
 
 std::ostream & operator << (std::ostream & os, Cell const & cell) {
-    std::visit([& os] (auto const & val) {os << val;}, cell);
+    switch (cell.index()) {
+        case UNARY:
+            os << "v";
+            break;
+        case BINARY:
+            os << "b'" << std::get <bool> (cell) << "'";
+            break;
+        case SHORT:
+            os << "s'" << std::get <short> (cell) << "'";
+            break;
+        case LONG:
+            os << "l'" << std::get <long> (cell) << "'";
+            break;
+        case TEXT:
+            os << "t'" << std::get <std::string> (cell) << "'";
+            break;
+        default:
+            LOG (FATAL) << "<< Cell has gone insane";
+    }
     return os;
 }
 

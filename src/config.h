@@ -17,7 +17,7 @@
 #include "DBMS/Cell/Cell.h"
 
 #define IP_ADDRESS_FAMILY AF_INET
-#define ADDRESS "localhost:50051"
+#define ADDRESS "localhost"
 
 static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 

@@ -1,7 +1,5 @@
 #include "FileHandler.h"
 
-#include <utility>
-
 FileHandler::FileHandler (std::string  path) : path{std::move(path)} {}
 
 void FileHandler::createLine (std::string const & content) {

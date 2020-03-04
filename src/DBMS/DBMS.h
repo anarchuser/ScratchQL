@@ -4,12 +4,12 @@
 #include "Table/Table.h"
 
 #include <memory>
+#include "kj/async.h"
 
-class DBMS {
-public:
-    DBMS () = default;
+struct DBMS {
+    DBMS() = delete;
 
-    std::unique_ptr <Table> operator () ();
+    static kj::Own <Table const> evalQuery (std::string const & query);
 };
 
 

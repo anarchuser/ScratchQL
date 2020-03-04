@@ -40,6 +40,9 @@ public:
 
     void removePadding();
 
+    std::vector <std::string> const & getHeader() const;
+    std::vector <KeyTypes> const & getMeta() const;
+    std::vector <std::vector <std::reference_wrapper <Cell const>>> const & getContent() const;
     std::size_t getRowCount() const;
     std::size_t getColumnCount() const;
 };
