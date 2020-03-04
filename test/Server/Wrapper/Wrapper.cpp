@@ -87,7 +87,7 @@ TEST_CASE ("I can encode and decode Cells") {
 }
 
 TEST_CASE ("I can encode and decode Tables") {
-    std::vector <std::string> header {"name", "surname", "age", "profession"};
+    std::vector <std::string> header {"surname", "name", "age", "profession"};
     std::vector <KeyTypes> meta {PRIMARY, PRIMARY, NORMAL, FOREIGN};
     std::vector <std::vector <Cell>> content {
         std::vector <Cell> {Cell (std::string ("Adam")), Cell (std::string ("Abcde")), Cell (short (12)), Cell()},

@@ -16,7 +16,7 @@ private:
     std::vector <std::string> header;
     std::vector <KeyTypes> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
-    std::vector <std::vector <std::reference_wrapper <Cell const>>> matrix;
+    std::vector <std::vector <Cell const *>> matrix;
 
     std::size_t rows = 0;
     std::size_t columns;
@@ -42,7 +42,7 @@ public:
 
     std::vector <std::string> const & getHeader() const;
     std::vector <KeyTypes> const & getMeta() const;
-    std::vector <std::vector <std::reference_wrapper <Cell const>>> const & getContent() const;
+    std::vector <std::vector <Cell const *>> const & getContent() const;
     std::size_t getRowCount() const;
     std::size_t getColumnCount() const;
 
