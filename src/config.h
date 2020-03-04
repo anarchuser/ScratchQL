@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <variant>
 #include <glog/logging.h>
+#include <netinet/in.h>
 
 #include "DBMS/Cell/Cell.h"
 
