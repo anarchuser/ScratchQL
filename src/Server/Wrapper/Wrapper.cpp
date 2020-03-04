@@ -15,8 +15,11 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> 
     for (std::size_t r = 0; r < table->getRowCount (); r++) {
         auto rowBuilder = contentBuilder [r].initData (table->getColumnCount());
         std::size_t c = 0;
-        for (auto const & cell : table->readRowAsVector (r)) rowBuilder.setWithCaveats (c++, wrapCell (cell)->getRoot <RPCServer::Table::Cell>());
-        contentBuilder [r].setData (rowBuilder.asReader());
+        for (auto const & cell : table->readRowAsVector (r)) {
+            auto cellBuilder = wrapCell (cell);
+            rowBuilder.setWithCaveats (c++, cellBuilder->getRoot <RPCServer::Table::Cell>());
+            LOG_ASSERT (cell == unwrapCell (rowBuilder.asReader()[c-1]));
+        }
     }
     return tableBuilder;
 }
@@ -30,9 +33,7 @@ kj::Own <Table> Wrapper::unwrapTable (::RPCServer::Table::Reader const & reader)
 
     for (auto const & row : reader.getContent ()) {
         std::vector <Cell> newRow;
-        for (auto const & field : row.getData()) {
-            newRow.push_back (unwrapCell (field));
-        }
+        for (auto const & wrappedCell : row.getData()) newRow.push_back (unwrapCell (wrappedCell));
         table->createRow (newRow);
     }
     return table;
@@ -46,31 +47,26 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapCell (Cell const & cell) {
     switch (cell.index ()) {
         case UNARY:
             LOG (INFO) << "Set Cell to Unary";
-
             builderData.setUnary();
             break;
         case BINARY:
             LOG (INFO) << "Set Cell to Binary: " << std::get <bool> (cell);
-
             builderData.setBinary (std::get <bool> (cell));
             break;
         case SHORT:
             LOG (INFO) << "Set Cell to Short: " << std::get <short> (cell);
-
             builderData.setShort (std::get <short> (cell));
             break;
         case LONG:
             LOG (INFO) << "Set Cell to Long: " << std::get <long> (cell);
-
             builderData.setLong (std::get <long> (cell));
             break;
         case TEXT:
             LOG (INFO) << "Set Cell to Text: " << std::get <std::string> (cell);
-
             builderData.setText (std::get <std::string> (cell));
             break;
         default:
-            LOG (FATAL) << "Cell Wrapper went insane";
+            LOG (FATAL) << "Cell Wrapper went insane: " << cell.index() << " not in range [0, 5)";
     }
     LOG_ASSERT (cell.index() == builderData.asReader().which());
     LOG_ASSERT (cell.index() == cellBuilder->getRoot <RPCServer::Table::Cell>().getData().which());
@@ -93,7 +89,7 @@ Cell Wrapper::unwrapCell (RPCServer::Table::Cell::Reader const & cell) {
         case RPCServer::Table::Cell::Data::TEXT:
             return Cell (data.getText());
         default:
-            LOG (FATAL) << "Cell Unwrapper went insane - " << (short) data.which() << " not in range [0, 5)";
+            LOG (FATAL) << "Cell Unwrapper went insane: " << (short) data.which() << " not in range [0, 5)";
     }
 };
 

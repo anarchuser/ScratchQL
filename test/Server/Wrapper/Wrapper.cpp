@@ -52,7 +52,7 @@ TEST_CASE ("I can encode and decode Cells") {
                 builderData.setText (std::get <std::string> (cell));
                 break;
             default:
-                LOG (FATAL) << "Test Cell Wrapper went insane";
+                LOG (FATAL) << "Test Cell Wrapper went insane: " << cell.index() << " not in range [0, 5)";
         }
 
         kj::Own <capnp::MallocMessageBuilder> cellBuilder = wrapCell (cell);
@@ -81,7 +81,7 @@ TEST_CASE ("I can encode and decode Cells") {
                 CHECK (std::get <std::string> (cell) == std::string (data.getText()));
                 break;
             default:
-                LOG (FATAL) << "Test Cell Unwrapper went insane - " << (short) data.which() << " not in range 0..4";
+                LOG (FATAL) << "Test Cell Unwrapper went insane: " << (short) data.which() << " not in range 0..4";
         }
     }
 }
@@ -92,7 +92,7 @@ TEST_CASE ("I can encode and decode Tables") {
     std::vector <std::vector <Cell>> content {
         std::vector <Cell> {Cell (std::string ("Adam")), Cell (std::string ("Abcde")), Cell (short (12)), Cell()},
         std::vector <Cell> {Cell (std::string ("Eva")), Cell (std::string ("Vwxyz")), Cell (short (102)), Cell (std::string ("Teacher"))},
-        std::vector <Cell> {Cell (std::string ("Jgfmesiofnes Pasaole")), Cell (std::string ("Oiuyt")), Cell (short (10)), Cell (std::string ("Kfefefsu"))},
+        std::vector <Cell> {Cell (std::string ("Tom")), Cell (std::string ("Oiuyt")), Cell (short (10)), Cell (std::string ("Kfefefsu"))},
         std::vector <Cell> {Cell (std::string ("Bob")), Cell (std::string ("Qwerty")), Cell (short (40)), Cell (std::string ("Engineer"))},
     };
     kj::Own <Table> initTable = kj::heap <Table> (header, meta);
@@ -109,12 +109,10 @@ TEST_CASE ("I can encode and decode Tables") {
         CHECK (table.getColumnCount() == decodedTable->getColumnCount());
         CHECK (table.getRowCount()    == decodedTable->getRowCount());
 
-        for (auto const & col : table.getHeader()) {
-            for (std::size_t row = 0; row < table.getRowCount(); row++) {
-//                CHECK (table [col][row] == (* decodedTable) [col][row]);
-                std::cout << table [col][row] << " == " << (* decodedTable) [col][row] << "?" << std::endl;
+        for (std::size_t row = 0; row < table.getRowCount(); row++) {
+            for (auto const & col : table.getHeader()) {
+                CHECK (table [col][row] == (* decodedTable) [col][row]);
             }
-            std::cout << std::endl;
         }
     }
 }
