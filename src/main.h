@@ -5,6 +5,7 @@
 
 #include "Parser/Parser.h"
 #include "DBMS/DBMS.h"
+#include "DBMS/Table/Table.h"
 
 #include "View/Client/Client.h"
 

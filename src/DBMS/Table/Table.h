@@ -45,8 +45,11 @@ public:
     std::vector <std::vector <std::reference_wrapper <Cell const>>> const & getContent() const;
     std::size_t getRowCount() const;
     std::size_t getColumnCount() const;
+
+    bool operator ! () const;
 };
 
+std::ostream & operator << (std::ostream & os, Table const & table);
 
 
 #endif //DATABASE_TABLE_H

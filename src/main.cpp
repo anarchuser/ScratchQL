@@ -30,9 +30,7 @@ int main (int argc, char * argv[]) {
 
     Client client (ADDRESS, port);
 
-    client.startInterface([] (Table const & t) {
-        std::cout << "Received Query!" << std::endl;
-    });
+    client.startInterface([] (Table const & t) { std::cout << t; });
 
     LOG (INFO) << "Stop Running";
 }

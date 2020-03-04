@@ -160,4 +160,23 @@ std::size_t Table::getColumnCount() const {
     return columns;
 }
 
+bool Table::operator ! () const {
+    return !rows;
+}
+
+std::ostream & operator << (std::ostream & os, Table const & table) {
+    if (table.getColumnCount()) {
+        for (auto const & col : table.getHeader()) std::cout << col << "\t";
+        os << std::endl;
+        if (table.getRowCount ()) {
+            os << std::endl;
+            for (auto const & row : table.getContent ()) {
+                for (auto const & col : row) os << col << "\t";
+                os << std::endl;
+            }
+        }
+    }
+    return os;
+}
+
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
