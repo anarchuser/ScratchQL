@@ -18,12 +18,14 @@ public:
     std::string & database;
     std::string & name;
     std::string path;
+    int tmp_line_length;                                                   //for testing purposes until a meta file is created TODO: remove ASAP
 
     void createLine (std::string const & content);                         // Appends a line
     std::string readLine (std::size_t index);                                     //
     void updateLine (std::size_t index, std::string content);              // Writes a line
     void deleteLine (std::size_t index);                                   // Removes a line
 
+    void cutTailSpaces(std::string & content);
     void removePadding ();
     void deleteTable ();
     void deleteDatabase ();
@@ -32,6 +34,7 @@ private:
     void createDatabase();
     void createTable();
     void cleanName(std::string & alnum_string);
+    int checkLineLength(std::string const & content);
 };
 
 

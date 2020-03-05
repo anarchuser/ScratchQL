@@ -6,7 +6,8 @@ FileHandler::FileHandler (std::string & database, std::string & table) :
     db_root{DATABASE_DIR},
     database{database},
     name{table},
-    path{db_root + database + '/' + name + "/table.tsv"}       //purely for transition path coexists with the other three directory paths
+    path{db_root + database + '/' + name + "/table.tsv"},       //purely for transition path coexists with the other three directory paths
+    tmp_line_length{26}                                                     //for testing purposes until a meta file is created TODO: remove ASAP
     {
     createDatabase();
     createTable();
@@ -38,6 +39,7 @@ void FileHandler::createTable(){
 }
 
 void FileHandler::createLine (std::string const & content) {
+    int extralength = checkLineLength(content);
     std::ofstream out;
     try {
         out = std::ofstream (path, std::ios::app);
@@ -50,7 +52,7 @@ void FileHandler::createLine (std::string const & content) {
         std::cerr << "The filesystem exists: " << std::filesystem::exists(path) << std::endl;
         throw (std::ios_base::failure ("Could not open file"));
     }
-    out << content << std::endl;
+    out << content << std::string(extralength, ' ') << std::endl;
     out.close();
 }
 
@@ -66,6 +68,7 @@ std::string FileHandler::readLine (std::size_t index) {
 //    getline (in, header);
     for (int i = 0; i <= index; i++) getline (in, line);
     in.close();
+    cutTailSpaces(line);
     return line;
 }
 
@@ -73,18 +76,19 @@ void FileHandler::updateLine (std::size_t index, std::string content) {
     std::fstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;
 
-    int write_pos;
+    int extralength = checkLineLength(content);
     int tmp_len;
     int i = 0;
     int content_len = content.length();
-    int iterating_pos = write_pos = file.tellg();
+    int iterating_pos = file.tellg();
+    int len_diff = 0;
 
     while (getline (file, tmpline)){
         if (i++ == index) {
             tmp_len = tmpline.length();
             if (content_len <= tmp_len){
-                int len_diff = tmp_len - content_len;
-                content.append(std::string (len_diff, ' '));
+                len_diff = tmp_len - content_len;
+                content.append(std::string (extralength, ' '));
             }
             else if (content_len > tmp_len){
                 createLine(content);
@@ -92,8 +96,7 @@ void FileHandler::updateLine (std::size_t index, std::string content) {
                 break;
             }
             tmpline = content;
-            write_pos = iterating_pos;
-            file.seekp(write_pos);
+            file.seekp(iterating_pos);
             file << tmpline;
             break;
         }
@@ -142,4 +145,16 @@ void FileHandler::cleanName(std::string & alnum_string){
     }
 }
 
+int FileHandler::checkLineLength(std::string const & content){
+    int extralength = tmp_line_length - content.length();
+    if (extralength < 0){
+        LOG (ERROR) << "Contents exceed maximum length";
+        throw (std::range_error ("Contents exceed maximum length " + content));
+    }
+    return extralength;
+}
+
+void FileHandler::cutTailSpaces(std::string & content){
+    while(content.back() == ' ')   content.pop_back();
+}
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

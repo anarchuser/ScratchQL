@@ -68,7 +68,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                     CHECK_NOTHROW(strlength = del_string.length());
                     fh->deleteLine(del_valid_index);
                     del_string = fh->readLine(del_valid_index);
-                    CHECK (std::string(strlength, ' ') == del_string);
+                    CHECK (std::string(0, ' ') == del_string);
                 }
             }
             WHEN ("We try to delete one line with invalid index") {
@@ -98,20 +98,8 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                     CHECK(!old_string.empty());
                     CHECK_NOTHROW(strlength = old_string.length());
                     fh->updateLine(replace_index, target_string);
-                    if (target_string.length() <= old_string.length()){
-                        std::string new_string = fh->readLine(replace_index);
-                        CHECK (target_string == new_string);
-                    }
-                    else {
-                        std::string string_old_pos = fh->readLine(replace_index);
-                        CHECK(string_old_pos == std::string (string_old_pos.length(), ' '));
-                        std::string current_line;
-                        std::string last_line;
-                        while (getline(testfile, current_line)){
-                            if (!current_line.empty()) last_line = current_line;
-                        }
-                        CHECK(target_string == last_line);
-                    }
+                    std::string new_string = fh->readLine(replace_index);
+                    CHECK (target_string == new_string);
                 }
             }
             WHEN ("We try to replace one line with invalid index"){
@@ -120,12 +108,13 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                 std::string new_string = "Goodbye, World - Sayonara";
                 THEN("No changes are made to the line"){
                     std::string replaceable_string(fh->readLine(invalid_num));
+                    REQUIRE(replaceable_string.empty());
                     old_string = replaceable_string;
-                    CHECK(replaceable_string.empty());
                     fh->updateLine(invalid_num, new_string);
                     std::string current_line;
                     std::vector <std::string> newfile {};
                     while (getline (testfile, current_line)){
+                        fh->cutTailSpaces(current_line);
                         newfile.push_back(current_line);
                     }
                     CHECK(test_strings == newfile);
