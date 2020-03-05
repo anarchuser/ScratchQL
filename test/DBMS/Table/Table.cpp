@@ -1,7 +1,7 @@
 #include "../../main.h"
 #include "../../../src/DBMS/Table/Table.h"
 
-SCENARIO ("I can create a table and modify it") {
+SCENARIO ("I can create a table, modify and print it") {
     GIVEN ("Some test data") {
         std::vector <std::string> columns = {
                 "ID",
@@ -16,19 +16,21 @@ SCENARIO ("I can create a table and modify it") {
         Table t1 (columns, keyTypes);
         REQUIRE_NOTHROW (Table (columns, keyTypes));
 
-        WHEN ("I add lines to it") {
-            std::vector <std::vector <Cell>> rows;
-            std::vector <Cell> row1 {1l, std::string ("John"), std::string ("2020-02-02")};
-            std::vector <Cell> row2 {2l, std::string ("Peter"), std::string ("1929-03-20")};
-            std::vector <Cell> row3 {3l, std::string ("Emily"), std::string ("1978-10-31")};
-            rows.push_back (row1);
-            rows.push_back (row2);
-            rows.push_back (row3);
+        std::vector <std::vector <Cell>> rows;
+        std::vector <Cell> row1 {1l, std::string ("John"), std::string ("2020-02-02")};
+        std::vector <Cell> row2 {2l, std::string ("Peter"), std::string ("1929-03-20")};
+        std::vector <Cell> row3 {3l, std::string ("Emily"), std::string ("1978-10-31")};
+        rows.push_back (row1);
+        rows.push_back (row2);
+        rows.push_back (row3);
 
+        WHEN ("I add lines to it") {
+            CHECK (!t1);
             int row_counter = 0;
             for (auto const & row : rows) {
                 CHECK (t1.getRowCount() == row_counter++);
                 CHECK_NOTHROW (t1.createRow (row));
+                CHECK (!!t1);
             }
 
             THEN ("The lines get added successfully") {
@@ -43,10 +45,29 @@ SCENARIO ("I can create a table and modify it") {
                 }
             }
 
+            THEN ("Printing gives something meaningful") {
+                std::stringstream ss;
+                std::stringstream ts;
+                for (auto const & col : columns) ts << col + "\t";
+                ts << "\n\n";
+
+                for (auto const & row : rows) {
+                    for (auto const & cell : row) {
+                        ts << cell << "\t";
+                    }
+                    ts << "\n";
+                }
+
+                CHECK (& (ss << t1) == & ss);
+                CHECK (ss.str() == ts.str());
+
+            }
+
             THEN ("I can successfully modify lines") {
                 for (int i = 0; i < rows.size(); i++) {
                     CHECK_NOTHROW (t1.updateRow (i, rows[(i + 1) % rows.size()]));
                     CHECK (t1.readRowAsVector (i) == rows [(i + 1) % rows.size()]);
+                    CHECK (!!t1);
                 }
             }
 
@@ -57,10 +78,9 @@ SCENARIO ("I can create a table and modify it") {
                 CHECK (t1.getRowCount() == rows.size());
                 t1.removePadding ();
                 CHECK (t1.getRowCount() == 0);
+                CHECK (!t1);
             }
         }
-
-
     }
 }
 
