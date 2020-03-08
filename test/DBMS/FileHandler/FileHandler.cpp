@@ -114,13 +114,28 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                     std::string current_line;
                     std::vector <std::string> newfile {};
                     while (getline (testfile, current_line)){
-                        fh->cutTailSpaces(current_line);
+                        fh->cutTailingSpaces(current_line);
                         newfile.push_back(current_line);
                     }
                     CHECK(test_strings == newfile);
                     replaceable_string = fh->readLine(invalid_num);
                     CHECK(old_string == replaceable_string);
                     testfile.close();
+                }
+            }
+            WHEN ("We use clearLines()"){
+                REQUIRE_NOTHROW (fh = new FileHandler(testdb, testtable));
+                for (auto &str : test_strings) fh->createLine(str);
+                std::ifstream testfile (fh->path, std::ios::in);
+                std::string tmpline;
+                int counter_before = 0;
+                int counter_after = 0;
+                THEN ("Empty lines are removed"){
+                    while (getline (testfile, tmpline)) counter_before++;
+                    CHECK_NOTHROW (fh-> deleteLine(2));
+                    CHECK_NOTHROW (fh-> clearLines());
+                    while (getline (testfile, tmpline)) counter_after++;
+                    CHECK (counter_before > counter_after);
                 }
             }
             CHECK_NOTHROW (fh->deleteDatabase());

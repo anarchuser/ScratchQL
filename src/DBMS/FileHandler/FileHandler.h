@@ -25,8 +25,8 @@ public:
     void updateLine (std::size_t index, std::string content);              // Writes a line
     void deleteLine (std::size_t index);                                   // Removes a line
 
-    void cutTailSpaces(std::string & content);
-    void removePadding ();
+    void cutTailingSpaces(std::string & content);
+    void clearLines ();
     void deleteTable ();
     void deleteDatabase ();
 

@@ -68,7 +68,7 @@ std::string FileHandler::readLine (std::size_t index) {
 //    getline (in, header);
     for (int i = 0; i <= index; i++) getline (in, line);
     in.close();
-    cutTailSpaces(line);
+    cutTailingSpaces(line);
     return line;
 }
 
@@ -134,12 +134,26 @@ void FileHandler::deleteDatabase(){
     std::filesystem::remove_all(db_root + '/' + database);
 }
 
-void FileHandler::removePadding () {}
+void FileHandler::clearLines () {
+    std::fstream file (path, std::ios::in | std::ios::out);
+    std::fstream newfile (db_root + database + '/' + name + "/table_tmp.tsv", std::ios::out);
+    std::string tmpline;
+
+    while (getline (file, tmpline)){
+        if (tmpline != std::string(tmp_line_length, ' ')){
+            newfile << tmpline;
+        }
+    }
+    file.close();
+    newfile.close();
+    std::filesystem::remove(path);
+    std::filesystem::rename(db_root + database + '/' + name + "/table_tmp.tsv", path);
+}
 
 void FileHandler::cleanName(std::string & alnum_string){
     for (auto const & letter : alnum_string){
         if (!std::isalnum(letter)){
-            std::cerr << "name " << alnum_string << "is not valid, because it contains non-alphanumeric charaters" << std::endl;
+            std::cerr << "name " << alnum_string << "is not valid, because it contains non-alphanumeric characters" << std::endl;
             throw (std::invalid_argument("String contains non-alphanumeric characters"));
         }
     }
@@ -154,7 +168,7 @@ int FileHandler::checkLineLength(std::string const & content){
     return extralength;
 }
 
-void FileHandler::cutTailSpaces(std::string & content){
+void FileHandler::cutTailingSpaces(std::string & content){
     while(content.back() == ' ')   content.pop_back();
 }
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
