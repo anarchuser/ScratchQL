@@ -3,6 +3,7 @@
 
 SCENARIO ("Issuing a query returns a valid Table") {
     Table table = * DBMS::evalQuery("");
+    CHECK (!!table);
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
