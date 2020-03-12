@@ -56,7 +56,6 @@ void FileHandler::createLine (std::string const & content) {
     out.close();
 }
 
-// TODO: rewrite
 std::string FileHandler::readLine (std::size_t index) {
     std::ifstream in (path, std::ios::in);
     if (!in.is_open ()) {
@@ -64,10 +63,13 @@ std::string FileHandler::readLine (std::size_t index) {
         throw (std::ios_base::failure ("Could not open file"));
     }
 
-    std::string header, line;
-//    getline (in, header);
-    for (int i = 0; i <= index; i++) getline (in, line);
+    char tmp_line[tmp_line_length + 1];
+    tmp_line[tmp_line_length] = 0;
+    in.seekg((tmp_line_length + 1 )  * index);              //try-catch sigsegv - SIGSEGV - Segmentation violation signal
+    in.read(tmp_line, tmp_line_length);
     in.close();
+
+    std::string line = std::string(tmp_line);
     cutTailingSpaces(line);
     return line;
 }
@@ -75,54 +77,18 @@ std::string FileHandler::readLine (std::size_t index) {
 void FileHandler::updateLine (std::size_t index, std::string content) {
     std::fstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;
-
     int extralength = checkLineLength(content);
-    int tmp_len;
-    int i = 0;
-    int content_len = content.length();
-    int iterating_pos = file.tellg();
-    int len_diff = 0;
 
-    while (getline (file, tmpline)){
-        if (i++ == index) {
-            tmp_len = tmpline.length();
-            if (content_len <= tmp_len){
-                len_diff = tmp_len - content_len;
-                content.append(std::string (extralength, ' '));
-            }
-            else if (content_len > tmp_len){
-                createLine(content);
-                deleteLine(index);
-                break;
-            }
-            tmpline = content;
-            file.seekp(iterating_pos);
-            file << tmpline;
-            break;
-        }
-        iterating_pos = file.tellg();
-    }
+    file.seekp((tmp_line_length + 1) * index);
+    file << content << std::string(extralength, ' ');
     file.close();
 }
 
 void FileHandler::deleteLine (std::size_t index) {
     std::fstream file (path, std::ios::in | std::ios::out);
-    std::string tmpline;
 
-    int write_pos;
-    int i = 0;
-    int iterating_pos = write_pos = file.tellg();
-
-    while (getline (file, tmpline)){
-        if (i++ == index) {
-            tmpline = std::string (tmpline.length(), ' ');
-            write_pos = iterating_pos;
-            file.seekp(write_pos);
-            file << tmpline;
-            break;
-        }
-        iterating_pos = file.tellg();
-    }
+    file.seekp((tmp_line_length + 1) * index);
+    file << std::string(tmp_line_length, ' ');
     file.close();
 }
 
@@ -141,7 +107,7 @@ void FileHandler::clearLines () {
 
     while (getline (file, tmpline)){
         if (tmpline != std::string(tmp_line_length, ' ')){
-            newfile << tmpline;
+            newfile << tmpline << std::endl;
         }
     }
     file.close();
@@ -169,6 +135,6 @@ int FileHandler::checkLineLength(std::string const & content){
 }
 
 void FileHandler::cutTailingSpaces(std::string & content){
-    while(content.back() == ' ')   content.pop_back();
+    while (content.back() == ' ')   content.pop_back();
 }
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
