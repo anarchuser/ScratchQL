@@ -41,6 +41,21 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
             CHECK (tokenisedQueries [i] == Parser::tokenise (despacedQueries [i]));
         }
     }
+    GIVEN ("Some incorrect queries") {
+        std::vector <std::string> invalidQueries {
+                "iufskhfzrz8yor387wy6rliyu39trp3[]]'#'4o#23574.,/.,/.,#'[]l",
+                " ijseo f*$RF$(**$&(&$(*&$(&*$(",
+                "$msoires",
+                "*()",
+                "-=-=-=-=-(",
+               R"(""""")",
+//                "",
+//                "((){}",
+        };
+        for (auto const & invalidQuery : invalidQueries) {
+            CHECK_THROWS_AS (Parser::parseQuery (invalidQuery), std::logic_error);
+        }
+    }
 
 //        kj::Own <Query> queryResult;
 //        CHECK_NOTHROW (queryResult = Parser::parseQuery (""));
