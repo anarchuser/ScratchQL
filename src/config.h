@@ -6,7 +6,7 @@
 
 #define THROW(error)                \
     LOG (ERROR) << error.what();    \
-    throw error;
+    throw error
 
 #include <string>
 #include <cstdlib>
@@ -28,6 +28,8 @@ enum KeyTypes {
     FOREIGN,
     INDEXED,
 };
+
+static const std::string validQueryChars (" <>!=+-*/{}[]().,;");
 
 #endif //DATABASE_CONFIG_H
 

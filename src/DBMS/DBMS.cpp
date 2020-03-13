@@ -2,7 +2,8 @@
 
 kj::Own <Table const> DBMS::evalQuery (std::string const & query) {
     //TODO: Everything regarding processing of queries goes here.
-    // MAKE FUNCTIONAL!!!!
+
+
 
     /* TEST IMPLEMENTATION. REMOVE AFTER SUCCESSFUL QUERY EXECUTION */
     auto testTable = kj::heap <Table> (std::vector <std::string> {"surname", "name", "age", "profession"}, std::vector <KeyTypes> {PRIMARY, PRIMARY, INDEXED, NORMAL});

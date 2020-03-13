@@ -2,6 +2,7 @@
 #define DATABASE_DBMS_H
 
 #include "Table/Table.h"
+#include "../Language/Query/Query.h"
 
 #include <memory>
 #include "kj/async.h"

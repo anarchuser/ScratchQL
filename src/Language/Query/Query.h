@@ -15,13 +15,11 @@ namespace Database {
 
         namespace Table {
             enum Action { INSERT, REMOVE, UPDATE };
-            enum Subtarget { CELL, ROW };
 
             struct Specification final {
                 Action action;
-                Subtarget target;
-                std::size_t row;
-                std::string column;
+                std::vector <std::size_t> row;
+                std::vector <std::string> column;
             };
         }
 
