@@ -16,6 +16,9 @@ struct Parser {
     static inline void validateChar (char c);
     static std::string despace (std::string const & text);
     static std::string tokenise (std::string const & text);
+    static kj::Own <Query> buildQuery (std::string const & query);
+    static inline void copyToken (std::string::const_iterator * source, std::string & target);
+    static inline short lookUpEnum (std::string::const_iterator * source, std::vector <std::string> const & enums);
 };
 
 

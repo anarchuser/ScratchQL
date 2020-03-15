@@ -29,7 +29,10 @@ enum KeyTypes {
     INDEXED,
 };
 
-static const std::string validQueryChars (" <>!=+-*/{}[]().,;");
+static const std::string validQueryChars (" <>!=+-*/{}[]().,;@#");
+
+auto const STR = std::string();
+
 
 #endif //DATABASE_CONFIG_H
 

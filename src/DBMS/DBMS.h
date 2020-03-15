@@ -5,7 +5,7 @@
 #include "../Language/Query/Query.h"
 
 #include <memory>
-#include "kj/async.h"
+#include <kj/async.h>
 
 struct DBMS {
     DBMS() = delete;
