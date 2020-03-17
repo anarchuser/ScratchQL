@@ -7,9 +7,9 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
                 "cReAtE (ParserTestDB)",
                 "  delete        (  ParserTestDB  )    ",
                 "CREATE(ParserTestDB)",
-                "ParserTestDB.create (root)",
-                "ParserTestDB.root.set(\"fnesiunfuisenfiusni9302*(%&£*(&%$*&£%\")",
-                "ParserTestDB.delete (root)",
+                "ParserTestDB.create (@root)",
+                "ParserTestDB.@root.give(\"fnesiunfuisenfiusni9302*(%&£*(&%$*&£%\")",
+                "ParserTestDB.delete (@root)",
                 "USERS ()",
                 "DATABASES ()",
         };
@@ -17,9 +17,9 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
                 "cReAtE(ParserTestDB)",
                 "delete(ParserTestDB)",
                 "CREATE(ParserTestDB)",
-                "ParserTestDB.create(root)",
-                "ParserTestDB.root.set(\"fnesiunfuisenfiusni9302*(%&£*(&%$*&£%\")",
-                "ParserTestDB.delete(root)",
+                "ParserTestDB.create(@root)",
+                "ParserTestDB.@root.give(\"fnesiunfuisenfiusni9302*(%&£*(&%$*&£%\")",
+                "ParserTestDB.delete(@root)",
                 "USERS()",
                 "DATABASES()",
         };
@@ -31,15 +31,23 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
                 "CREATE($ParserTestDB)",
                 "DELETE($ParserTestDB)",
                 "CREATE($ParserTestDB)",
-                "$ParserTestDB.CREATE($root)",
-                "$ParserTestDB.$root.SET(\"fnesiunfuisenfiusni9302*(%&£*(&%$*&£%\")",
-                "$ParserTestDB.DELETE($root)",
+                "$ParserTestDB.CREATE($@root)",
+                "$ParserTestDB.$@root.GIVE(\"fnesiunfuisenfiusni9302*(%&£*(&%$*&£%\")",
+                "$ParserTestDB.DELETE($@root)",
                 "USERS()",
                 "DATABASES()",
         };
         for (std::size_t i = 0; i < queries.size(); i++) {
             CHECK (tokenisedQueries [i] == Parser::tokenise (despacedQueries [i]));
         }
+
+        std::vector <kj::Own <Query>> builtQueries;
+        for (auto const & tokenisedQuery : tokenisedQueries) {
+            CHECK_NOTHROW (builtQueries.push_back (Parser::buildQuery (tokenisedQuery)));
+        }
+        CHECK (* builtQueries [0] == * builtQueries [2]);
+
+
     }
     GIVEN ("Some incorrect queries") {
         std::vector <std::string> invalidQueries {

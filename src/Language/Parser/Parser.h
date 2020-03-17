@@ -14,6 +14,7 @@ struct Parser {
     static kj::Own <Query> parseQuery (std::string const & rawQuery);
     static inline void validateQuery (std::string const & text);
     static inline void validateChar (char c);
+    static inline bool isWordChar (char c);
     static std::string despace (std::string const & text);
     static std::string tokenise (std::string const & text);
     static kj::Own <Query> buildQuery (std::string const & query);

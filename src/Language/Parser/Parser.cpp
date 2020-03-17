@@ -20,6 +20,10 @@ void Parser::validateChar (char c) {
     THROW (std::logic_error (STR+ "Malformed Query (invalid char detected): " + c + "[" + std::to_string ((short) c) + "])"));
 }
 
+bool Parser::isWordChar (char c) {
+    return std::isalpha (c) || c == '@' || c == '#';
+}
+
 std::string Parser::despace (std::string const & text) {
     std::string despaced;
     for (char cha : text) if (cha != ' ') despaced += cha;
@@ -41,11 +45,11 @@ std::string Parser::tokenise (std::string const & text) {
             continue;
         }
 
-        if (std::isalpha (c)) isWord = true;
+        if (isWordChar (c)) isWord = true;
         if (isKeyWord && !isWord) {
             THROW (std::logic_error (STR+ "Unexpected Token before '(': " + c + " (letter expected)"));
         }
-        if (isWord && !std::isalpha (c)) {
+        if (isWord && !isWordChar (c)) {
             if (!isKeyWord) tokenised += '$';
             isWord = isKeyWord = false;
         }
@@ -60,15 +64,16 @@ std::string Parser::tokenise (std::string const & text) {
 
 kj::Own <Query> Parser::buildQuery (std::string const & query) {
     kj::Own <Query> structure = kj::heap <Query>();
-    std::string::const_iterator iterator = query.begin();
+    auto iterator = query.begin();
 
     // Set database name and action
     if (* iterator == '$') {
         copyToken (& ++iterator, structure->database);
+        structure->actionOnDatabase = Database::CHANGE;
         if (* iterator != '.') {
             THROW (std::logic_error (STR+
             "Unexpected symbol found: " + * iterator + " (expected . to separate tokens)"));
-        } else iterator++;
+        } iterator++;
         if (* iterator == '$') {
             if (* (iterator + 1) == '@') structure->targetType = Database::Target::USER;
             else if (* (iterator + 1) == '#') structure->targetType = Database::Target::TABLE;
@@ -76,7 +81,7 @@ kj::Own <Query> Parser::buildQuery (std::string const & query) {
                 THROW (std::logic_error (STR+
                 "Ambiguous statement found. Please annotate targets with @ for users and # for tables"));
             }
-            copyToken (& ++iterator, structure->target);
+            copyToken (& ++++iterator, structure->target);
             structure->actionOnTarget = Database::Target::WRITE;
             if (structure->targetType == Database::Target::TABLE) {
                 auto spec = Database::Target::Table::Specification ();
@@ -99,7 +104,9 @@ kj::Own <Query> Parser::buildQuery (std::string const & query) {
         if (* iterator != '(') {
             THROW (std::logic_error (STR+
             "Unexpected symbol found: " + * iterator + " (expected '(' with function call parameters)"));
-        } else iterator++;
+        } iterator++;
+        if (structure->actionOnDatabase == Database::Action::DATABASES ||
+                structure->actionOnDatabase == Database::USERS) return structure;
         if (* iterator == '$') copyToken (& iterator, structure->database);
         return structure;
     } else {
@@ -117,10 +124,9 @@ void Parser::copyToken (std::string::const_iterator * source, std::string & targ
 short Parser::lookUpEnum (std::string::const_iterator * source, std::vector <std::string> const & enums) {
     std::string enumString;
     copyToken (source, enumString);
-
     short index = 0;
     for (auto const & e : enums) {
-        if (e == enumString) return index;
+        if (enumString == e) return index;
         index++;
     }
     THROW (std::logic_error (STR+ "Invalid Keyword found: " + enumString));

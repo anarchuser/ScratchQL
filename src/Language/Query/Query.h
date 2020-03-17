@@ -7,14 +7,14 @@
 #include <variant>
 
 namespace Database {
-    enum Action { ADD, DELETE };
-    static std::vector <std::string> const ActionStrings { "ADD", "DELETE" };
+    enum Action { CHANGE, CREATE, DELETE, DATABASES, USERS };
+    static std::vector <std::string> const ActionStrings { "CHANGE", "CREATE", "DELETE", "DATABASES", "USERS" };
 
     namespace Target {
-        enum Type { TABLE, USER };
-        enum Action { READ, WRITE, ADD, DELETE };
-        static std::vector <std::string> const TypeStrings { "TABLE", "USER" };
-        static std::vector <std::string> const ActionStrings { "READ", "WRITE", "ADD", "DELETE" };
+        enum Type { VOID, TABLE, USER };
+        enum Action { READ, WRITE, CREATE, DELETE };
+        static std::vector <std::string> const TypeStrings { "VOID", "TABLE", "USER" };
+        static std::vector <std::string> const ActionStrings { "READ", "WRITE", "CREATE", "DELETE" };
 
         namespace Table {
             enum Action { INSERT, REMOVE, UPDATE };
@@ -24,6 +24,8 @@ namespace Database {
                 Action action;
                 std::vector <std::size_t> row;
                 std::vector <std::string> column;
+
+                bool operator == (Specification const & other) const;
             };
         }
 
@@ -34,10 +36,12 @@ namespace Database {
             struct Specification final {
                 Action action;
                 Table::Specification target;
+
+                bool operator == (Specification const & other) const;
             };
         }
 
-        using Specification = std::variant <Table::Specification, User::Specification>;
+        using Specification = std::variant <std::monostate, Table::Specification, User::Specification>;
     }
 }
 
@@ -51,6 +55,8 @@ struct Query final {
 
     Database::Target::Specification spec;
     std::vector <Cell> data;
+
+    bool operator == (Query const & other) const;
 };
 
 #endif //DATABASE_QUERY_H
