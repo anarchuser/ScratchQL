@@ -26,6 +26,7 @@ namespace Database {
                 std::vector <std::string> column;
 
                 bool operator == (Specification const & other) const;
+                bool operator != (Specification const & other) const;
             };
         }
 
@@ -38,6 +39,7 @@ namespace Database {
                 Table::Specification target;
 
                 bool operator == (Specification const & other) const;
+                bool operator != (Specification const & other) const;
             };
         }
 

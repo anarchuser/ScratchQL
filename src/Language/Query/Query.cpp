@@ -7,12 +7,18 @@ bool Database::Target::Table::Specification::operator == (Database::Target::Tabl
             this->column == other.column &&
     true;
 }
+bool Database::Target::Table::Specification::operator != (Database::Target::Table::Specification const & other) const {
+    return !(* this == other);
+}
 
 bool Database::Target::User::Specification::operator == (Database::Target::User::Specification const & other) const {
     return
             this->action == other.action &&
             this->target == other.target &&
     true;
+}
+bool Database::Target::User::Specification::operator != (Database::Target::User::Specification const & other) const {
+    return !(* this == other);
 }
 
 bool Query::operator == (Query const & other) const {

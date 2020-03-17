@@ -16,6 +16,11 @@ TEST_CASE ("Queries can be built and compared to each other") {
 
         CHECK (tspec == std::get <Database::Target::Table::Specification> (vartspec));
         CHECK (uspec == std::get <Database::Target::User::Specification>  (varuspec));
+
+        tspec.action = Database::Target::Table::INSERT;
+        uspec.action = Database::Target::User::GIVE;
+        CHECK (tspec != std::get <Database::Target::Table::Specification> (vartspec));
+        CHECK (uspec != std::get <Database::Target::User::Specification>  (varuspec));
     }
 
     GIVEN ("Some Queries") {
