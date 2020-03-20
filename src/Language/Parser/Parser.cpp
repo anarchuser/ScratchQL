@@ -3,8 +3,9 @@
 kj::Own <Query> Parser::parseQuery (std::string const & rawQuery) {
     validateQuery (rawQuery);
     std::string despacedQuery = despace (rawQuery);
-    std::string tokenisedQuery = tokenise (despacedQuery);
-    kj::Own <Query> procQuery = buildQuery (tokenisedQuery);
+    std::string enrichedQuery = enrich (despacedQuery);
+    kj::Own <std::vector <Token>> tokenisedQuery = tokeniseQuery (enrichedQuery);
+    kj::Own <Query> procQuery = buildQuery (enrichedQuery);
 
     return procQuery;
 }
@@ -30,7 +31,7 @@ std::string Parser::despace (std::string const & text) {
     return std::move (despaced);
 }
 
-std::string Parser::tokenise (std::string const & text) {
+std::string Parser::enrich (std::string const & text) {
     std::string swap, tokenised;
     bool isWord = false;
     bool isKeyWord = false;
@@ -62,6 +63,14 @@ std::string Parser::tokenise (std::string const & text) {
     return swap;
 }
 
+kj::Own <std::vector <Token>> Parser::tokeniseQuery (std::string const & query) {
+    auto tokens = kj::heap <std::vector <Token>>();
+
+
+
+    return tokens;
+}
+
 kj::Own <Query> Parser::buildQuery (std::string const & query) {
     kj::Own <Query> structure = kj::heap <Query>();
     auto iterator = query.begin();
@@ -82,7 +91,7 @@ kj::Own <Query> Parser::buildQuery (std::string const & query) {
                 "Ambiguous statement found. Please annotate targets with @ for users and # for tables"));
             }
             copyToken (& ++++iterator, structure->target);
-            structure->actionOnTarget = Database::Target::WRITE;
+            structure->actionOnTarget = Database::Target::CHANGE;
             if (structure->targetType == Database::Target::TABLE) {
                 auto spec = Database::Target::Table::Specification ();
                 spec.action = (Database::Target::Table::Action) lookUpEnum (& ++iterator, Database::Target::Table::ActionStrings);
@@ -95,11 +104,27 @@ kj::Own <Query> Parser::buildQuery (std::string const & query) {
         } else if (std::isalpha (* iterator)){
             structure->actionOnTarget = (Database::Target::Action)
                     lookUpEnum (& iterator, Database::Target::ActionStrings);
+            if (* iterator != '(') {
+                THROW (std::logic_error (STR+
+                "Unexpected symbol found: " + * iterator + " (expected '(' with function call parameters)"));
+            } iterator++;
+            if (* iterator == '$') {
+                if (* (iterator + 1) == '@') structure->targetType = Database::Target::USER;
+                else if (* (iterator + 1) == '#') structure->targetType = Database::Target::TABLE;
+                else {
+                    THROW (std::logic_error (STR+
+                    "Ambiguous statement found. Please annotate targets with @ for users and # for tables"));
+                }
+                copyToken (& ++++iterator, structure->target);
+            } else {
+                THROW (std::logic_error (STR+
+                "Unexpected symbol found: " + * iterator + " (expected user or table name)"));
+            }
         } else {
             THROW (std::logic_error (STR+
             "Invalid symbol found: " + * iterator + " (Action or database expected"));
         }
-    } else if (std::isalpha (* iterator)) {   // Assume Add / Delete action:
+    } else if (std::isalpha (* iterator)) {   // Assume Create / Delete action:
         structure->actionOnDatabase = (Database::Action) lookUpEnum (& iterator, Database::ActionStrings);
         if (* iterator != '(') {
             THROW (std::logic_error (STR+
@@ -107,7 +132,7 @@ kj::Own <Query> Parser::buildQuery (std::string const & query) {
         } iterator++;
         if (structure->actionOnDatabase == Database::Action::DATABASES ||
                 structure->actionOnDatabase == Database::USERS) return structure;
-        if (* iterator == '$') copyToken (& iterator, structure->database);
+        if (* iterator == '$') copyToken (& ++iterator, structure->database);
         return structure;
     } else {
         THROW (std::logic_error (STR+

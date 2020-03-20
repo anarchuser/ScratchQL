@@ -12,9 +12,9 @@ namespace Database {
 
     namespace Target {
         enum Type { VOID, TABLE, USER };
-        enum Action { READ, WRITE, CREATE, DELETE };
+        enum Action { READ, CHANGE, CREATE, DELETE };
         static std::vector <std::string> const TypeStrings { "VOID", "TABLE", "USER" };
-        static std::vector <std::string> const ActionStrings { "READ", "WRITE", "CREATE", "DELETE" };
+        static std::vector <std::string> const ActionStrings { "READ", "CHANGE", "CREATE", "DELETE" };
 
         namespace Table {
             enum Action { INSERT, REMOVE, UPDATE };
