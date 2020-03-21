@@ -7,8 +7,8 @@ TEST_CASE ("Queries can be built and compared to each other") {
         Database::Target::User::Specification uspec;
 
         Database::Target::Specification varvspec;
-        Database::Target::Specification vartspec = tspec;
-        Database::Target::Specification varuspec = uspec;
+        Database::Target::Specification vartspec = Database::Target::Specification (tspec);
+        Database::Target::Specification varuspec = Database::Target::Specification (uspec);
 
         CHECK (varvspec.index() == (int) Database::Target::VOID);
         CHECK (vartspec.index() == (int) Database::Target::TABLE);
