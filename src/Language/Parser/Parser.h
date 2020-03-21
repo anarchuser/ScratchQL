@@ -10,7 +10,20 @@
 #include <vector>
 #include <variant>
 
-using Token = std::variant <short, std::string>;
+struct ParseTree {
+private:
+    ParseTree * inner = nullptr;
+    ParseTree * next = nullptr;
+
+public:
+    std::string token;
+
+    ParseTree * getInner();
+    ParseTree * getInner(int);
+    ParseTree * getNext();
+    ParseTree * getNext(int);
+    ~ParseTree();
+};
 
 struct Parser {
     Parser() = delete;
@@ -21,15 +34,18 @@ struct Parser {
     static inline bool isWordChar (char c);
     static std::string despace (std::string const & text);
     static std::string enrich (std::string const & text);
-    static kj::Own <std::vector <Token>> tokeniseQuery (std::string const & query);
+    static kj::Own <ParseTree> tokeniseQuery (std::string const & query);
+    static void readToken (std::string::const_iterator * source, std::string::const_iterator end, ParseTree * tree);
     static kj::Own <Query> buildQuery (std::string const & query);
     static inline void copyToken (std::string::const_iterator * source, std::string & target);
+    static inline void copyString (std::string::const_iterator * source, std::string & target);
     static inline short lookUpEnum (std::string::const_iterator * source, std::vector <std::string> const & enums);
 
 private:
 //    static std::string
 };
 
+std::ostream & operator << (std::ostream & os, ParseTree * pt);
 
 #endif //DATABASE_PARSER_H
 

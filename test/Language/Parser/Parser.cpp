@@ -27,7 +27,7 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
             CHECK (despacedQueries [i] == Parser::despace (queries [i]));
         }
 
-        std::vector <std::string> tokenisedQueries {
+        std::vector <std::string> enrichedQueries {
                 "CREATE($ParserTestDB)",
                 "DELETE($ParserTestDB)",
                 "CREATE($ParserTestDB)",
@@ -38,13 +38,22 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
                 "DATABASES()",
         };
         for (std::size_t i = 0; i < queries.size(); i++) {
-            CHECK (tokenisedQueries [i] == Parser::enrich (despacedQueries[i]));
+            CHECK (enrichedQueries [i] == Parser::enrich (despacedQueries[i]));
         }
 
+        std::vector <kj::Own <ParseTree>> tokenisedQueries;
         std::vector <kj::Own <Query>> builtQueries;
-        for (auto const & tokenisedQuery : tokenisedQueries) {
-            CHECK_NOTHROW (builtQueries.push_back (Parser::buildQuery (tokenisedQuery)));
+        for (auto const & enrichedQuery : enrichedQueries) {
+            CHECK_NOTHROW (tokenisedQueries.push_back (Parser::tokeniseQuery (enrichedQuery)));
+            CHECK_NOTHROW (builtQueries.push_back (Parser::buildQuery (enrichedQuery)));
         }
+
+        for (std::size_t i = 0; i < queries.size(); i++) {
+            std::stringstream ss;
+            ss << & * tokenisedQueries [i];
+            CHECK (enrichedQueries [i] == ss.str());
+        }
+
         CHECK (* builtQueries [0] == * builtQueries [2]);
         CHECK (builtQueries [0]->actionOnDatabase == Database::CREATE);
         CHECK (builtQueries [1]->actionOnDatabase == Database::DELETE);

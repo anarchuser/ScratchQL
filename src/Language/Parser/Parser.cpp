@@ -4,7 +4,7 @@ kj::Own <Query> Parser::parseQuery (std::string const & rawQuery) {
     validateQuery (rawQuery);
     std::string despacedQuery = despace (rawQuery);
     std::string enrichedQuery = enrich (despacedQuery);
-    kj::Own <std::vector <Token>> tokenisedQuery = tokeniseQuery (enrichedQuery);
+    kj::Own <ParseTree> tokenisedQuery = tokeniseQuery (enrichedQuery);
     kj::Own <Query> procQuery = buildQuery (enrichedQuery);
 
     return procQuery;
@@ -22,12 +22,12 @@ void Parser::validateChar (char c) {
 }
 
 bool Parser::isWordChar (char c) {
-    return std::isalpha (c) || c == '@' || c == '#';
+    return std::isalpha (c) || c == '@' || c == '#' || c == '$';
 }
 
 std::string Parser::despace (std::string const & text) {
     std::string despaced;
-    for (char cha : text) if (cha != ' ') despaced += cha;
+    for (char cha : text) if (cha != ' ' && cha != '\n') despaced += cha;
     return std::move (despaced);
 }
 
@@ -63,12 +63,36 @@ std::string Parser::enrich (std::string const & text) {
     return swap;
 }
 
-kj::Own <std::vector <Token>> Parser::tokeniseQuery (std::string const & query) {
-    auto tokens = kj::heap <std::vector <Token>>();
-
-
-
+kj::Own <ParseTree> Parser::tokeniseQuery (std::string const & query) {
+    kj::Own <ParseTree> tokens = kj::heap <ParseTree>();
+    std::string::const_iterator iterator = query.begin();
+    readToken (& iterator, query.end(), tokens);
     return tokens;
+}
+
+void Parser::readToken (std::string::const_iterator * source, std::string::const_iterator end, ParseTree * tree) {
+    bool isString = false;
+    while (* source < end) {
+        char c = * (* source)++;
+        if (c == '"') isString = !isString;
+        if (c == '"' || isString) {
+            tree->token += c;
+            continue;
+        }
+        if (c == ')') {
+            ++ * source;
+            return;
+        }
+        if (c == '(') {
+            readToken (source, end, tree->getInner());
+            continue;
+        }
+        if (c == '.') {
+            readToken (source, end, tree->getNext());
+            continue;
+        }
+        tree->token += c;
+    }
 }
 
 kj::Own <Query> Parser::buildQuery (std::string const & query) {
@@ -143,7 +167,12 @@ kj::Own <Query> Parser::buildQuery (std::string const & query) {
 }
 
 void Parser::copyToken (std::string::const_iterator * source, std::string & target) {
-    while (std::isalpha (* * source)) target += * (* source)++;
+    while (isWordChar (* * source)) target += * (* source)++;
+}
+
+void Parser::copyString (std::string::const_iterator * source, std::string & target) {
+    target += * * source;
+    while (* ++(* source) != '"') target += * * source;
 }
 
 short Parser::lookUpEnum (std::string::const_iterator * source, std::vector <std::string> const & enums) {
@@ -155,6 +184,35 @@ short Parser::lookUpEnum (std::string::const_iterator * source, std::vector <std
         index++;
     }
     THROW (std::logic_error (STR+ "Invalid Keyword found: " + enumString));
+}
+
+ParseTree * ParseTree::getInner() {
+    if (!inner) inner = new ParseTree();
+    return inner;
+}
+ParseTree * ParseTree::getInner(int) {
+    return inner;
+}
+ParseTree * ParseTree::getNext() {
+    if (!next) next = new ParseTree();
+    return next;
+}
+ParseTree * ParseTree::getNext(int) {
+    return next;
+}
+
+std::ostream & operator << (std::ostream & os, ParseTree * pt) {
+    os << pt->token;
+    auto inner = pt->getInner (0);
+    auto next = pt->getNext (0);
+    if (inner) os << "(" << inner << ")";
+    if (next) os << "." << next;
+    return os;
+}
+
+ParseTree::~ParseTree() {
+    delete inner;
+    delete next;
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
