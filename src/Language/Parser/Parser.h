@@ -19,9 +19,11 @@ public:
     std::string token;
 
     ParseTree * getInner();
-    ParseTree * getInner(int);
+    [[nodiscard]] ParseTree * tryGetInner() const;
     ParseTree * getNext();
-    ParseTree * getNext(int);
+    [[nodiscard]] ParseTree * tryGetNext() const;
+    std::string getTokenName() const;
+    [[nodiscard]] char operator [] (int index) const;
     ~ParseTree();
 };
 
@@ -36,10 +38,9 @@ struct Parser {
     static std::string enrich (std::string const & text);
     static kj::Own <ParseTree> tokeniseQuery (std::string const & query);
     static void readToken (std::string::const_iterator * source, std::string::const_iterator end, ParseTree * tree);
-    static kj::Own <Query> buildQuery (std::string const & query);
+    static kj::Own <Query> buildQuery (kj::Own <ParseTree> const & pt);
     static inline void copyToken (std::string::const_iterator * source, std::string & target);
-    static inline void copyString (std::string::const_iterator * source, std::string & target);
-    static inline short lookUpEnum (std::string::const_iterator * source, std::vector <std::string> const & enums);
+    static inline short lookUpEnum (std::string const & str, std::vector <std::string> const & enums);
 
 private:
 //    static std::string

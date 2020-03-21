@@ -45,7 +45,9 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
         std::vector <kj::Own <Query>> builtQueries;
         for (auto const & enrichedQuery : enrichedQueries) {
             CHECK_NOTHROW (tokenisedQueries.push_back (Parser::tokeniseQuery (enrichedQuery)));
-            CHECK_NOTHROW (builtQueries.push_back (Parser::buildQuery (enrichedQuery)));
+        }
+        for (auto const & tokenisedQuery : tokenisedQueries) {
+            CHECK_NOTHROW (builtQueries.push_back (Parser::buildQuery (tokenisedQuery)));
         }
 
         for (std::size_t i = 0; i < queries.size(); i++) {
