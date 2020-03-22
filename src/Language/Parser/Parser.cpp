@@ -79,15 +79,15 @@ void Parser::readToken (std::string::const_iterator * source, std::string::const
             tree->token += c;
             continue;
         }
-        if (c == ')') {
+        if (CLOSE_PAREN (c)) {
             ++ * source;
             return;
         }
-        if (c == '(') {
+        if (OPEN_PAREN (c)) {
             readToken (source, end, tree->getInner());
             continue;
         }
-        if (c == '.' || c == ',') {
+        if (SEPARATOR (c)) {
             readToken (source, end, tree->getNext());
             continue;
         }
