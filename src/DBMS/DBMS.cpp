@@ -1,9 +1,7 @@
 #include "DBMS.h"
 
-kj::Own <Table const> DBMS::evalQuery (std::string const & query) {
-    //TODO: Everything regarding processing of queries goes here.
-
-
+kj::Own <Table const> DBMS::evalQuery (std::string const & rawQuery) {
+    kj::Own <Query> procQuery = Parser::parseQuery (rawQuery);
 
     /* TEST IMPLEMENTATION. REMOVE AFTER SUCCESSFUL QUERY EXECUTION */
     auto testTable = kj::heap <Table> (std::vector <std::string> {"surname", "name", "age", "profession"}, std::vector <KeyTypes> {PRIMARY, PRIMARY, INDEXED, NORMAL});

@@ -2,7 +2,7 @@
 #include "../../src/DBMS/DBMS.h"
 
 SCENARIO ("Issuing a query returns a valid Table") {
-    Table table = * DBMS::evalQuery("");
+    Table table = * DBMS::evalQuery("USERS ()");
     CHECK (!!table);
 }
 

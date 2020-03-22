@@ -87,7 +87,7 @@ void Parser::readToken (std::string::const_iterator * source, std::string::const
             readToken (source, end, tree->getInner());
             continue;
         }
-        if (c == '.') {
+        if (c == '.' || c == ',') {
             readToken (source, end, tree->getNext());
             continue;
         }
@@ -160,13 +160,13 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
             }
         } else {
             THROW (std::logic_error (STR+
-            "Invalid symbol found: " + token->getTokenName() + " (Action or database expected"));
+            "Invalid symbol found: '" + token->getTokenName() + "' (Action or database expected"));
         }
     } else {
         structure->actionOnDatabase = (Database::Action) lookUpEnum (token->getTokenName(), Database::ActionStrings);
         if (! token->tryGetInner()) {
             THROW (std::logic_error (STR +
-            "Missing function parameters to call: " + token->getTokenName()));
+            "Missing function parameters to call: '" + token->getTokenName() + "'"));
         }
         if (structure->actionOnDatabase == Database::Action::DATABASES ||
             structure->actionOnDatabase == Database::Action::USERS)
@@ -175,15 +175,11 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
         if ((* token) [0] == '$') structure->database = token->getTokenName();
         else {
             THROW (std::logic_error (STR +
-            "Expected function parameter; found function: " + token->getTokenName()));
+            "Expected function parameter; found function: '" + token->getTokenName() + "'"));
         }
         return structure;
     }
     return structure;
-}
-
-void Parser::copyToken (std::string::const_iterator * source, std::string & target) {
-    while (isWordChar (* * source)) target += * (* source)++;
 }
 
 short Parser::lookUpEnum (std::string const & str, std::vector <std::string> const & enums) {
@@ -192,44 +188,7 @@ short Parser::lookUpEnum (std::string const & str, std::vector <std::string> con
         if (str == e) return index;
         index++;
     }
-    THROW (std::logic_error (STR+ "Invalid Keyword found: " + str));
-}
-
-ParseTree * ParseTree::getInner() {
-    if (!inner) inner = new ParseTree();
-    return inner;
-}
-ParseTree * ParseTree::tryGetInner() const {
-    return inner;
-}
-ParseTree * ParseTree::getNext() {
-    if (!next) next = new ParseTree();
-    return next;
-}
-ParseTree * ParseTree::tryGetNext() const {
-    return next;
-}
-
-std::string ParseTree::getTokenName() const {
-    std::string ns;
-    for (char c : token) if (std::isalpha (c)) ns += c;
-    return ns;
-}
-
-std::ostream & operator << (std::ostream & os, ParseTree * pt) {
-    os << pt->token;
-    if (pt->tryGetInner ()) os << "(" << pt->getInner() << ")";
-    if (pt->tryGetNext ()) os << "." << pt->getNext();
-    return os;
-}
-
-char ParseTree::operator [] (int index) const {
-    return token [index];
-}
-
-ParseTree::~ParseTree() {
-    delete inner;
-    delete next;
+    THROW (std::logic_error (STR+ "Invalid Keyword found: '" + str + "'"));
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
