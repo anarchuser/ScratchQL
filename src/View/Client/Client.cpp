@@ -67,7 +67,11 @@ void Client::startInterface (std::function <void (Table const &)> const & action
         std::cout.flush();
 
         // Request input
-        std::cin >> query;
+        getline (std::cin, query);
+        bool pass = false;
+        for (char c : query) if (c != ' ' && c != '\n') pass = true;
+        if (!pass || query.empty()) continue;
+
         std::cout << query << std::endl;
         if (query == "exit") return;
 

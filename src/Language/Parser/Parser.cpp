@@ -86,7 +86,10 @@ void Parser::readToken (std::string::const_iterator * source, std::string::const
             if (c == '(') {
                 tree->type = Token::FUNCTION;
                 if (!tree->getParentType()) ptptr->type = Token::DATABASE;
-            } else if (c == '[') tree->type = Token::LIST;
+            } else if (c == '[') {
+                tree->type = Token::LIST;
+                ptptr->type = Token::VALUE;
+            }
             else tree->type = Token::KV_PAIR;
             readToken (source, end, ptptr);
             continue;
@@ -101,17 +104,25 @@ void Parser::readToken (std::string::const_iterator * source, std::string::const
             } else if (c == ',') {
                 tree->type = Token::VALUE;
                 ptptr->type = Token::VALUE;
-            } else {
+            } else /*(c == ':')*/{
                 tree->type = Token::KEY;
                 ptptr->type = Token::VALUE;
             }
             readToken (source, end, ptptr);
-//            readToken (source, end, tree->getNext());
             continue;
         }
         if (c == '@') tree->type = Token::USER;
         if (c == '#') tree->type = Token::TABLE;
-        LOG_ASSERT (isWordChar (c));
+        if (tree->type == Token::VALUE) {
+            if (std::isdigit (c)) {
+                if (!tree->token) tree->token += '$';
+            }
+        } else if (std::isdigit (c)) {
+            THROW (std::logic_error (STR+
+            "Numbers may only be used as value; found '" + c + "' within Token '" + tree->token + "' {" + std::to_string (tree->type) + "}"));
+        } else {
+            LOG_ASSERT (isWordChar (c));
+        }
         tree->token += c;
     }
 }
