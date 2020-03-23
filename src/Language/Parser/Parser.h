@@ -13,7 +13,7 @@
 
 #define CLOSE_PAREN(c) (c == ')' || c == ']' || c == '}')
 #define OPEN_PAREN(c)  (c == '(' || c == '[' || c == '{')
-#define SEPARATOR(c)   (c == '.' || c == ',')
+#define SEPARATOR(c)   (c == '.' || c == ',' || c == ':')
 
 struct Parser {
     Parser() = delete;

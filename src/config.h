@@ -17,7 +17,6 @@
 #include "DBMS/Cell/Cell.h"
 
 #define IP_ADDRESS_FAMILY AF_INET
-#define ADDRESS "localhost"
 
 static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 
@@ -29,7 +28,7 @@ enum KeyTypes {
     INDEXED,
 };
 
-static const std::string validQueryChars (" <>!=+-*/{}[]().,;@#");
+static const std::string validQueryChars (" <>!=+-*/{}[]().,:;@#");
 
 auto const STR = std::string();
 

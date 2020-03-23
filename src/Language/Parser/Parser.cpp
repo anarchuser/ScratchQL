@@ -51,13 +51,11 @@ std::string Parser::enrich (std::string const & text) {
             THROW (std::logic_error (STR+ "Unexpected Token before '(': " + c + " (letter expected)"));
         }
         if (isWord && !isWordChar (c)) {
-            if (!isKeyWord) tokenised += '$';
             isWord = isKeyWord = false;
         }
         if (c == '(') isKeyWord = true;
         tokenised += isKeyWord ? std::toupper (c) : c;
     }
-    if (isWord && !isKeyWord) tokenised += '$';
 
     for (std::size_t index = tokenised.size(); --index < (std::size_t) -1;) swap += tokenised [index];
     return swap;
@@ -84,17 +82,36 @@ void Parser::readToken (std::string::const_iterator * source, std::string::const
             return;
         }
         if (OPEN_PAREN (c)) {
-            readToken (source, end, tree->getInner());
+            ParseTree * ptptr = tree->getInner();
+            if (c == '(') {
+                tree->type = Token::FUNCTION;
+                if (!tree->getParentType()) ptptr->type = Token::DATABASE;
+            } else if (c == '[') tree->type = Token::LIST;
+            else tree->type = Token::KV_PAIR;
+            readToken (source, end, ptptr);
             continue;
         }
         if (SEPARATOR (c)) {
-            readToken (source, end, tree->getNext());
+            ParseTree * ptptr = tree->getNext();
+            if (c == '.') {
+                char firstChar = tree->token [0];
+                if (std::isalpha (firstChar)) tree->type = Token::DATABASE;
+                if (firstChar == '@') tree->type = Token::USER;
+                if (firstChar == '#') tree->type = Token::TABLE;
+            } else if (c == ',') {
+                tree->type = Token::VALUE;
+                ptptr->type = Token::VALUE;
+            } else {
+                tree->type = Token::KEY;
+                ptptr->type = Token::VALUE;
+            }
+            readToken (source, end, ptptr);
+//            readToken (source, end, tree->getNext());
             continue;
         }
-        if (!isWordChar (c)) {
-            THROW (std::logic_error (STR+
-            "Unexpected symbol found: " + c + " (word or separator expected)"));
-        }
+        if (c == '@') tree->type = Token::USER;
+        if (c == '#') tree->type = Token::TABLE;
+        LOG_ASSERT (isWordChar (c));
         tree->token += c;
     }
 }
@@ -104,7 +121,7 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
     ParseTree const * token = & * pt;
 
     // Set database name and action
-    if ((* token) [0] == '$') {
+    if (token->type == Token::DATABASE) {
         structure->database = token->getTokenName();
         structure->actionOnDatabase = Database::CHANGE;
         LOG_ASSERT (!token->tryGetInner());
@@ -113,12 +130,11 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
             "Method on Database '" + structure->database + "' expected; found nothing"));
         }
         token = token->tryGetNext();
-        if ((* token) [0] == '$') {
-            if ((* token) [1] == '@') structure->targetType = Database::Target::USER;
-            else if ((* token) [1] == '#') structure->targetType = Database::Target::TABLE;
+        if (token->type == Token::USER || token->type == Token::TABLE) {
+            if (token->type == Token::USER) structure->targetType = Database::Target::USER;
+            else if (token->type == Token::TABLE) structure->targetType = Database::Target::TABLE;
             else {
-                THROW (std::logic_error (STR+
-                "Ambiguous statement found. Please prefix targets with @ for users and # for tables"));
+                LOG (FATAL) << "Expected User or Table, found Token::Type {" << token->type << "} for Token '" << token << "'";
             }
             structure->target = token->getTokenName();
             structure->actionOnTarget = Database::Target::CHANGE;
@@ -137,47 +153,50 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
                 spec.action = (Database::Target::User::Action) lookUpEnum (token->getTokenName(), Database::Target::User::ActionStrings);
                 structure->spec = std::move (Database::Target::Specification (spec));
             }
-        } else if (std::isalpha ((* token) [0])){
+        } else if (token->type == Token::FUNCTION){
             structure->actionOnTarget = (Database::Target::Action)
                     lookUpEnum (token->getTokenName(), Database::Target::ActionStrings);
-            LOG_ASSERT (!token->tryGetNext());
             if (!token->tryGetInner()) {
                 THROW (std::logic_error (STR +
                 "Function call parameters for '" + token->getTokenName() + "' expected; nothing found"));
             }
             token = token->tryGetInner();
-            if ((* token) [0] == '$') {
-                if ((* token) [1] == '@') structure->targetType = Database::Target::USER;
-                else if ((* token) [1] == '#') structure->targetType = Database::Target::TABLE;
+            if (token->type == Token::USER || token->type == Token::TABLE) {
+                if (token->type == Token::USER) structure->targetType = Database::Target::USER;
+                else if (token->type == Token::TABLE) structure->targetType = Database::Target::TABLE;
                 else {
-                    THROW (std::logic_error (STR+
-                    "Ambiguous statement found. Please annotate targets with @ for users and # for tables"));
+                    LOG (FATAL) << "Expected User or Table; Token found (" << token << ", {" << token->type << "})";
                 }
                 structure->target = token->getTokenName();
             } else {
                 THROW (std::logic_error (STR+
-                "Function call parameter for '" + token->getTokenName() + "' expected; function found"));
+                "Function call parameter for '" + Database::Target::ActionStrings [structure->actionOnTarget] +
+                "' expected; Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
             }
         } else {
             THROW (std::logic_error (STR+
-            "Invalid symbol found: '" + token->getTokenName() + "' (Action or database expected"));
+            "Expected Function, or Table or User; Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
         }
-    } else {
+    } else if (token->type == Token::FUNCTION) {
         structure->actionOnDatabase = (Database::Action) lookUpEnum (token->getTokenName(), Database::ActionStrings);
-        if (! token->tryGetInner()) {
+        if (!token->tryGetInner()) {
             THROW (std::logic_error (STR +
-            "Missing function parameters to call: '" + token->getTokenName() + "'"));
+            "Function call parameter for '" + token->getTokenName() + "' expected; nothing found"));
         }
         if (structure->actionOnDatabase == Database::Action::DATABASES ||
             structure->actionOnDatabase == Database::Action::USERS)
             return structure;
         token = token->tryGetInner();
-        if ((* token) [0] == '$') structure->database = token->getTokenName();
+        if (token->type == Token::DATABASE) structure->database = token->getTokenName();
         else {
             THROW (std::logic_error (STR +
-            "Expected function parameter; found function: '" + token->getTokenName() + "'"));
+            "Function call parameter for '" + Database::ActionStrings [structure->actionOnDatabase] +
+            "' expected; function found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
         }
         return structure;
+    } else {
+        THROW (std::logic_error (STR+
+        "Expected Function or Database; Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
     }
     return structure;
 }

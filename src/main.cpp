@@ -24,13 +24,19 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
-    capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>>(), "*");
-    uint port = server.getPort().wait (server.getWaitScope ());
-    std::cout << ADDRESS << ":" << port << std::endl;
+    if (!strcmp (argv [1], "-s")) {
+        std::string address ((argc > 2) ? argv [2] : "*");
+        capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>> (), address);
+        std::cout << address << ((argc > 2) ? "" :
+        STR+ ":" + std::to_string (server.getPort().wait (server.getWaitScope()))) << std::endl;
 
-    Client client (ADDRESS, port);
+        kj::NEVER_DONE.wait (server.getWaitScope());
+    } else if (!strcmp (argv [1], "-c")) {
+        std::cout << argv [2] << std::endl;
 
-    client.startInterface([] (Table const & t) { std::cout << t; });
+        Client client (argv [2]);
+        client.startInterface([] (Table const & t) { std::cout << t; });
+    } else return EXIT_FAILURE;
 
     LOG (INFO) << "Stop Running";
 }

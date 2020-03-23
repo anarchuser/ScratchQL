@@ -1,16 +1,17 @@
 #include "ParseTree.h"
 
 ParseTree::ParseTree (ParseTree * parent) : parent {parent} {}
+ParseTree::ParseTree() : ParseTree (nullptr) {};
 
 ParseTree * ParseTree::getInner() {
-    if (!inner) inner = new ParseTree();
+    if (!inner) inner = new ParseTree (this);
     return inner;
 }
 ParseTree * ParseTree::tryGetInner() const {
     return inner;
 }
 ParseTree * ParseTree::getNext() {
-    if (!next) next = new ParseTree();
+    if (!next) next = new ParseTree (this);
     return next;
 }
 ParseTree * ParseTree::tryGetNext() const {
@@ -23,13 +24,17 @@ std::string ParseTree::getTokenName() const {
     return ns;
 }
 
+Token::Type ParseTree::getParentType() const {
+    return parent ? parent->type : Token::VOID;
+}
+
 std::ostream & ParseTree::operator << (std::ostream & os) const {
     return (os << this->str());
 }
 
 std::string ParseTree::str (bool nl) const{
     bool isInner = parent && parent->tryGetInner();
-    std::string str (token);
+    std::string str (getTokenName());
     if (inner) str += (isInner ? '[' : '(') + inner->str() + (isInner ? ']' : ')');
     if (next)  str += (isInner ? ',' : '.') + next->str();
     if (nl && !parent) str += '\n';
@@ -41,9 +46,8 @@ char ParseTree::operator [] (int index) const {
 }
 
 ParseTree::~ParseTree() {
-    delete parent;
-    delete inner; inner = nullptr;
-    delete next;  next = nullptr;
+    delete inner;
+    delete next;
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

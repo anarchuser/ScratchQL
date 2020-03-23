@@ -8,6 +8,7 @@
 #include <capnp/ez-rpc.h>
 #include <capnp/message.h>
 #include <thread>
+#include <cmath>
 
 /* Following Cap'n Proto Client example:
  * https://github.com/capnproto/capnproto/blob/master/c%2B%2B/samples/calculator-client.c%2B%2B
@@ -19,8 +20,12 @@ private:
     kj::Own <RPCServer::Client> client;
     kj::WaitScope & waitScope;
 
+    static std::string fetchAddress (std::string const & address);
+    static uint fetchPort (std::string const & address);
+
 public:
-    explicit Client (std::string const & address, uint port);
+    Client (std::string const & address, uint port);
+    explicit Client (std::string const & address);
 
     void connect ();
     kj::Own <Table> sendQuery (std::string const & query);

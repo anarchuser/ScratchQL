@@ -4,23 +4,32 @@
 #include <iostream>
 #include <string>
 
+namespace Token {
+    enum Type { VOID, FUNCTION, DATABASE, USER, TABLE, LIST, KV_PAIR, KEY, VALUE };
+}
+
 struct ParseTree {
 private:
     ParseTree * parent;
     ParseTree * inner = nullptr;
     ParseTree * next = nullptr;
 
+    explicit ParseTree (ParseTree * parent);
+
 public:
-    explicit ParseTree (ParseTree * parent = nullptr);
+    ParseTree();
     ~ParseTree();
 
     std::string token;
+    Token::Type type = Token::VOID;
 
     ParseTree * getInner();
     [[nodiscard]] ParseTree * tryGetInner() const;
 
     ParseTree * getNext();
     [[nodiscard]] ParseTree * tryGetNext() const;
+
+    [[nodiscard]] Token::Type getParentType() const;
 
     [[nodiscard]] std::string getTokenName() const;
     [[nodiscard]] std::string str (bool nl = false) const;
