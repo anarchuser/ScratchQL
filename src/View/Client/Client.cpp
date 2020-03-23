@@ -40,10 +40,11 @@ void Client::connect () {
         try {
             client->connectRequest().send ().wait (waitScope);
         } catch (kj::Exception & e) {
-            if (e.getType() == kj::Exception::Type::DISCONNECTED) continue;
-            else throw;
+            if (e.getType() != kj::Exception::Type::DISCONNECTED) throw;
+            continue;
         }
-        break;
+        std::cout << "Client: 'Connected!'" << std::endl;
+        return;
     }
 }
 
@@ -73,7 +74,7 @@ void Client::startInterface (std::function <void (Table const &)> const & action
         try {
             action (* sendQuery (query));
         } catch (std::exception & e) {
-            std::cout << "SERVER: \"" << e.what() << "\"" << std::endl;
+            std::cout << "Server: '" << e.what() << "'" << std::endl;
         }
     }
 }

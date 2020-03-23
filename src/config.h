@@ -17,6 +17,8 @@
 #include "DBMS/Cell/Cell.h"
 
 #define IP_ADDRESS_FAMILY AF_INET
+#define ADDRESS "localhost"
+#define PORT 32786
 
 static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 

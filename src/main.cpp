@@ -24,19 +24,16 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
-    if (!strcmp (argv [1], "-s")) {
-        std::string address ((argc > 2) ? argv [2] : "*");
-        capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>> (), address);
-        std::cout << address << ((argc > 2) ? "" :
-        STR+ ":" + std::to_string (server.getPort().wait (server.getWaitScope()))) << std::endl;
+    std::string address ((argc > 1) ? argv [1] : "*");
+    capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>> (), address);
+    uint port = server.getPort().wait (server.getWaitScope());
+    std::cout << "Setting database up on '" << address << ((argc > 1) ? "" :
+    STR+ ":" + std::to_string (port)) << "'..." << std::endl;
 
-        kj::NEVER_DONE.wait (server.getWaitScope());
-    } else if (!strcmp (argv [1], "-c")) {
-        std::cout << argv [2] << std::endl;
+    std::cout << "Connecting to '" << address << ((argc > 1) ? "" : std::to_string (port)) << "'..." << std::endl;
 
-        Client client (argv [2]);
-        client.startInterface([] (Table const & t) { std::cout << t; });
-    } else return EXIT_FAILURE;
+    Client client = (argc > 1) ? Client (address) : Client (address, port);
+    client.startInterface([] (Table const & t) { std::cout << t; });
 
     LOG (INFO) << "Stop Running";
 }
