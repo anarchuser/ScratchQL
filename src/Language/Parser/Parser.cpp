@@ -102,8 +102,8 @@ void Parser::readToken (std::string::const_iterator * source, std::string::const
                 if (firstChar == '@') tree->type = Token::USER;
                 if (firstChar == '#') tree->type = Token::TABLE;
             } else if (c == ',') {
-                tree->type = Token::VALUE;
-                ptptr->type = Token::VALUE;
+                if (!tree->type)  tree->type = Token::VALUE;
+                if (!ptptr->type) ptptr->type = Token::VALUE;
             } else /*(c == ':')*/{
                 tree->type = Token::KEY;
                 ptptr->type = Token::VALUE;
@@ -176,8 +176,7 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
             if (!token->tryGetInner()) {
                 THROW (std::logic_error (STR +
                 "Function call parameters for '" + token->getTokenName() + "' expected; nothing found"));
-            }
-            token = token->tryGetInner();
+            } token = token->tryGetInner();
             if (token->type == Token::USER || token->type == Token::TABLE) {
                 if (token->type == Token::USER) structure->targetType = Database::Target::USER;
                 else if (token->type == Token::TABLE) structure->targetType = Database::Target::TABLE;
@@ -189,6 +188,24 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
                 THROW (std::logic_error (STR+
                 "Function call parameter for '" + Database::Target::ActionStrings [structure->actionOnTarget] +
                 "' expected; Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
+            }
+            if (structure->actionOnTarget == Database::Target::Action::CREATE) {
+                if (structure->targetType == Database::Target::Type::TABLE) {
+                    if (!(token = token->tryGetNext ())) {
+                        THROW (std::logic_error (STR+
+                        "Expected List of column names; found nothing"));
+                    }
+                    ParseTree * tree = token->tryGetInner();
+                    auto spec = Database::Target::Table::Specification ();
+                    do {
+                        if (tree->type == Token::VALUE) {
+                            spec.values.emplace_back (tree->token, Cell());
+                        } else {
+                            LOG (FATAL) << "Expected KV_PAIR or VALUE in List, found {" << tree->type << "}";
+                        }
+                    } while ((tree = tree->tryGetNext ()));
+                    structure->spec = std::move (Database::Target::Specification (spec));
+                }
             }
         } else {
             THROW (std::logic_error (STR+

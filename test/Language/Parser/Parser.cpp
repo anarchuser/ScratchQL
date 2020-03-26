@@ -4,10 +4,10 @@
 SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
     GIVEN ("Some correct queries") {
         std::vector <std::string> queries {
-                "cReAtE (ParserTestDB)",
+                "cReAtE (ParserTestDB)\n",
                 "  delete        (  ParserTestDB  )    ",
-                "CREATE(ParserTestDB)",
-                "ParserTestDB.create (@root)",
+                "CREATE(ParserTestDB)\n",
+                "ParserTestDB.create (@root)\n",
                 "ParserTestDB.@root.give(\"fnesiunfuisenfiusni9302*(%&£*(&%$*&£%\")",
                 "ParserTestDB.delete (@root)",
                 "USERS ()",
@@ -103,10 +103,24 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
             CHECK_THROWS_AS (Parser::parseQuery (invalidQuery), std::logic_error);
         }
     }
+    std::vector <std::string> queries {
+            "CREATE(ParserTestDB)",
+            "DELETE(ParserTestDB)",
+            "CREATE(ParserTestDB)",
+            "ParserTestDB.CREATE(@root)",
+            "ParserTestDB.@root.GIVE()",
+            "ParserTestDB.DELETE(@root)",
+            "ParserTestDB.CREATE(#root, [name, surname, age])",
+            "ParserTestDB.#root.INSERT([{name : Dee}, {surname : John}, {age : 10}])",
+            "ParserTestDB.DELETE(#root)",
+            "USERS()",
+            "DATABASES()",
+    };
 
-//        kj::Own <Query> queryResult;
-//        CHECK_NOTHROW (queryResult = Parser::parseQuery (""));
-
+    for (auto const & query : queries) {
+        kj::Own <Query> queryResult;
+        CHECK_NOTHROW (queryResult = Parser::parseQuery (query));
+    }
 }
 
 TEST_CASE ("All little helper functions do what they're supposed to") {
