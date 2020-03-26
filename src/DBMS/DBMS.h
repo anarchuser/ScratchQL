@@ -12,6 +12,8 @@ struct DBMS {
     DBMS() = delete;
 
     static kj::Own <Table const> evalQuery (std::string const & rawQuery);
+    static kj::Own <Table const> evalTableQuery (kj::Own <Query> const & query);
+    static kj::Own <Table const> evalUserQuery (kj::Own <Query> const & query);
 };
 
 

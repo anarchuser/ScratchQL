@@ -2,6 +2,26 @@
 
 kj::Own <Table const> DBMS::evalQuery (std::string const & rawQuery) {
     kj::Own <Query> procQuery = Parser::parseQuery (rawQuery);
+    switch (procQuery->targetType) {
+        case Database::Target::Type::VOID:
+            break;
+        case Database::Target::Type::TABLE:
+            return evalTableQuery (procQuery);
+        case Database::Target::Type::USER:
+            return evalUserQuery (procQuery);
+        default:
+            LOG (FATAL) << "Invalid Target Type - Expected [0, 2], got " << procQuery->targetType;
+    }
+    return kj::heap <Table const> (std::vector <std::string>());
+}
+
+kj::Own <Table const> DBMS::evalTableQuery (kj::Own <Query> const & query) {
+    if (query->actionOnTarget == Database::Target::Action::CREATE) {
+        auto const & spec = std::get <Database::Target::Table::Specification> (query->spec);
+        std::vector <std::string> header;
+        for (auto const & pair : spec.values) header.emplace_back (pair.first);
+        return kj::heap <Table const> (header);
+    }
 
     /* TEST IMPLEMENTATION. REMOVE AFTER SUCCESSFUL QUERY EXECUTION */
     auto testTable = kj::heap <Table> (std::vector <std::string> {"surname", "name", "age", "profession"});
@@ -11,6 +31,10 @@ kj::Own <Table const> DBMS::evalQuery (std::string const & rawQuery) {
     testTable->createRow(std::vector <Cell> {std::string ("Dora"), std::string ("Mnop"), short (30), std::string ("jfuesfeoies")});
 
     return testTable;
+}
+
+kj::Own <Table const> DBMS::evalUserQuery (kj::Own <Query> const & query) {
+    return kj::heap <Table> (std::vector <std::string> { "USER", "PERMISSION" });
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
