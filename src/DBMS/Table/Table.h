@@ -14,7 +14,6 @@
 class Table {
 private:
     std::vector <std::string> header;
-    std::vector <KeyTypes> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
     std::vector <std::vector <Cell const *>> matrix;
 
@@ -22,7 +21,7 @@ private:
     std::size_t columns;
 
 public:
-    Table (std::vector <std::string> header, std::vector <KeyTypes> meta);
+    explicit Table (std::vector <std::string> header);
 
     void createRow (std::vector <Cell> const & row);
     void updateRow (std::size_t row_index, std::vector <Cell> const & row);
@@ -41,7 +40,6 @@ public:
     void removePadding();
 
     std::vector <std::string> const & getHeader() const;
-    std::vector <KeyTypes> const & getMeta() const;
     std::vector <std::vector <Cell const *>> const & getContent() const;
     std::size_t getRowCount() const;
     std::size_t getColumnCount() const;

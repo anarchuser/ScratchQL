@@ -1,8 +1,7 @@
 #include "Table.h"
 
-Table::Table (std::vector <std::string> header, std::vector <KeyTypes> meta) :
+Table::Table (std::vector <std::string> header) :
     header {std::move (header)},
-    meta {std::move (meta)},
     columns {this->header.size()}
 {
     for (auto const & key : header) {
@@ -146,9 +145,6 @@ std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index
 
 std::vector <std::string> const & Table::getHeader() const {
     return header;
-}
-std::vector <KeyTypes> const & Table::getMeta() const {
-    return meta;
 }
 std::vector <std::vector <Cell const *>> const & Table::getContent() const {
     return matrix;

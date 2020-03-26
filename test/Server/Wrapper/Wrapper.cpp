@@ -95,7 +95,7 @@ TEST_CASE ("I can encode and decode Tables") {
         std::vector <Cell> {Cell (std::string ("Tom")), Cell (std::string ("Oiuyt")), Cell (short (10)), Cell (std::string ("Kfefefsu"))},
         std::vector <Cell> {Cell (std::string ("Bob")), Cell (std::string ("Qwerty")), Cell (short (40)), Cell (std::string ("Engineer"))},
     };
-    kj::Own <Table> initTable = kj::heap <Table> (header, meta);
+    kj::Own <Table> initTable = kj::heap <Table> (header);
     for (auto const & row : content) initTable->createRow (row);
 
     Table table = kj::cp (* initTable);
@@ -105,7 +105,6 @@ TEST_CASE ("I can encode and decode Tables") {
 
     SECTION ("The original and processed table are both equal") {
         CHECK (table.getHeader()      == decodedTable->getHeader());
-        CHECK (table.getMeta()        == decodedTable->getMeta());
         CHECK (table.getColumnCount() == decodedTable->getColumnCount());
         CHECK (table.getRowCount()    == decodedTable->getRowCount());
 

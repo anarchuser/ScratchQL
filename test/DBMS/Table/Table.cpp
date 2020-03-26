@@ -8,13 +8,8 @@ SCENARIO ("I can create a table, modify and print it") {
                 "Name",
                 "Birthday"
         };
-        std::vector <KeyTypes> keyTypes = {
-                PRIMARY,
-                FOREIGN,
-                NORMAL
-        };
-        Table t1 (columns, keyTypes);
-        REQUIRE_NOTHROW (Table (columns, keyTypes));
+        Table t1 (columns);
+        REQUIRE_NOTHROW (Table (columns));
 
         std::vector <std::vector <Cell>> rows;
         std::vector <Cell> row1 {1l, std::string ("John"), std::string ("2020-02-02")};

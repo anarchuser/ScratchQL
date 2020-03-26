@@ -4,7 +4,7 @@ kj::Own <Table const> DBMS::evalQuery (std::string const & rawQuery) {
     kj::Own <Query> procQuery = Parser::parseQuery (rawQuery);
 
     /* TEST IMPLEMENTATION. REMOVE AFTER SUCCESSFUL QUERY EXECUTION */
-    auto testTable = kj::heap <Table> (std::vector <std::string> {"surname", "name", "age", "profession"}, std::vector <KeyTypes> {PRIMARY, PRIMARY, INDEXED, NORMAL});
+    auto testTable = kj::heap <Table> (std::vector <std::string> {"surname", "name", "age", "profession"});
     testTable->createRow(std::vector <Cell> {std::string ("Adam"), std::string ("Abcd"), short (30), Cell()});
     testTable->createRow(std::vector <Cell> {std::string ("Tom"),  std::string ("Efgh"), short (30), std::string ("jfuesfeoies")});
     testTable->createRow(std::vector <Cell> {std::string ("Eve"),  std::string ("Ijkl"), short (30), std::string ("nfwiufew")});
