@@ -3,8 +3,8 @@
 bool Database::Target::Table::Specification::operator == (Database::Target::Table::Specification const & other) const {
     return
             this->action == other.action &&
-            this->row    == other.row    &&
-            this->column == other.column &&
+            this->values == other.values &&
+            this->where  == other.where  &&
     true;
 }
 bool Database::Target::Table::Specification::operator != (Database::Target::Table::Specification const & other) const {

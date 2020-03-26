@@ -12,18 +12,18 @@ namespace Database {
 
     namespace Target {
         enum Type { VOID, TABLE, USER };
-        enum Action { READ, CHANGE, CREATE, DELETE };
+        enum Action { SELECT, CREATE, DELETE };
         static std::vector <std::string> const TypeStrings { "VOID", "TABLE", "USER" };
-        static std::vector <std::string> const ActionStrings { "READ", "CHANGE", "CREATE", "DELETE" };
+        static std::vector <std::string> const ActionStrings { "SELECT", "CREATE", "DELETE" };
 
         namespace Table {
-            enum Action { INSERT, REMOVE, UPDATE };
-            static std::vector <std::string> const ActionStrings { "INSERT", "REMOVE", "UPDATE" };
+            enum Action { READ, INSERT, REMOVE, UPDATE };
+            static std::vector <std::string> const ActionStrings { "READ", "INSERT", "REMOVE", "UPDATE" };
 
             struct Specification final {
                 Action action;
-                std::vector <std::size_t> row;
-                std::vector <std::string> column;
+                std::vector <std::pair <std::string, Cell>> values;
+                std::vector <std::pair <std::string, Cell>> where;
 
                 bool operator == (Specification const & other) const;
                 bool operator != (Specification const & other) const;

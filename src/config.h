@@ -30,7 +30,7 @@ enum KeyTypes {
     INDEXED,
 };
 
-static const std::string validQueryChars (" <>!=+-*/{}[]().,:;@#\"");
+static const std::string VALID_QUERY_CHARS (" <>!=+-*/{}[]().,:;@#\"");
 
 auto const STR = std::string();
 

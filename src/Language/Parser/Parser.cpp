@@ -10,18 +10,18 @@ kj::Own <Query> Parser::parseQuery (std::string const & rawQuery) {
     return procQuery;
 }
 
-void Parser::validateQuery (std::string const & text) {
+inline void Parser::validateQuery (std::string const & text) {
     for (auto character : text) validateChar (character);
 }
 
-void Parser::validateChar (char c) {
+inline void Parser::validateChar (char c) {
     if (std::isalnum (c)) return;
-    for (auto validChar : validQueryChars) if (c == validChar) return;
+    for (auto validChar : VALID_QUERY_CHARS) if (c == validChar) return;
 
     THROW (std::logic_error (STR+ "Malformed Query (invalid char detected): " + c + "[" + std::to_string ((short) c) + "])"));
 }
 
-bool Parser::isWordChar (char c) {
+inline bool Parser::isWordChar (char c) {
     return std::isalpha (c) || c == '@' || c == '#' || c == '$';
 }
 
@@ -148,20 +148,26 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
                 LOG (FATAL) << "Expected User or Table, found Token::Type {" << token->type << "} for Token '" << token << "'";
             }
             structure->target = token->getTokenName();
-            structure->actionOnTarget = Database::Target::CHANGE;
+            structure->actionOnTarget = Database::Target::SELECT;
             LOG_ASSERT (!token->tryGetInner());
             if (!token->tryGetNext()) {
                 THROW (std::logic_error (STR+
                 "Method on Target '" + structure->target + "' expected; found nothing"));
             }
             token = token->tryGetNext();
+            if (!token->tryGetInner()) {
+                THROW (std::logic_error (STR+
+                "Parameters for function call on '" + structure->target + "' expected; found nothing"));
+            }
             if (structure->targetType == Database::Target::TABLE) {
                 auto spec = Database::Target::Table::Specification ();
                 spec.action = (Database::Target::Table::Action) lookUpEnum (token->getTokenName(), Database::Target::Table::ActionStrings);
+                fillInSpecs (token = token->tryGetInner(), spec);
                 structure->spec = std::move (Database::Target::Specification (spec));
             } else {
                 auto spec = Database::Target::User::Specification ();
                 spec.action = (Database::Target::User::Action) lookUpEnum (token->getTokenName(), Database::Target::User::ActionStrings);
+                fillInSpecs (token = token->tryGetInner(), spec);
                 structure->spec = std::move (Database::Target::Specification (spec));
             }
         } else if (token->type == Token::FUNCTION){
@@ -212,7 +218,7 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
     return structure;
 }
 
-short Parser::lookUpEnum (std::string const & str, std::vector <std::string> const & enums) {
+inline short Parser::lookUpEnum (std::string const & str, std::vector <std::string> const & enums) {
     short index = 0;
     for (auto const & e : enums) {
         if (str == e) return index;
@@ -221,4 +227,87 @@ short Parser::lookUpEnum (std::string const & str, std::vector <std::string> con
     THROW (std::logic_error (STR+ "Invalid Keyword found: '" + str + "'"));
 }
 
+void Parser::fillInSpecs (ParseTree const * tree, Database::Target::Table::Specification & specs) {
+    switch (specs.action) {
+        case Database::Target::Table::READ:
+            if (!(tree->tryGetInner() && tree->tryGetNext() && tree->tryGetNext()->tryGetInner())) {
+                if (!(tree->type == Token::LIST && tree->tryGetNext()->type == Token::LIST)) {
+                    THROW (std::logic_error (STR+
+                    "For SELECT function, expected a list [COLUMN] and a list of maps [{COLUMN : value}] of parameters"));
+                }
+            }
+            fillPairLists (tree, specs.values);
+            fillPairLists (tree, specs.where);
+            break;
+        case Database::Target::Table::INSERT:
+            if (!(tree->tryGetInner())) {
+                if (!(tree->type == Token::LIST)) {
+                    THROW (std::logic_error (STR+
+                    "For INSERT function, expected a list of maps [{COLUMN : value}] as parameter"));
+                }
+            }
+            fillPairLists (tree, specs.where);
+            break;
+        case Database::Target::Table::REMOVE:
+            if (!(tree->tryGetInner())) {
+                if (!(tree->type == Token::LIST)) {
+                    THROW (std::logic_error (STR +
+                    "For REMOVE function, expected a list of maps [{COLUMN : value}] as parameter"));
+                }
+            }
+            fillPairLists (tree, specs.where);
+            break;
+        case Database::Target::Table::UPDATE:
+            if (!(tree->tryGetInner() && tree->tryGetNext() && tree->tryGetNext()->tryGetInner())) {
+                if (!(tree->type == Token::LIST && tree->tryGetNext()->type == Token::LIST)) {
+                    THROW (std::logic_error (STR+
+                    "For SELECT function, expected a list of maps [{COLUMN : value}] each as values and spec parameters"));
+                }
+            }
+            fillPairLists (tree, specs.values);
+            fillPairLists (tree, specs.where);
+            break;
+        default:
+            LOG (FATAL) << "Invalid action detected";
+    }
+}
+void Parser::fillInSpecs (ParseTree const * tree, Database::Target::User::Specification & specs) {}
+
+void Parser::fillPairLists (ParseTree const * tree, std::vector <std::pair <std::string, Cell>> & list) {
+    if (tree->type != Token::LIST || !tree->tryGetInner()) {
+        THROW (std::logic_error ("List not found"));
+    }
+    tree = tree->tryGetInner();
+    do {
+        if (tree->type == Token::KV_PAIR) {
+            ParseTree * key = tree->tryGetInner();
+            ParseTree * val = key->tryGetNext ();
+            if (key->type == Token::KEY && val && val->type == Token::VALUE) {
+                list.emplace_back (key->token, tokenToCell (val->token));
+            }
+        } else if (tree->type == Token::VALUE) {
+            list.emplace_back (tree->token, Cell());
+        } else {
+            LOG (FATAL) << "Expected KV_PAIR or VALUE in List, found {" << tree->type << "}";
+        }
+    } while ((tree = tree->tryGetNext ()));
+}
+Cell Parser::tokenToCell (std::string const & token) {
+    if (token.empty()) return Cell();
+    if (token [0] != '$') return Cell (token);
+    return strToNum (token);
+}
+
+inline Cell Parser::strToNum (std::string const & token) {
+    if (token.size() == 2) return Cell ((bool) (token [1] - '0'));
+    long sum = 0;
+    long factor = 1;
+    for (std::size_t idx = token.size(); --idx > 0;) {
+        sum += (token [idx] - '0') * factor;
+        factor *= 10;
+    }
+    if (sum > -1 * (long) pow (2, 8 * sizeof (short)) && sum < (long) pow (2, 8 * sizeof (short)) - 1) {
+        return Cell (short (sum));
+    } return Cell (sum);
+}
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

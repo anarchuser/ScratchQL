@@ -60,53 +60,84 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
             }
         }
 
-//        CHECK (* builtQueries [0] == * builtQueries [2]);
-//        CHECK (builtQueries [0]->actionOnDatabase == Database::CREATE);
-//        CHECK (builtQueries [1]->actionOnDatabase == Database::DELETE);
-//        CHECK (builtQueries [3]->actionOnDatabase == Database::CHANGE);
-//        CHECK (builtQueries [4]->actionOnDatabase == Database::CHANGE);
-//        CHECK (builtQueries [5]->actionOnDatabase == Database::CHANGE);
-//        CHECK (builtQueries [6]->actionOnDatabase == Database::USERS);
-//        CHECK (builtQueries [7]->actionOnDatabase == Database::DATABASES);
-//
-//        CHECK (builtQueries [0]->database == "ParserTestDB");
-//        CHECK (builtQueries [1]->database == "ParserTestDB");
-//        CHECK (builtQueries [3]->database == "ParserTestDB");
-//        CHECK (builtQueries [4]->database == "ParserTestDB");
-//        CHECK (builtQueries [5]->database == "ParserTestDB");
-//
-//        CHECK (builtQueries [3]->targetType == Database::Target::USER);
-//        CHECK (builtQueries [4]->targetType == Database::Target::USER);
-//        CHECK (builtQueries [5]->targetType == Database::Target::USER);
-//
-//        CHECK (builtQueries [3]->actionOnTarget == Database::Target::Action::CREATE);
-//        CHECK (builtQueries [4]->actionOnTarget == Database::Target::Action::CHANGE);
-//        CHECK (builtQueries [5]->actionOnTarget == Database::Target::Action::DELETE);
-//
-//        CHECK (builtQueries [3]->target == "root");
-//        CHECK (builtQueries [4]->target == "root");
-//        CHECK (builtQueries [5]->target == "root");
+        CHECK (* builtQueries [0] == * builtQueries [2]);
+        CHECK (builtQueries [0]->actionOnDatabase == Database::CREATE);
+        CHECK (builtQueries [1]->actionOnDatabase == Database::DELETE);
+        CHECK (builtQueries [3]->actionOnDatabase == Database::CHANGE);
+        CHECK (builtQueries [4]->actionOnDatabase == Database::CHANGE);
+        CHECK (builtQueries [5]->actionOnDatabase == Database::CHANGE);
+        CHECK (builtQueries [6]->actionOnDatabase == Database::USERS);
+        CHECK (builtQueries [7]->actionOnDatabase == Database::DATABASES);
+
+        CHECK (builtQueries [0]->database == "ParserTestDB");
+        CHECK (builtQueries [1]->database == "ParserTestDB");
+        CHECK (builtQueries [3]->database == "ParserTestDB");
+        CHECK (builtQueries [4]->database == "ParserTestDB");
+        CHECK (builtQueries [5]->database == "ParserTestDB");
+
+        CHECK (builtQueries [3]->targetType == Database::Target::USER);
+        CHECK (builtQueries [4]->targetType == Database::Target::USER);
+        CHECK (builtQueries [5]->targetType == Database::Target::USER);
+
+        CHECK (builtQueries [3]->actionOnTarget == Database::Target::Action::CREATE);
+        CHECK (builtQueries [4]->actionOnTarget == Database::Target::Action::SELECT);
+        CHECK (builtQueries [5]->actionOnTarget == Database::Target::Action::DELETE);
+
+        CHECK (builtQueries [3]->target == "root");
+        CHECK (builtQueries [4]->target == "root");
+        CHECK (builtQueries [5]->target == "root");
 
     }
-//    GIVEN ("Some incorrect queries") {
-//        std::vector <std::string> invalidQueries {
-//                "iufskhfzrz8yor387wy6rliyu39trp3[]]'#'4o#23574.,/.,/.,#'[]l",
-//                " ijseo f*$RF$(**$&(&$(*&$(&*$(",
-//                "$msoires",
-//                "*()",
-//                "-=-=-=-=-(",
-//               R"(""""")",
-////                "",
-////                "((){}",
-//        };
-//        for (auto const & invalidQuery : invalidQueries) {
-//            CHECK_THROWS_AS (Parser::parseQuery (invalidQuery), std::logic_error);
-//        }
-//    }
+    GIVEN ("Some incorrect queries") {
+        std::vector <std::string> invalidQueries {
+                "iufskhfzrz8yor387wy6rliyu39trp3[]]'#'4o#23574.,/.,/.,#'[]l",
+                " ijseo f*$RF$(**$&(&$(*&$(&*$(",
+                "$msoires",
+                "*()",
+                "-=-=-=-=-(",
+               R"(""""")",
+//                "",
+//                "((){}",
+        };
+        for (auto const & invalidQuery : invalidQueries) {
+            CHECK_THROWS_AS (Parser::parseQuery (invalidQuery), std::logic_error);
+        }
+    }
 
 //        kj::Own <Query> queryResult;
 //        CHECK_NOTHROW (queryResult = Parser::parseQuery (""));
 
+}
+
+TEST_CASE ("All little helper functions do what they're supposed to") {
+    SECTION ("Giving strings to 'Parser::tokenToCell returns the right Cell") {
+        std::string const cs ("$");
+        bool tb = true;
+        short ts = 123;
+        long tl = 5324643234542356786;
+        std::vector <std::string> tokens {
+            "",
+            cs + std::to_string (tb),
+            cs + std::to_string (ts),
+            cs + std::to_string (tl),
+            "87093",
+            "oifiesfhesoifs",
+        };
+        std::vector <Cell> cells {
+            Cell(),
+            Cell (tb),
+            Cell (ts),
+            Cell (tl),
+        };
+        for (std::size_t idx = cells.size(); idx < tokens.size(); idx++) cells.emplace_back (tokens [idx]);
+
+        std::vector <Cell> newCells;
+        for (std::size_t idx = 0; idx < tokens.size(); idx++) {
+            CHECK_NOTHROW (newCells.push_back (Parser::tokenToCell (tokens [idx])));
+            CHECK (newCells.back().index() == std::min (idx, 4lu));
+            CHECK (cells [idx] == newCells [idx]);
+        }
+    }
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

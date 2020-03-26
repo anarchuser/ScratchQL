@@ -6,6 +6,7 @@
 
 #include <kj/async.h>
 #include <iostream>
+#include <cmath>
 #include <string>
 #include <locale>
 #include <vector>
@@ -28,6 +29,11 @@ struct Parser {
     static void readToken (std::string::const_iterator * source, std::string::const_iterator end, ParseTree * tree);
     static kj::Own <Query> buildQuery (kj::Own <ParseTree> const & pt);
     static inline short lookUpEnum (std::string const & str, std::vector <std::string> const & enums);
+    static void fillInSpecs (ParseTree const * pt, Database::Target::Table::Specification & specs);
+    static void fillInSpecs (ParseTree const * pt, Database::Target::User::Specification & specs);
+    static void fillPairLists (ParseTree const * pt, std::vector <std::pair <std::string, Cell>> & list);
+    static Cell tokenToCell (std::string const & token);
+    static inline Cell strToNum (std::string const & token);
 };
 
 #endif //DATABASE_PARSER_H
