@@ -24,12 +24,15 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
-    capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>>(), "*");
-    uint port = server.getPort().wait (server.getWaitScope ());
-    std::cout << ADDRESS << ":" << port << std::endl;
+    std::string address ((argc > 1) ? argv [1] : "*");
+    capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>> (), address);
+    uint port = server.getPort().wait (server.getWaitScope());
+    std::cout << "Setting database up on '" << address << ((argc > 1) ? "" :
+    STR+ ":" + std::to_string (port)) << "'..." << std::endl;
 
-    Client client (ADDRESS, port);
+    std::cout << "Connecting to '" << address << ((argc > 1) ? "" : std::to_string (port)) << "'..." << std::endl;
 
+    Client client = (argc > 1) ? Client (address) : Client (address, port);
     client.startInterface([] (Table const & t) { std::cout << t; });
 
     LOG (INFO) << "Stop Running";

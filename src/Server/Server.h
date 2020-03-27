@@ -17,17 +17,14 @@ template <class T>
 class DatabaseImpl final : public RPCServer::Server {
 public:
     kj::Promise <void> sendQuery (SendQueryContext context) override {
-        try {
-            Wrapper::wrapTable (evalQuery (context.getParams().getQuery()));
-//            context.getResults().setTable (Wrapper::wrapTable (evalQuery (context.getParams().getQuery())));
-        } catch (kj::Exception & e) {
-            std::cerr << "Failed to set the encoded table: " << e.getDescription () << std::endl;
-            KJ_FAIL_REQUIRE (e.getDescription ());
-        }
+        std::cout << "Server: 'Received Query: " << context.getParams ().getQuery() << "'" << std::endl;
+        auto tableBuilder = Wrapper::wrapTable (evalQuery (context.getParams().getQuery()));
+        context.getResults().setTable (tableBuilder->template getRoot <RPCServer::Table>().asReader());
         return kj::READY_NOW;
     }
 
     kj::Promise <void> connect (ConnectContext context) override {
+        std::cout << "Server: 'Listening!'" << std::endl;
         return kj::READY_NOW;
     }
 

@@ -6,7 +6,7 @@
 
 #define THROW(error)                \
     LOG (ERROR) << error.what();    \
-    throw error;
+    throw error
 
 #include <string>
 #include <cstdlib>
@@ -18,6 +18,7 @@
 
 #define IP_ADDRESS_FAMILY AF_INET
 #define ADDRESS "localhost"
+#define PORT 32786
 
 static const std::string PROJECT_ROOT (std::getenv("SCRATCHQL_ROOT"));
 
@@ -28,6 +29,11 @@ enum KeyTypes {
     FOREIGN,
     INDEXED,
 };
+
+static const std::string VALID_QUERY_CHARS (" <>!=+-*/{}[]().,:;@#\"");
+
+auto const STR = std::string();
+
 
 #endif //DATABASE_CONFIG_H
 

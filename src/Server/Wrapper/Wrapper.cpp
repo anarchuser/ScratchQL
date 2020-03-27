@@ -8,9 +8,6 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> 
     auto headerBuilder = builder.initHeader (table->getColumnCount());
     duplicateList (headerBuilder, table->getHeader());
 
-    auto metaBuilder = builder.initMeta (table->getColumnCount());
-    duplicateList (metaBuilder, table->getMeta());
-
     auto contentBuilder = builder.initContent (table->getRowCount());
     for (std::size_t r = 0; r < table->getRowCount (); r++) {
         auto rowBuilder = contentBuilder [r].initData (table->getColumnCount());
@@ -29,7 +26,7 @@ kj::Own <Table> Wrapper::unwrapTable (::RPCServer::Table::Reader const & reader)
     std::vector <KeyTypes> meta;
     for (auto const & column : reader.getHeader()) header.emplace_back (column);
     for (auto const & info : reader.getMeta ()) meta.push_back (KeyTypes (info));
-    kj::Own <Table> table = kj::heap <Table> (header, meta);
+    kj::Own <Table> table = kj::heap <Table> (header);
 
     for (auto const & row : reader.getContent ()) {
         std::vector <Cell> newRow;

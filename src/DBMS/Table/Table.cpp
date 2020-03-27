@@ -1,8 +1,7 @@
 #include "Table.h"
 
-Table::Table (std::vector <std::string> header, std::vector <KeyTypes> meta) :
+Table::Table (std::vector <std::string> header) :
     header {std::move (header)},
-    meta {std::move (meta)},
     columns {this->header.size()}
 {
     for (auto const & key : header) {
@@ -33,10 +32,10 @@ void Table::createRow (std::vector <Cell> const & row) {
         THROW (std::range_error ("Invalid amount of columns to insert"));
     }
 
-    matrix.emplace_back (std::vector <std::reference_wrapper <Cell const>> ());
+    matrix.emplace_back (std::vector <Cell const *>());
     for (int col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]].push_back (row [col_index]);
-        matrix [rows].push_back (table [header [col_index]] [rows]);
+        matrix [rows].push_back (& table [header [col_index]] [rows]);
     }
     rows++;
 
@@ -54,7 +53,7 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
 
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]] [row_index] = row [col_index];
-        matrix [col_index] [row_index] = table [header [col_index]] [row_index];
+        matrix [col_index] [row_index] = & table [header [col_index]] [row_index];
     }
 
     LOG (INFO) << "Updated Row in Table.";
@@ -147,10 +146,7 @@ std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index
 std::vector <std::string> const & Table::getHeader() const {
     return header;
 }
-std::vector <KeyTypes> const & Table::getMeta() const {
-    return meta;
-}
-std::vector <std::vector <std::reference_wrapper <Cell const>>> const & Table::getContent() const {
+std::vector <std::vector <Cell const *>> const & Table::getContent() const {
     return matrix;
 }
 std::size_t Table::getRowCount() const {
@@ -166,12 +162,12 @@ bool Table::operator ! () const {
 
 std::ostream & operator << (std::ostream & os, Table const & table) {
     if (table.getColumnCount()) {
-        for (auto const & col : table.getHeader()) std::cout << col << "\t";
+        for (auto const & col : table.getHeader()) os << col << "\t";
         os << std::endl;
         if (table.getRowCount ()) {
             os << std::endl;
-            for (auto const & row : table.getContent ()) {
-                for (auto const & col : row) os << col << "\t";
+            for (size_t row = 0; row < table.getRowCount (); row++) {
+                for (auto const & cell : table.readRowAsVector (row)) os << cell << "\t";
                 os << std::endl;
             }
         }
