@@ -3,6 +3,9 @@
 
 SCENARIO ("I can create a table, modify and print it") {
     GIVEN ("Some test data") {
+        CHECK_THROWS_AS (Table (std::vector <std::string> ()), std::range_error);
+        CHECK_THROWS_AS (Table (std::vector <std::string> ({"", ""})), std::range_error);
+
         std::vector <std::string> columns = {
                 "ID",
                 "Name",
@@ -29,11 +32,11 @@ SCENARIO ("I can create a table, modify and print it") {
             }
 
             THEN ("The lines get added successfully") {
-                CHECK (t1.getRowCount() == rows.size ());
+                CHECK (t1.getRowCount() == rows.size());
             }
 
             THEN ("I can successfully read lines") {
-                for (int i = 0; i < rows.size(); i++) {
+                for (int i = 0; i < t1.getRowCount(); i++) {
                     CHECK_NOTHROW (t1.readRow (i));
                     CHECK_NOTHROW (t1.readRowAsVector (i));
                     CHECK (t1.readRowAsVector (i) == rows [i]);
@@ -59,7 +62,7 @@ SCENARIO ("I can create a table, modify and print it") {
             }
 
             THEN ("I can successfully modify lines") {
-                for (int i = 0; i < rows.size(); i++) {
+                for (int i = 0; i < t1.getRowCount(); i++) {
                     CHECK_NOTHROW (t1.updateRow (i, rows[(i + 1) % rows.size()]));
                     CHECK (t1.readRowAsVector (i) == rows [(i + 1) % rows.size()]);
                     CHECK (!!t1);
@@ -67,13 +70,17 @@ SCENARIO ("I can create a table, modify and print it") {
             }
 
             THEN ("I can successfully delete lines") {
-                for (int i = 0; i < rows.size(); i++) {
-                    CHECK_NOTHROW (t1.deleteRow (i));
+                while (row_counter) {
+                    CHECK (!!t1);
+                    CHECK (t1.getRowCount() == row_counter--);
+                    CHECK_NOTHROW (t1.deleteRow (row_counter));
                 }
-                CHECK (t1.getRowCount() == rows.size());
-                t1.removePadding ();
-                CHECK (t1.getRowCount() == 0);
+                Table const tc1 (t1);
+                CHECK (!t1.getRowCount());
                 CHECK (!t1);
+
+                CHECK (!tc1.getRowCount());
+                CHECK (!tc1);
             }
         }
     }
