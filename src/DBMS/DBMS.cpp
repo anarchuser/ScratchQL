@@ -12,7 +12,7 @@ kj::Own <Table const> DBMS::evalQuery (std::string const & rawQuery) {
         default:
             LOG (FATAL) << "Invalid Target Type - Expected [0, 2], got " << procQuery->targetType;
     }
-    return kj::heap <Table const> (std::vector <std::string>());
+    return kj::heap <Table const> (std::vector <std::string>({"a"}));
 }
 
 kj::Own <Table const> DBMS::evalTableQuery (kj::Own <Query> const & query) {
