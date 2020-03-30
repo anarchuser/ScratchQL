@@ -4,6 +4,8 @@
 #include "../DBMS/DBMS.h"
 #include "Wrapper/Wrapper.h"
 
+#include "../Time/Time.h"
+
 #include "generated/ServerDBMS.capnp.h"
 #include <kj/debug.h>
 #include <capnp/ez-rpc.h>
@@ -31,7 +33,11 @@ public:
 private:
     kj::Own <Table const> evalQuery (std::string const & query) const {
         //TODO: make this fool proof
-        return T::evalQuery (query);
+
+        kj::Own <Table> result;
+        std::chrono::microseconds time = Time::diff (& result, T::evalQuery, query);
+        LOG (INFO) << "The following query took '" << time.count() << "' microseconds to execute:\n'" << query << "'";
+        return result;
     }
 };
 
