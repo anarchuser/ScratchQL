@@ -13,7 +13,7 @@ TEST_CASE ("I can benchmark single function calls") {
         std::chrono::nanoseconds duration;
         CHECK_NOTHROW (duration = Time::diff (& fibonacci, 25ul));
         CHECK (duration.count() > 1000);
-        CHECK (duration.count() < 10000000);
+        CHECK (duration.count() < 10000000000);
     }
 }
 
