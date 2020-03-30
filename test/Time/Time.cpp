@@ -9,11 +9,8 @@ unsigned long fibonacci (unsigned long n) {
 
 TEST_CASE ("I can benchmark single function calls") {
     GIVEN ("A function and some parameters") {
-
-        std::chrono::nanoseconds duration;
-        CHECK_NOTHROW (duration = Time::diff (& fibonacci, 25ul));
-        CHECK (duration.count() > 1000);
-        CHECK (duration.count() < 10000000000);
+        unsigned long test;
+        TIME (test, fibonacci (25));
     }
 }
 

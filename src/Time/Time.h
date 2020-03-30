@@ -3,24 +3,14 @@
 
 #include <chrono>
 
-namespace Time {
-    template <class Acc = std::chrono::microseconds, class R, class ... Args>
-    Acc diff (R * result, R (function) (Args && ...), Args && ... arguments) {
-        auto start = std::chrono::high_resolution_clock::now();
-        * result = (!result) ?: function (arguments ...);
-        auto stop = std::chrono::high_resolution_clock::now();
-        return std::chrono::duration_cast <Acc> (stop - start);
-    };
-
-    template <class Acc = std::chrono::microseconds, class R, class ... Args>
-    Acc diff (R (function) (Args ...), Args && ... arguments) {
-        auto start = std::chrono::high_resolution_clock::now();
-        function (arguments ...);
-        auto stop = std::chrono::high_resolution_clock::now();
-        return std::chrono::duration_cast <Acc> (stop - start);
-    }
-};
-
+#define TIME(res,cmd) {                                         \
+    auto __start__ = std::chrono::high_resolution_clock::now(); \
+    res = cmd;                                                  \
+    auto __stop__ = std::chrono::high_resolution_clock::now();  \
+    LOG (INFO) << "The executed Command took " <<               \
+    std::chrono::duration_cast <std::chrono::microseconds>      \
+            (__stop__ - __start__).count() <<                   \
+    " microseconds";}
 
 #endif //DATABASE_TIME_H
 

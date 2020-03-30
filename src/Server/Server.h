@@ -8,6 +8,7 @@
 
 #include "generated/ServerDBMS.capnp.h"
 #include <kj/debug.h>
+#include <kj/memory.h>
 #include <capnp/ez-rpc.h>
 #include <capnp/message.h>
 
@@ -34,9 +35,10 @@ private:
     kj::Own <Table const> evalQuery (std::string const & query) const {
         //TODO: make this fool proof
 
-        kj::Own <Table> result;
-        std::chrono::microseconds time = Time::diff (& result, T::evalQuery, query);
-        LOG (INFO) << "The following query took '" << time.count() << "' microseconds to execute:\n'" << query << "'";
+        kj::Own <Table const> result;
+        LOG (INFO) << "Executing the following query: \n'" << query << "'";
+        TIME (result, T::evalQuery (query));
+
         return result;
     }
 };
