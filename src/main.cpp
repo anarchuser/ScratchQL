@@ -24,6 +24,7 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
+
     std::string address ((argc > 1) ? argv [1] : "*");
     capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>> (), address);
     uint port = server.getPort().wait (server.getWaitScope());

@@ -37,7 +37,7 @@ private:
 
         kj::Own <Table const> result;
         LOG (INFO) << "Executing the following query: \n'" << query << "'";
-        TIME (result, T::evalQuery (query));
+        LOG_TIME (result = T::evalQuery (query));
 
         return result;
     }

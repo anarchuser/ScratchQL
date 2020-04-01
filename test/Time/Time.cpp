@@ -10,7 +10,12 @@ unsigned long fibonacci (unsigned long n) {
 TEST_CASE ("I can benchmark single function calls") {
     GIVEN ("A function and some parameters") {
         unsigned long test;
-        TIME (test, fibonacci (25));
+        LOG_TIME (test = fibonacci (25));
+        CHECK (test > 100);
+        CHECK (test < 100000);
+        test = TIME (fibonacci (25)).count();
+        CHECK (test > 100);
+        CHECK (test < 100000);
     }
 }
 
