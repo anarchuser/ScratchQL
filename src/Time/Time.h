@@ -10,7 +10,7 @@
     LOG (INFO) << "The executed Command took " <<               \
     std::chrono::duration_cast <std::chrono::microseconds>      \
             (__stop__ - __start__).count() <<                   \
-    " microseconds";}
+    " microseconds";} true
 
 #endif //DATABASE_TIME_H
 
