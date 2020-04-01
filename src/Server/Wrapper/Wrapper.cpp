@@ -1,7 +1,33 @@
 #include <capnp/message.h>
 #include "Wrapper.h"
 
-kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> table) {
+kj::Own <capnp::MallocMessageBuilder> const & Wrapper::wrapResponse (Response response) {
+    switch (response.index()) {
+        case ResponseType::VOID:
+            static kj::Own <capnp::MallocMessageBuilder> responseBuilder = kj::heap <capnp::MallocMessageBuilder>();
+            responseBuilder->initRoot <RPCServer::Response>().initData().setVoid();
+            return responseBuilder;
+        case ResponseType::TABLE:
+            return std::move (wrapTable (std::get <kj::Own <Table const>> (response)));
+        default:
+            LOG (FATAL) << "Insane Response index received: got {" << response.index() <<
+            "}, expected VOID {0} or TABLE {1}";
+    }
+}
+
+Response Wrapper::unwrapResponse (::RPCServer::Response::Reader const & reader) {
+    auto data = reader.getData();
+    switch (data.which()) {
+        case RPCServer::Response::Data::VOID:
+            return std::monostate();
+        case RPCServer::Response::Data::TABLE:
+            return unwrapTable (data.getTable());
+        default:
+            LOG (FATAL) << "Response Unwrapper went insane: " << (short) data.which() << " not in range [0, 2)";
+    }
+}
+
+kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> const & table) {
     kj::Own <capnp::MallocMessageBuilder> tableBuilder = kj::heap <capnp::MallocMessageBuilder>();
     RPCServer::Table::Builder builder = tableBuilder->initRoot <::RPCServer::Table>();
 

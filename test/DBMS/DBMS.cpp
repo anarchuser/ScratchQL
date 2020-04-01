@@ -13,7 +13,7 @@ SCENARIO ("Issuing a query returns a valid Table") {
         "",
         "",
     };
-    Table table = * DBMS::evalQuery("USERS ()");
+    Table table = * std::get <kj::Own <Table const>> (DBMS::evalQuery("USERS ()"));
 //    CHECK (!!table);
 }
 

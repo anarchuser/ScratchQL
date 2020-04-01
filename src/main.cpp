@@ -34,7 +34,7 @@ int main (int argc, char * argv[]) {
     std::cout << "Connecting to '" << address << ((argc > 1) ? "" : STR+ ":" + std::to_string (port)) << "'..." << std::endl;
 
     Client client = (argc > 1) ? Client (address) : Client (address, port);
-    client.startInterface([] (Table const & t) { std::cout << t; });
+    client.startInterface([] (Response r) { std::cout << r; });
 
     LOG (INFO) << "Stop Running";
 }

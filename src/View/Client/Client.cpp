@@ -48,16 +48,16 @@ void Client::connect () {
     }
 }
 
-kj::Own <Table> Client::sendQuery (std::string const & query) {
+Response Client::sendQuery (std::string const & query) {
     // Set up the request
     auto request = client->sendQueryRequest ();
     request.setQuery (query);
 
     // Send the request and wait for the result
-    return Wrapper::unwrapTable (request.send().wait (waitScope).getTable());
+    return Wrapper::unwrapResponse (request.send().wait (waitScope).getResponse());
 }
 
-void Client::startInterface (std::function <void (Table const &)> const & action) {
+void Client::startInterface (std::function <void (Response)> const & action) {
     connect();
 
     std::string query;
@@ -76,7 +76,7 @@ void Client::startInterface (std::function <void (Table const &)> const & action
         if (query == "exit") return;
 
         try {
-            action (* sendQuery (query));
+            action (sendQuery (query));
         } catch (std::exception & e) {
             std::cout << "Server: '" << e.what() << "'" << std::endl;
         }

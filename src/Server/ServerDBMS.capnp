@@ -22,6 +22,13 @@ interface RPCServer {
         }
     }
 
-    sendQuery @0 (query :Text) -> (table :Table);
+    struct Response {
+        data :union {
+            void @0 :Void;
+            table @1 :Table;
+        }
+    }
+
+    sendQuery @0 (query :Text) -> (response :Response);
     connect @1 () -> ();
 }
