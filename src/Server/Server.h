@@ -4,8 +4,11 @@
 #include "../DBMS/DBMS.h"
 #include "Wrapper/Wrapper.h"
 
+#include "../Time/Time.h"
+
 #include "generated/ServerDBMS.capnp.h"
 #include <kj/debug.h>
+#include <kj/memory.h>
 #include <capnp/ez-rpc.h>
 #include <capnp/message.h>
 
@@ -31,7 +34,12 @@ public:
 private:
     kj::Own <Table const> evalQuery (std::string const & query) const {
         //TODO: make this fool proof
-        return T::evalQuery (query);
+
+        kj::Own <Table const> result;
+        LOG (INFO) << "Executing the following query: \n'" << query << "'";
+        LOG_TIME (result = T::evalQuery (query));
+
+        return result;
     }
 };
 
