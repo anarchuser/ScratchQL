@@ -4,9 +4,17 @@
 /// Minimum LOG level. 0 = Everything, 1 = Ignore LOG (INFO), ...
 #define GOOGLE_STRIP_LOG 0
 
-#define THROW(error)                \
+#ifdef ERRORS_AS_WARNINGS
+#define THROW(error) {              \
+    LOG (WARNING) << error.what();  \
+    throw error;                    \
+}; true
+#else
+#define THROW(error) {              \
     LOG (ERROR) << error.what();    \
-    throw error
+    throw error;                    \
+}; true
+#endif
 
 #include <string>
 #include <cstdlib>
