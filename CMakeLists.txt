@@ -11,6 +11,8 @@ file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
 add_executable(Test ${TEST_SRCS} ${SRCS})
 
+add_compile_definitions(Test ERRORS_AS_WARNINGS)
+
 find_package(Catch2 REQUIRED)
 target_link_libraries(Test Catch2::Catch2)
 include(CTest)
