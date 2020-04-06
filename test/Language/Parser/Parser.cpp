@@ -2,7 +2,7 @@
 #include "../../../src/Language/Parser/Parser.h"
 
 SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
-    GIVEN ("Some correct queries") {
+    GIVEN ("Queries at each step of parsing") {
         std::vector <std::string> queries {
                 "cReAtE (ParserTestDB)\n",
                 "  delete        (  ParserTestDB  )    ",
@@ -103,23 +103,24 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
             CHECK_THROWS_AS (Parser::parseQuery (invalidQuery), std::logic_error);
         }
     }
-    std::vector <std::string> queries {
-            "CREATE(ParserTestDB)",
-            "DELETE(ParserTestDB)",
-            "CREATE(ParserTestDB)",
-            "ParserTestDB.CREATE(@root)",
-            "ParserTestDB.@root.GIVE()",
-            "ParserTestDB.DELETE(@root)",
-            "ParserTestDB.CREATE(#root, [name, surname, age])",
-            "ParserTestDB.#root.INSERT([{name : Dee}, {surname : John}, {age : 10}])",
-            "ParserTestDB.DELETE(#root)",
-            "USERS()",
-            "DATABASES()",
-    };
-
-    for (auto const & query : queries) {
-        kj::Own <Query> queryResult;
-        CHECK_NOTHROW (queryResult = Parser::parseQuery (query));
+    GIVEN ("Some valid queries to parse") {
+        std::vector <std::string> queries {
+                "CREATE(ParserTestDB)",
+                "DELETE(ParserTestDB)",
+                "CREATE(ParserTestDB)",
+                "ParserTestDB.CREATE(@root)",
+                "ParserTestDB.@root.GIVE()",
+                "ParserTestDB.DELETE(@root)",
+                "ParserTestDB.CREATE(#table, [name, surname, age])",
+                "ParserTestDB.#table.READ ([name], [{age : 10}])",
+                "ParserTestDB.#root.INSERT([{name : Dee}, {surname : John}, {age : 10}])",
+                "ParserTestDB.DELETE(#root)",
+                "USERS()",
+                "DATABASES()",
+        };
+        for (auto const & query : queries) {
+//            CHECK_NOTHROW (Parser::parseQuery (query));
+        }
     }
 }
 
