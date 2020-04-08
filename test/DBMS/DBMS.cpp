@@ -18,6 +18,24 @@ SCENARIO ("Issuing a query returns a valid Table") {
                 "DATABASES()",
         };
         for (auto const & query : queries) {
+            (std::cout << "Current Query: " << query).flush();
+
+            std::string despacedQuery = Parser::despace (query);
+
+            (std::cout << '.').flush();
+
+            std::string enrichedQuery = Parser::enrich (despacedQuery);
+
+            (std::cout << '.').flush();
+
+            kj::Own <ParseTree> tokenisedQuery = Parser::tokeniseQuery (enrichedQuery);
+
+            (std::cout << '.').flush();
+
+//            kj::Own <Query> procQuery = Parser::buildQuery (tokenisedQuery);
+
+            std::cout << "\tDone" << std::endl;
+
 //            REQUIRE_NOTHROW (Parser::parseQuery (query));
 //            CHECK_NOTHROW (DBMS::evalQuery (query));
         }
