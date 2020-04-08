@@ -139,7 +139,7 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
             LOG_ASSERT (! token->tryGetInner ());
             if (! token->tryGetNext ()) {
                 THROW (std::logic_error (STR +
-                                         "Method on Database '" + structure->database + "' expected; found nothing"));
+                "Method on Database '" + structure->database + "' expected; found nothing"));
             }
             token = token->tryGetNext ();
             switch (token->type) {
@@ -153,28 +153,27 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
                     LOG_ASSERT (! token->tryGetInner ());
                     if (! token->tryGetNext ()) {
                         THROW (std::logic_error (STR +
-                                                 "Method on Target '" + structure->target +
-                                                 "' expected; found nothing"));
+                        "Method on Target '" + structure->target +
+                        "' expected; found nothing"));
                     }
                     token = token->tryGetNext ();
                     if (! token->tryGetInner ()) {
                         THROW (std::logic_error (STR +
-                                                 "Parameters for function call on '" + structure->target +
-                                                 "' expected; found nothing"));
+                        "Parameters for function call on '" + structure->target +"' expected; found nothing"));
                     }
                     switch (structure->targetType) {
                         case Database::Target::TABLE: {
                             auto spec = Database::Target::Table::Specification ();
-                            spec.action = (Database::Target::Table::Action) lookUpEnum (token->getTokenName (),
-                                                                                        Database::Target::Table::ActionStrings);
-                            fillInSpecs (token = token->tryGetInner (), spec);
-                            structure->spec = std::move (Database::Target::Specification (spec));
+                            spec.action = (Database::Target::Table::Action) lookUpEnum (
+                                    token->getTokenName (), Database::Target::Table::ActionStrings);
+//                            fillInSpecs (token = token->tryGetInner (), spec);
+//                            structure->spec = std::move (Database::Target::Specification (spec));
                         } break;
 
                         case Database::Target::USER: {
                             auto spec = Database::Target::User::Specification ();
-                            spec.action = (Database::Target::User::Action) lookUpEnum (token->getTokenName (),
-                                                                                       Database::Target::User::ActionStrings);
+                            spec.action = (Database::Target::User::Action) lookUpEnum (
+                                    token->getTokenName (), Database::Target::User::ActionStrings);
                             fillInSpecs (token = token->tryGetInner (), spec);
                             structure->spec = std::move (Database::Target::Specification (spec));
                         } break;
@@ -277,44 +276,48 @@ inline short Parser::lookUpEnum (std::string const & str, std::vector <std::stri
 
 void Parser::fillInSpecs (ParseTree const * tree, Database::Target::Table::Specification & specs) {
     switch (specs.action) {
-        case Database::Target::Table::READ:
-            if (!(tree->tryGetInner() && tree->tryGetNext() && tree->tryGetNext()->tryGetInner())) {
-                if (!(tree->type == Token::LIST && tree->tryGetNext()->type == Token::LIST)) {
-                    THROW (std::logic_error (STR+
-                    "For SELECT function, expected a list [COLUMN] and a list of maps [{COLUMN : value}] of parameters"));
-                }
-            }
-            fillPairLists (tree, specs.values);
-            fillPairLists (tree, specs.where);
-            break;
-        case Database::Target::Table::INSERT:
-            if (!(tree->tryGetInner())) {
-                if (!(tree->type == Token::LIST)) {
-                    THROW (std::logic_error (STR+
-                    "For INSERT function, expected a list of maps [{COLUMN : value}] as parameter"));
-                }
-            }
-            fillPairLists (tree, specs.where);
-            break;
-        case Database::Target::Table::REMOVE:
-            if (!(tree->tryGetInner())) {
-                if (!(tree->type == Token::LIST)) {
+        case Database::Target::Table::READ: {
+            if (! (tree->tryGetInner () && tree->tryGetNext () && tree->tryGetNext ()->tryGetInner ())) {
+                if (! (tree->type == Token::LIST && tree->tryGetNext ()->type == Token::LIST)) {
                     THROW (std::logic_error (STR +
-                    "For REMOVE function, expected a list of maps [{COLUMN : value}] as parameter"));
-                }
-            }
-            fillPairLists (tree, specs.where);
-            break;
-        case Database::Target::Table::UPDATE:
-            if (!(tree->tryGetInner() && tree->tryGetNext() && tree->tryGetNext()->tryGetInner())) {
-                if (!(tree->type == Token::LIST && tree->tryGetNext()->type == Token::LIST)) {
-                    THROW (std::logic_error (STR+
-                    "For SELECT function, expected a list of maps [{COLUMN : value}] each as values and spec parameters"));
+                                             "For SELECT function, expected a list [COLUMN] and a list of maps [{COLUMN : value}] of parameters"));
                 }
             }
             fillPairLists (tree, specs.values);
             fillPairLists (tree, specs.where);
-            break;
+        } break;
+
+        case Database::Target::Table::INSERT: {
+            if (! (tree->tryGetInner ())) {
+                if (! (tree->type == Token::LIST)) {
+                    THROW (std::logic_error (STR +
+                                             "For INSERT function, expected a list of maps [{COLUMN : value}] as parameter"));
+                }
+            }
+            fillPairLists (tree, specs.where);
+        } break;
+
+        case Database::Target::Table::REMOVE: {
+            if (! (tree->tryGetInner ())) {
+                if (! (tree->type == Token::LIST)) {
+                    THROW (std::logic_error (STR +
+                                             "For REMOVE function, expected a list of maps [{COLUMN : value}] as parameter"));
+                }
+            }
+            fillPairLists (tree, specs.where);
+        } break;
+
+        case Database::Target::Table::UPDATE: {
+            if (! (tree->tryGetInner () && tree->tryGetNext () && tree->tryGetNext ()->tryGetInner ())) {
+                if (! (tree->type == Token::LIST && tree->tryGetNext ()->type == Token::LIST)) {
+                    THROW (std::logic_error (STR +
+                                             "For SELECT function, expected a list of maps [{COLUMN : value}] each as values and spec parameters"));
+                }
+            }
+            fillPairLists (tree, specs.values);
+            fillPairLists (tree, specs.where);
+        } break;
+
         default:
             LOG (FATAL) << "Invalid action detected";
     }

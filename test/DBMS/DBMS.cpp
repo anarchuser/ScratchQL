@@ -32,7 +32,7 @@ SCENARIO ("Issuing a query returns a valid Table") {
 
             (std::cout << '.').flush();
 
-//            kj::Own <Query> procQuery = Parser::buildQuery (tokenisedQuery);
+            kj::Own <Query> procQuery = Parser::buildQuery (tokenisedQuery);
 
             std::cout << "\tDone" << std::endl;
 

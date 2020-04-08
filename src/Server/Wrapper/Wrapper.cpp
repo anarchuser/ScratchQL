@@ -1,12 +1,12 @@
 #include <capnp/message.h>
 #include "Wrapper.h"
 
-kj::Own <capnp::MallocMessageBuilder> const & Wrapper::wrapResponse (Response response) {
+kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapResponse (Response response) {
     switch (response.index()) {
-        case ResponseType::VOID:
-            static kj::Own <capnp::MallocMessageBuilder> responseBuilder = kj::heap <capnp::MallocMessageBuilder>();
-            responseBuilder->initRoot <RPCServer::Response>().initData().setVoid();
-            return responseBuilder;
+        case ResponseType::VOID: {
+            kj::Own <capnp::MallocMessageBuilder> responseBuilder = kj::heap <capnp::MallocMessageBuilder> ();
+            responseBuilder->initRoot <RPCServer::Response> ().initData ().setVoid ();
+            return responseBuilder; }
         case ResponseType::TABLE:
             return std::move (wrapTable (std::get <kj::Own <Table const>> (response)));
         default:

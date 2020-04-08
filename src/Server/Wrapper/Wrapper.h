@@ -9,7 +9,7 @@
 
 namespace Wrapper {
 
-kj::Own <capnp::MallocMessageBuilder> const & wrapResponse (Response response);
+kj::Own <capnp::MallocMessageBuilder> wrapResponse (Response response);
 Response unwrapResponse (::RPCServer::Response::Reader const & reader);
 
 kj::Own <capnp::MallocMessageBuilder> wrapTable (kj::Own <Table const> const & table);
