@@ -132,105 +132,136 @@ kj::Own <Query> Parser::buildQuery (kj::Own <ParseTree> const & pt) {
     ParseTree const * token = & * pt;
 
     // Set database name and action
-    if (token->type == Token::DATABASE) {
-        structure->database = token->getTokenName();
-        structure->actionOnDatabase = Database::CHANGE;
-        LOG_ASSERT (!token->tryGetInner());
-        if (!token->tryGetNext()) {
-            THROW (std::logic_error (STR+
-            "Method on Database '" + structure->database + "' expected; found nothing"));
-        }
-        token = token->tryGetNext();
-        if (token->type == Token::USER || token->type == Token::TABLE) {
-            if (token->type == Token::USER) structure->targetType = Database::Target::USER;
-            else if (token->type == Token::TABLE) structure->targetType = Database::Target::TABLE;
-            else {
-                LOG (FATAL) << "Expected User or Table, found Token::Type {" << token->type << "} for Token '" << token << "'";
-            }
-            structure->target = token->getTokenName();
-            structure->actionOnTarget = Database::Target::SELECT;
-            LOG_ASSERT (!token->tryGetInner());
-            if (!token->tryGetNext()) {
-                THROW (std::logic_error (STR+
-                "Method on Target '" + structure->target + "' expected; found nothing"));
-            }
-            token = token->tryGetNext();
-            if (!token->tryGetInner()) {
-                THROW (std::logic_error (STR+
-                "Parameters for function call on '" + structure->target + "' expected; found nothing"));
-            }
-            if (structure->targetType == Database::Target::TABLE) {
-                auto spec = Database::Target::Table::Specification ();
-                spec.action = (Database::Target::Table::Action) lookUpEnum (token->getTokenName(), Database::Target::Table::ActionStrings);
-                fillInSpecs (token = token->tryGetInner(), spec);
-                structure->spec = std::move (Database::Target::Specification (spec));
-            } else {
-                auto spec = Database::Target::User::Specification ();
-                spec.action = (Database::Target::User::Action) lookUpEnum (token->getTokenName(), Database::Target::User::ActionStrings);
-                fillInSpecs (token = token->tryGetInner(), spec);
-                structure->spec = std::move (Database::Target::Specification (spec));
-            }
-        } else if (token->type == Token::FUNCTION){
-            structure->actionOnTarget = (Database::Target::Action)
-                    lookUpEnum (token->getTokenName(), Database::Target::ActionStrings);
-            if (!token->tryGetInner()) {
+    switch (token->type) {
+        case Token::Type::DATABASE: {
+            structure->database = token->getTokenName ();
+            structure->actionOnDatabase = Database::CHANGE;
+            LOG_ASSERT (! token->tryGetInner ());
+            if (! token->tryGetNext ()) {
                 THROW (std::logic_error (STR +
-                "Function call parameters for '" + token->getTokenName() + "' expected; nothing found"));
-            } token = token->tryGetInner();
-            if (token->type == Token::USER || token->type == Token::TABLE) {
-                if (token->type == Token::USER) structure->targetType = Database::Target::USER;
-                else if (token->type == Token::TABLE) structure->targetType = Database::Target::TABLE;
-                else {
-                    LOG (FATAL) << "Expected User or Table; Token found (" << token << ", {" << token->type << "})";
-                }
-                structure->target = token->getTokenName();
-            } else {
-                THROW (std::logic_error (STR+
-                "Function call parameter for '" + Database::Target::ActionStrings [structure->actionOnTarget] +
-                "' expected; Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
+                                         "Method on Database '" + structure->database + "' expected; found nothing"));
             }
-            if (structure->actionOnTarget == Database::Target::Action::CREATE) {
-                if (structure->targetType == Database::Target::Type::TABLE) {
-                    if (!(token = token->tryGetNext ())) {
-                        THROW (std::logic_error (STR+
-                        "Expected List of column names; found nothing"));
+            token = token->tryGetNext ();
+            switch (token->type) {
+                case Token::Type::USER:
+                case Token::Type::TABLE: {
+                    structure->targetType = (token->type == Token::Type::USER) ?
+                            Database::Target::USER :
+                            Database::Target::TABLE;
+                    structure->target = token->getTokenName ();
+                    structure->actionOnTarget = Database::Target::SELECT;
+                    LOG_ASSERT (! token->tryGetInner ());
+                    if (! token->tryGetNext ()) {
+                        THROW (std::logic_error (STR +
+                                                 "Method on Target '" + structure->target +
+                                                 "' expected; found nothing"));
                     }
-                    ParseTree * tree = token->tryGetInner();
-                    auto spec = Database::Target::Table::Specification ();
-                    do {
-                        if (tree->type == Token::VALUE) {
-                            spec.values.emplace_back (tree->token, Cell());
-                        } else {
-                            LOG (FATAL) << "Expected KV_PAIR or VALUE in List, found {" << tree->type << "}";
+                    token = token->tryGetNext ();
+                    if (! token->tryGetInner ()) {
+                        THROW (std::logic_error (STR +
+                                                 "Parameters for function call on '" + structure->target +
+                                                 "' expected; found nothing"));
+                    }
+                    switch (structure->targetType) {
+                        case Database::Target::TABLE: {
+                            auto spec = Database::Target::Table::Specification ();
+                            spec.action = (Database::Target::Table::Action) lookUpEnum (token->getTokenName (),
+                                                                                        Database::Target::Table::ActionStrings);
+                            fillInSpecs (token = token->tryGetInner (), spec);
+                            structure->spec = std::move (Database::Target::Specification (spec));
+                        } break;
+
+                        case Database::Target::USER: {
+                            auto spec = Database::Target::User::Specification ();
+                            spec.action = (Database::Target::User::Action) lookUpEnum (token->getTokenName (),
+                                                                                       Database::Target::User::ActionStrings);
+                            fillInSpecs (token = token->tryGetInner (), spec);
+                            structure->spec = std::move (Database::Target::Specification (spec));
+                        } break;
+
+                        default:
+                            LOG_ASSERT (false);
+                    }
+                } break;
+
+                case Token::Type::FUNCTION: {
+                    structure->actionOnTarget = (Database::Target::Action)
+                            lookUpEnum (token->getTokenName (), Database::Target::ActionStrings);
+                    if (! token->tryGetInner ()) {
+                        THROW (std::logic_error (STR +
+                                                 "Function call parameters for '" + token->getTokenName () +
+                                                 "' expected; nothing found"));
+                    }
+                    token = token->tryGetInner ();
+                    switch (token->type) {
+                        case Token::Type::TABLE:
+                        case Token::Type::USER: {
+                            structure->targetType = (token->type == Token::Type::USER) ?
+                                                    Database::Target::USER :
+                                                    Database::Target::TABLE;
+                            structure->target = token->getTokenName ();
+                        } break;
+
+                        default:
+                        THROW (std::logic_error (STR +
+                        "Function call parameter for '" +
+                        Database::Target::ActionStrings [structure->actionOnTarget] +
+                        "' expected; Token found (" + token->getTokenName () + ", {" +
+                        std::to_string (token->type) + "})"));
+                    }
+                    if (structure->actionOnTarget == Database::Target::Action::CREATE) {
+                        if (structure->targetType == Database::Target::Type::TABLE) {
+                            if (! (token = token->tryGetNext ())) {
+                                THROW (std::logic_error (STR +
+                                                         "Expected List of column names; found nothing"));
+                            }
+                            ParseTree * tree = token->tryGetInner ();
+                            auto spec = Database::Target::Table::Specification ();
+                            do {
+                                if (tree->type == Token::VALUE) {
+                                    spec.values.emplace_back (tree->token, Cell ());
+                                } else {
+                                    LOG (FATAL) << "Expected KV_PAIR or VALUE in List, found {" << tree->type << "}";
+                                }
+                            } while ((tree = tree->tryGetNext ()));
+                            structure->spec = std::move (Database::Target::Specification (spec));
                         }
-                    } while ((tree = tree->tryGetNext ()));
-                    structure->spec = std::move (Database::Target::Specification (spec));
-                }
+                    }
+                } break;
+
+                default:
+                    THROW (std::logic_error (STR +
+                    "Expected Function, or Table or User; Token found (" + token->getTokenName () +
+                    ", {" + std::to_string (token->type) + "})"));
             }
-        } else {
-            THROW (std::logic_error (STR+
-            "Expected Function, or Table or User; Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
-        }
-    } else if (token->type == Token::FUNCTION) {
-        structure->actionOnDatabase = (Database::Action) lookUpEnum (token->getTokenName(), Database::ActionStrings);
-        if (!token->tryGetInner()) {
-            THROW (std::logic_error (STR +
-            "Function call parameter for '" + token->getTokenName() + "' expected; nothing found"));
-        }
-        if (structure->actionOnDatabase == Database::Action::DATABASES ||
-            structure->actionOnDatabase == Database::Action::USERS)
+        } break;
+
+        case Token::Type::FUNCTION: {
+            structure->actionOnDatabase = (Database::Action) lookUpEnum (token->getTokenName (),
+                                                                         Database::ActionStrings);
+            if (! token->tryGetInner ()) {
+                THROW (std::logic_error (STR +
+                                         "Function call parameter for '" + token->getTokenName () +
+                                         "' expected; nothing found"));
+            }
+            if (structure->actionOnDatabase == Database::Action::DATABASES ||
+                structure->actionOnDatabase == Database::Action::USERS)
+                return structure;
+            token = token->tryGetInner ();
+            if (token->type == Token::DATABASE) structure->database = token->getTokenName ();
+            else {
+                THROW (std::logic_error (STR +
+                                         "Function call parameter for '" +
+                                         Database::ActionStrings[structure->actionOnDatabase] +
+                                         "' expected; function found (" + token->getTokenName () + ", {" +
+                                         std::to_string (token->type) + "})"));
+            }
             return structure;
-        token = token->tryGetInner();
-        if (token->type == Token::DATABASE) structure->database = token->getTokenName();
-        else {
-            THROW (std::logic_error (STR +
-            "Function call parameter for '" + Database::ActionStrings [structure->actionOnDatabase] +
-            "' expected; function found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
-        }
-        return structure;
-    } else {
-        THROW (std::logic_error (STR+
-        "Expected Function or Database; Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
+        } break;
+
+        default:
+            THROW (std::logic_error (STR+ "Expected Function or Database;" +
+            " Token found (" + token->getTokenName() + ", {" + std::to_string (token->type) + "})"));
     }
     return structure;
 }
