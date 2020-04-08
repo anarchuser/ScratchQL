@@ -1,6 +1,6 @@
 #include "DBMS.h"
 
-kj::Own <Table const> DBMS::evalQuery (std::string const & rawQuery) {
+Response DBMS::evalQuery (std::string const & rawQuery) {
     kj::Own <Query> procQuery = Parser::parseQuery (rawQuery);
     switch (procQuery->targetType) {
         case Database::Target::Type::VOID:
@@ -15,7 +15,7 @@ kj::Own <Table const> DBMS::evalQuery (std::string const & rawQuery) {
     return kj::heap <Table const> (std::vector <std::string>({"a"}));
 }
 
-kj::Own <Table const> DBMS::evalTableQuery (kj::Own <Query> const & query) {
+Response DBMS::evalTableQuery (kj::Own <Query> const & query) {
     if (query->actionOnTarget == Database::Target::Action::CREATE) {
         auto const & spec = std::get <Database::Target::Table::Specification> (query->spec);
         std::vector <std::string> header;
@@ -33,8 +33,21 @@ kj::Own <Table const> DBMS::evalTableQuery (kj::Own <Query> const & query) {
     return testTable;
 }
 
-kj::Own <Table const> DBMS::evalUserQuery (kj::Own <Query> const & query) {
+Response DBMS::evalUserQuery (kj::Own <Query> const & query) {
     return kj::heap <Table> (std::vector <std::string> { "USER", "PERMISSION" });
+}
+
+std::ostream & operator << (std::ostream & os, Response const & response) {
+    switch (response.index()) {
+        case ResponseType::VOID:
+            break;
+        case ResponseType::TABLE:
+            os << * std::get <kj::Own <Table const>> (response);
+            break;
+        default:
+            LOG (FATAL) << "Response has gone insane";
+    }
+    return os;
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

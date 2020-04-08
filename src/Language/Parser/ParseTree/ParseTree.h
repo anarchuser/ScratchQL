@@ -16,6 +16,8 @@ private:
 
     explicit ParseTree (ParseTree * parent);
 
+    std::string const & str (std::string & str, bool printParents = true) const;
+
 public:
     ParseTree();
     ~ParseTree();
@@ -32,7 +34,7 @@ public:
     [[nodiscard]] Token::Type getParentType() const;
 
     [[nodiscard]] std::string getTokenName() const;
-    [[nodiscard]] std::string str (bool nl = false) const;
+    [[nodiscard]] std::string str (bool printParents = true) const;
 
     std::ostream & operator << (std::ostream & os) const;
     [[nodiscard]] char operator [] (int index) const;

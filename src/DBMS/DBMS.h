@@ -7,13 +7,21 @@
 
 #include <memory>
 #include <kj/async.h>
+#include <variant>
+
+using Response = std::variant <std::monostate, kj::Own <Table const>>;
+enum ResponseType {
+    VOID,
+    TABLE
+};
+std::ostream & operator << (std::ostream & os, Response const & response);
 
 struct DBMS {
     DBMS() = delete;
 
-    static kj::Own <Table const> evalQuery (std::string const & rawQuery);
-    static kj::Own <Table const> evalTableQuery (kj::Own <Query> const & query);
-    static kj::Own <Table const> evalUserQuery (kj::Own <Query> const & query);
+    static Response evalQuery (std::string const & rawQuery);
+    static Response evalTableQuery (kj::Own <Query> const & query);
+    static Response evalUserQuery (kj::Own <Query> const & query);
 };
 
 

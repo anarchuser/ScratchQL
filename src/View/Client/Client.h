@@ -28,9 +28,9 @@ public:
     explicit Client (std::string const & address);
 
     void connect ();
-    kj::Own <Table> sendQuery (std::string const & query);
+    Response sendQuery (std::string const & query);
 
-    void startInterface (std::function <void (Table const &)> const & action);
+    void startInterface (std::function <void (Response)> const & action);
 };
 
 

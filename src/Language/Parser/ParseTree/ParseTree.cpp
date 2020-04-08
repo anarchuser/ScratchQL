@@ -32,13 +32,25 @@ std::ostream & ParseTree::operator << (std::ostream & os) const {
     return (os << this->str());
 }
 
-std::string ParseTree::str (bool nl) const{
-    bool isInner = parent && parent->tryGetInner();
-    std::string str (getTokenName());
-    if (inner) str += (isInner ? '[' : '(') + inner->str() + (isInner ? ']' : ')');
-    if (next)  str += (isInner ? ',' : '.') + next->str();
-    if (nl && !parent) str += '\n';
-    return str;
+std::string const & ParseTree::str (std::string & s, bool pp) const {
+    if (pp && parent) return parent->str (s, true);
+    bool isParam = parent && parent->tryGetInner ();
+    s += token;
+    if (inner) {
+        s += (isParam ? type == Token::KV_PAIR ? '{' : '[' : '(');
+        inner->str (s, false);
+        s += (isParam ? type == Token::KV_PAIR ? '}' : ']' : ')');
+    }
+    if (next) {
+        s += (isParam ? type == Token::KEY ? ',' : ':' : '.');
+        next->str (s, false);
+    }
+    return s;
+}
+
+std::string ParseTree::str (bool pp) const {
+    std::string string;
+    return str (string, pp);
 }
 
 char ParseTree::operator [] (int index) const {

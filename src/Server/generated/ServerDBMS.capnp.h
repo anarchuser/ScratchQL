@@ -22,6 +22,8 @@ CAPNP_DECLARE_SCHEMA(d17028c24c6459e5);
 CAPNP_DECLARE_SCHEMA(bd0ce84a55a2c476);
 CAPNP_DECLARE_SCHEMA(ef966708bacf4431);
 CAPNP_DECLARE_SCHEMA(aa2ac7c0d0ba789d);
+CAPNP_DECLARE_SCHEMA(cfef3b526bdab0b7);
+CAPNP_DECLARE_SCHEMA(d39793d037b602ba);
 CAPNP_DECLARE_SCHEMA(cf47b13c99e9bcb5);
 CAPNP_DECLARE_SCHEMA(93a6e8640a620cdc);
 CAPNP_DECLARE_SCHEMA(bc2c94dd270bebbd);
@@ -40,6 +42,7 @@ struct RPCServer {
 #endif  // !CAPNP_LITE
 
   struct Table;
+  struct Response;
   struct SendQueryParams;
   struct SendQueryResults;
   struct ConnectParams;
@@ -117,6 +120,41 @@ struct RPCServer::Table::Cell::Data {
 
   struct _capnpPrivate {
     CAPNP_DECLARE_STRUCT_HEADER(aa2ac7c0d0ba789d, 2, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct RPCServer::Response {
+  Response() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+  struct Data;
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(cfef3b526bdab0b7, 1, 1)
+    #if !CAPNP_LITE
+    static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
+    #endif  // !CAPNP_LITE
+  };
+};
+
+struct RPCServer::Response::Data {
+  Data() = delete;
+
+  class Reader;
+  class Builder;
+  class Pipeline;
+  enum Which: uint16_t {
+    VOID,
+    TABLE,
+  };
+
+  struct _capnpPrivate {
+    CAPNP_DECLARE_STRUCT_HEADER(d39793d037b602ba, 1, 1)
     #if !CAPNP_LITE
     static constexpr ::capnp::_::RawBrandedSchema const* brand() { return &schema->defaultBrand; }
     #endif  // !CAPNP_LITE
@@ -616,6 +654,175 @@ private:
 };
 #endif  // !CAPNP_LITE
 
+class RPCServer::Response::Reader {
+public:
+  typedef Response Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline typename Data::Reader getData() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class RPCServer::Response::Builder {
+public:
+  typedef Response Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline typename Data::Builder getData();
+  inline typename Data::Builder initData();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class RPCServer::Response::Pipeline {
+public:
+  typedef Response Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+  inline typename Data::Pipeline getData();
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
+class RPCServer::Response::Data::Reader {
+public:
+  typedef Data Reads;
+
+  Reader() = default;
+  inline explicit Reader(::capnp::_::StructReader base): _reader(base) {}
+
+  inline ::capnp::MessageSize totalSize() const {
+    return _reader.totalSize().asPublic();
+  }
+
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const {
+    return ::capnp::_::structString(_reader, *_capnpPrivate::brand());
+  }
+#endif  // !CAPNP_LITE
+
+  inline Which which() const;
+  inline bool isVoid() const;
+  inline  ::capnp::Void getVoid() const;
+
+  inline bool isTable() const;
+  inline bool hasTable() const;
+  inline  ::RPCServer::Table::Reader getTable() const;
+
+private:
+  ::capnp::_::StructReader _reader;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::List;
+  friend class ::capnp::MessageBuilder;
+  friend class ::capnp::Orphanage;
+};
+
+class RPCServer::Response::Data::Builder {
+public:
+  typedef Data Builds;
+
+  Builder() = delete;  // Deleted to discourage incorrect usage.
+                       // You can explicitly initialize to nullptr instead.
+  inline Builder(decltype(nullptr)) {}
+  inline explicit Builder(::capnp::_::StructBuilder base): _builder(base) {}
+  inline operator Reader() const { return Reader(_builder.asReader()); }
+  inline Reader asReader() const { return *this; }
+
+  inline ::capnp::MessageSize totalSize() const { return asReader().totalSize(); }
+#if !CAPNP_LITE
+  inline ::kj::StringTree toString() const { return asReader().toString(); }
+#endif  // !CAPNP_LITE
+
+  inline Which which();
+  inline bool isVoid();
+  inline  ::capnp::Void getVoid();
+  inline void setVoid( ::capnp::Void value = ::capnp::VOID);
+
+  inline bool isTable();
+  inline bool hasTable();
+  inline  ::RPCServer::Table::Builder getTable();
+  inline void setTable( ::RPCServer::Table::Reader value);
+  inline  ::RPCServer::Table::Builder initTable();
+  inline void adoptTable(::capnp::Orphan< ::RPCServer::Table>&& value);
+  inline ::capnp::Orphan< ::RPCServer::Table> disownTable();
+
+private:
+  ::capnp::_::StructBuilder _builder;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+  friend class ::capnp::Orphanage;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::_::PointerHelpers;
+};
+
+#if !CAPNP_LITE
+class RPCServer::Response::Data::Pipeline {
+public:
+  typedef Data Pipelines;
+
+  inline Pipeline(decltype(nullptr)): _typeless(nullptr) {}
+  inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
+      : _typeless(kj::mv(typeless)) {}
+
+private:
+  ::capnp::AnyPointer::Pipeline _typeless;
+  friend class ::capnp::PipelineHook;
+  template <typename, ::capnp::Kind>
+  friend struct ::capnp::ToDynamic_;
+};
+#endif  // !CAPNP_LITE
+
 class RPCServer::SendQueryParams::Reader {
 public:
   typedef SendQueryParams Reads;
@@ -714,8 +921,8 @@ public:
   }
 #endif  // !CAPNP_LITE
 
-  inline bool hasTable() const;
-  inline  ::RPCServer::Table::Reader getTable() const;
+  inline bool hasResponse() const;
+  inline  ::RPCServer::Response::Reader getResponse() const;
 
 private:
   ::capnp::_::StructReader _reader;
@@ -745,12 +952,12 @@ public:
   inline ::kj::StringTree toString() const { return asReader().toString(); }
 #endif  // !CAPNP_LITE
 
-  inline bool hasTable();
-  inline  ::RPCServer::Table::Builder getTable();
-  inline void setTable( ::RPCServer::Table::Reader value);
-  inline  ::RPCServer::Table::Builder initTable();
-  inline void adoptTable(::capnp::Orphan< ::RPCServer::Table>&& value);
-  inline ::capnp::Orphan< ::RPCServer::Table> disownTable();
+  inline bool hasResponse();
+  inline  ::RPCServer::Response::Builder getResponse();
+  inline void setResponse( ::RPCServer::Response::Reader value);
+  inline  ::RPCServer::Response::Builder initResponse();
+  inline void adoptResponse(::capnp::Orphan< ::RPCServer::Response>&& value);
+  inline ::capnp::Orphan< ::RPCServer::Response> disownResponse();
 
 private:
   ::capnp::_::StructBuilder _builder;
@@ -770,7 +977,7 @@ public:
   inline explicit Pipeline(::capnp::AnyPointer::Pipeline&& typeless)
       : _typeless(kj::mv(typeless)) {}
 
-  inline  ::RPCServer::Table::Pipeline getTable();
+  inline  ::RPCServer::Response::Pipeline getResponse();
 private:
   ::capnp::AnyPointer::Pipeline _typeless;
   friend class ::capnp::PipelineHook;
@@ -1277,6 +1484,111 @@ inline ::capnp::Orphan< ::capnp::Text> RPCServer::Table::Cell::Data::Builder::di
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
+inline typename RPCServer::Response::Data::Reader RPCServer::Response::Reader::getData() const {
+  return typename RPCServer::Response::Data::Reader(_reader);
+}
+inline typename RPCServer::Response::Data::Builder RPCServer::Response::Builder::getData() {
+  return typename RPCServer::Response::Data::Builder(_builder);
+}
+#if !CAPNP_LITE
+inline typename RPCServer::Response::Data::Pipeline RPCServer::Response::Pipeline::getData() {
+  return typename RPCServer::Response::Data::Pipeline(_typeless.noop());
+}
+#endif  // !CAPNP_LITE
+inline typename RPCServer::Response::Data::Builder RPCServer::Response::Builder::initData() {
+  _builder.setDataField< ::uint16_t>(::capnp::bounded<0>() * ::capnp::ELEMENTS, 0);
+  _builder.getPointerField(::capnp::bounded<0>() * ::capnp::POINTERS).clear();
+  return typename RPCServer::Response::Data::Builder(_builder);
+}
+inline  ::RPCServer::Response::Data::Which RPCServer::Response::Data::Reader::which() const {
+  return _reader.getDataField<Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline  ::RPCServer::Response::Data::Which RPCServer::Response::Data::Builder::which() {
+  return _builder.getDataField<Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline bool RPCServer::Response::Data::Reader::isVoid() const {
+  return which() == RPCServer::Response::Data::VOID;
+}
+inline bool RPCServer::Response::Data::Builder::isVoid() {
+  return which() == RPCServer::Response::Data::VOID;
+}
+inline  ::capnp::Void RPCServer::Response::Data::Reader::getVoid() const {
+  KJ_IREQUIRE((which() == RPCServer::Response::Data::VOID),
+              "Must check which() before get()ing a union member.");
+  return _reader.getDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+
+inline  ::capnp::Void RPCServer::Response::Data::Builder::getVoid() {
+  KJ_IREQUIRE((which() == RPCServer::Response::Data::VOID),
+              "Must check which() before get()ing a union member.");
+  return _builder.getDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS);
+}
+inline void RPCServer::Response::Data::Builder::setVoid( ::capnp::Void value) {
+  _builder.setDataField<RPCServer::Response::Data::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, RPCServer::Response::Data::VOID);
+  _builder.setDataField< ::capnp::Void>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, value);
+}
+
+inline bool RPCServer::Response::Data::Reader::isTable() const {
+  return which() == RPCServer::Response::Data::TABLE;
+}
+inline bool RPCServer::Response::Data::Builder::isTable() {
+  return which() == RPCServer::Response::Data::TABLE;
+}
+inline bool RPCServer::Response::Data::Reader::hasTable() const {
+  if (which() != RPCServer::Response::Data::TABLE) return false;
+  return !_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline bool RPCServer::Response::Data::Builder::hasTable() {
+  if (which() != RPCServer::Response::Data::TABLE) return false;
+  return !_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
+}
+inline  ::RPCServer::Table::Reader RPCServer::Response::Data::Reader::getTable() const {
+  KJ_IREQUIRE((which() == RPCServer::Response::Data::TABLE),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::get(_reader.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline  ::RPCServer::Table::Builder RPCServer::Response::Data::Builder::getTable() {
+  KJ_IREQUIRE((which() == RPCServer::Response::Data::TABLE),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::get(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void RPCServer::Response::Data::Builder::setTable( ::RPCServer::Table::Reader value) {
+  _builder.setDataField<RPCServer::Response::Data::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, RPCServer::Response::Data::TABLE);
+  ::capnp::_::PointerHelpers< ::RPCServer::Table>::set(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), value);
+}
+inline  ::RPCServer::Table::Builder RPCServer::Response::Data::Builder::initTable() {
+  _builder.setDataField<RPCServer::Response::Data::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, RPCServer::Response::Data::TABLE);
+  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::init(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+inline void RPCServer::Response::Data::Builder::adoptTable(
+    ::capnp::Orphan< ::RPCServer::Table>&& value) {
+  _builder.setDataField<RPCServer::Response::Data::Which>(
+      ::capnp::bounded<0>() * ::capnp::ELEMENTS, RPCServer::Response::Data::TABLE);
+  ::capnp::_::PointerHelpers< ::RPCServer::Table>::adopt(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
+}
+inline ::capnp::Orphan< ::RPCServer::Table> RPCServer::Response::Data::Builder::disownTable() {
+  KJ_IREQUIRE((which() == RPCServer::Response::Data::TABLE),
+              "Must check which() before get()ing a union member.");
+  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::disown(_builder.getPointerField(
+      ::capnp::bounded<0>() * ::capnp::POINTERS));
+}
+
 inline bool RPCServer::SendQueryParams::Reader::hasQuery() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
@@ -1311,42 +1623,42 @@ inline ::capnp::Orphan< ::capnp::Text> RPCServer::SendQueryParams::Builder::diso
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 
-inline bool RPCServer::SendQueryResults::Reader::hasTable() const {
+inline bool RPCServer::SendQueryResults::Reader::hasResponse() const {
   return !_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline bool RPCServer::SendQueryResults::Builder::hasTable() {
+inline bool RPCServer::SendQueryResults::Builder::hasResponse() {
   return !_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS).isNull();
 }
-inline  ::RPCServer::Table::Reader RPCServer::SendQueryResults::Reader::getTable() const {
-  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::get(_reader.getPointerField(
+inline  ::RPCServer::Response::Reader RPCServer::SendQueryResults::Reader::getResponse() const {
+  return ::capnp::_::PointerHelpers< ::RPCServer::Response>::get(_reader.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline  ::RPCServer::Table::Builder RPCServer::SendQueryResults::Builder::getTable() {
-  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::get(_builder.getPointerField(
+inline  ::RPCServer::Response::Builder RPCServer::SendQueryResults::Builder::getResponse() {
+  return ::capnp::_::PointerHelpers< ::RPCServer::Response>::get(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 #if !CAPNP_LITE
-inline  ::RPCServer::Table::Pipeline RPCServer::SendQueryResults::Pipeline::getTable() {
-  return  ::RPCServer::Table::Pipeline(_typeless.getPointerField(0));
+inline  ::RPCServer::Response::Pipeline RPCServer::SendQueryResults::Pipeline::getResponse() {
+  return  ::RPCServer::Response::Pipeline(_typeless.getPointerField(0));
 }
 #endif  // !CAPNP_LITE
-inline void RPCServer::SendQueryResults::Builder::setTable( ::RPCServer::Table::Reader value) {
-  ::capnp::_::PointerHelpers< ::RPCServer::Table>::set(_builder.getPointerField(
+inline void RPCServer::SendQueryResults::Builder::setResponse( ::RPCServer::Response::Reader value) {
+  ::capnp::_::PointerHelpers< ::RPCServer::Response>::set(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), value);
 }
-inline  ::RPCServer::Table::Builder RPCServer::SendQueryResults::Builder::initTable() {
-  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::init(_builder.getPointerField(
+inline  ::RPCServer::Response::Builder RPCServer::SendQueryResults::Builder::initResponse() {
+  return ::capnp::_::PointerHelpers< ::RPCServer::Response>::init(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
-inline void RPCServer::SendQueryResults::Builder::adoptTable(
-    ::capnp::Orphan< ::RPCServer::Table>&& value) {
-  ::capnp::_::PointerHelpers< ::RPCServer::Table>::adopt(_builder.getPointerField(
+inline void RPCServer::SendQueryResults::Builder::adoptResponse(
+    ::capnp::Orphan< ::RPCServer::Response>&& value) {
+  ::capnp::_::PointerHelpers< ::RPCServer::Response>::adopt(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS), kj::mv(value));
 }
-inline ::capnp::Orphan< ::RPCServer::Table> RPCServer::SendQueryResults::Builder::disownTable() {
-  return ::capnp::_::PointerHelpers< ::RPCServer::Table>::disown(_builder.getPointerField(
+inline ::capnp::Orphan< ::RPCServer::Response> RPCServer::SendQueryResults::Builder::disownResponse() {
+  return ::capnp::_::PointerHelpers< ::RPCServer::Response>::disown(_builder.getPointerField(
       ::capnp::bounded<0>() * ::capnp::POINTERS));
 }
 

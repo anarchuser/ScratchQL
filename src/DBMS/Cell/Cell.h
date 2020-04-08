@@ -9,7 +9,7 @@
 
 using Cell = std::variant <std::monostate, bool, short, long, std::string>;
 
-enum CellTypes {
+enum CellType {
     UNARY,
     BINARY,
     SHORT,
