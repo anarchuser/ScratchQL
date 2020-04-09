@@ -1,7 +1,7 @@
 #ifndef DATABASE_FILEHANDLER_H
 #define DATABASE_FILEHANDLER_H
 
-#include "../../main.h"
+#include "../../config.h"
 
 #include <cstdio>
 #include <cctype>
@@ -19,6 +19,8 @@ public:
     std::string & name;
     std::string path;
     int tmp_line_length;                                                   //for testing purposes until a meta file is created TODO: remove ASAP
+
+    explicit FileHandler (std::string path);
 
     void createLine (std::string const & content);                         // Appends a line
     std::string readLine (std::size_t index);                                     //

@@ -3,6 +3,7 @@
 
 #include "../../config.h"
 #include "../Cell/Cell.h"
+#include "../FileHandler/FileHandler.h"
 
 #include <functional>
 #include <unordered_map>
@@ -18,6 +19,10 @@ private:
     std::unordered_map <std::string, std::vector <Cell>> table;
     std::vector <std::vector <Cell const *>> matrix;
 
+    std::string database, name;
+    FileHandler * file = nullptr;
+    bool diskMode = false;
+
     std::size_t row_count = 0;
     std::size_t col_count = 0;
 
@@ -25,6 +30,11 @@ public:
     /// Creates a new Table where each element in `header` equals the name of one column
     // TODO: Create Constructor taking metadata which actually creates a new table
     explicit Table (std::vector <std::string> const & header);
+
+    ~Table();
+
+    /// Initialises syncing with file on disk
+    void initDiskMode (std::string database, std::string table);
 
     /// Append `row` to this table. Throws if its size doesn't match the amount of columns
     // TODO: Call FileHandler::createLine accordingly
