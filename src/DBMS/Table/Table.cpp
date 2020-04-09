@@ -21,10 +21,10 @@ Table::~Table () {
 }
 
 void Table::initDiskMode (std::string database, std::string table) {
-    database = std::move (database);
-    name = std::move (table);
+    this->database = database;
+    name = table;
 
-    file = new FileHandler ("database, table");
+    file = new FileHandler (database, table);
 
     diskMode = true;
 }
@@ -47,16 +47,16 @@ void Table::removePadding () {
     LOG (INFO) << "Removed Padding of Table.";
 }
 
-void Table::createRow (std::vector <Cell> const & row) {
+void Table::createRow (std::vector <Cell> const & row_index) {
     LOG (INFO) << "Creating Row in Table...";
 
-    if (row.size() != col_count) {
+    if (row_index.size() != col_count) {
         THROW (std::range_error ("Invalid amount of columns to insert"));
     }
 
     matrix.emplace_back (std::vector <Cell const *>());
-    for (int col_index = 0; col_index < row.size(); col_index++) {
-        table [header [col_index]].push_back (row [col_index]);
+    for (int col_index = 0; col_index < row_index.size(); col_index++) {
+        table [header [col_index]].push_back (row_index [col_index]);
         matrix [getRowCount()].push_back (& table [header [col_index]] [getRowCount()]);
     }
     row_count++;

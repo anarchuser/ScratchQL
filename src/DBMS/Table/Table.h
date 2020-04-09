@@ -38,7 +38,7 @@ public:
 
     /// Append `row` to this table. Throws if its size doesn't match the amount of columns
     // TODO: Call FileHandler::createLine accordingly
-    void createRow (std::vector <Cell> const & row);
+    void createRow (std::vector <Cell> const & row_index);
 
     /// Replace row with index `row_index` with `row`
     // TODO: Call FileHandler::updateLine accordingly

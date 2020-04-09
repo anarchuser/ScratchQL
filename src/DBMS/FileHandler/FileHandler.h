@@ -3,26 +3,38 @@
 
 #include "../../config.h"
 
+#include <cctype>
+#include <clocale>
 #include <cstdio>
-#include <iostream>
+#include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <string>
 
 struct FileHandler {
 public:
+    FileHandler(std::string database, std::string table);
+    std::string db_root;
+    std::string database;
+    std::string name;
     std::string path;
-
-    explicit FileHandler (std::string path);
+    int tmp_line_length;                                                   //for testing purposes until a meta file is created TODO: remove ASAP
 
     void createLine (std::string const & content);                         // Appends a line
-    std::string readLine (std::size_t index);                              //
-    void updateLine (std::string const & content, std::size_t index);      // Writes a line
+    std::string readLine (std::size_t index);                                     //
+    void updateLine (std::size_t index, std::string content);              // Writes a line
     void deleteLine (std::size_t index);                                   // Removes a line
 
+    void cutTailingSpaces(std::string & content);
+    void clearLines ();
     void deleteTable ();
+    void deleteDatabase ();
 
 private:
-    void removePadding ();
-
+    void createDatabase();
+    void createTable();
+    void cleanName(std::string & alnum_string);
+    int checkLineLength(std::string const & content);
 };
 
 

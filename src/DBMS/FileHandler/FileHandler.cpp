@@ -1,39 +1,131 @@
 #include "FileHandler.h"
 
-FileHandler::FileHandler (std::string  path) : path{std::move(path)} {}
+FileHandler::FileHandler (std::string  database, std::string table) :
+    db_root{DATABASE_DIR},
+    database{std::move (database)},
+    name{std::move (table)},
+    path{db_root + this->database + '/' + name + "/table.tsv"},       //purely for transition path coexists with the other three directory paths
+    tmp_line_length{26}                                                           //for testing purposes until a meta file is created TODO: remove ASAP
+    {
+    createDatabase();
+    createTable();
+}
+
+void FileHandler::createDatabase(){
+    try {
+        cleanName(database);
+    }
+    catch(std::invalid_argument & error) {
+        THROW (error);
+    }
+    std::filesystem::create_directory(db_root);
+    std::filesystem::create_directory(db_root + database, db_root);
+}
+
+void FileHandler::createTable(){
+    createDatabase();
+    try {
+        cleanName(name);
+    }
+    catch(std::invalid_argument & error) {
+        THROW (error);
+    }
+    std::filesystem::create_directory(db_root + database + '/' + name, db_root);
+    LOG(INFO) << "successfully created table at " << path << std::endl;
+}
 
 void FileHandler::createLine (std::string const & content) {
-    std::ofstream out (path, std::ios::app);
+    int extralength = checkLineLength(content);
+    std::ofstream out;
+    try {
+        out = std::ofstream (path, std::ios::app);
+    }
+    catch(std::exception & e){
+        std::cerr << e.what() << std::endl;
+    }
     if (!out.is_open ()) {
         THROW (std::ios_base::failure ("Could not open file"));
     }
-
-    out << content << std::endl;
+    out << content << std::string(extralength, ' ') << std::endl;
     out.close();
 }
 
-// TODO: rewrite
 std::string FileHandler::readLine (std::size_t index) {
     std::ifstream in (path, std::ios::in);
-    if (!in.is_open ()) {
-        THROW (std::ios_base::failure ("Could not open file"));
-    }
+    if (!in.is_open ()) THROW (std::ios_base::failure (STR+
+    "Could not open file " + path));
 
-    std::string header, line;
-//    getline (in, header);
-    for (int i = 0; i <= index; i++) getline (in, line);
+    char tmp_line[tmp_line_length + 1];
+    tmp_line[tmp_line_length] = 0;
+    in.seekg((tmp_line_length + 1 )  * index);              //try-catch sigsegv - SIGSEGV - Segmentation violation signal
+    in.read(tmp_line, tmp_line_length);
     in.close();
+
+    std::string line = std::string(tmp_line);
+    cutTailingSpaces(line);
     return line;
 }
 
-void FileHandler::updateLine (std::string const & content, std::size_t index) {}
-void FileHandler::deleteLine (std::size_t index) {}
+void FileHandler::updateLine (std::size_t index, std::string content) {
+    std::fstream file (path, std::ios::in | std::ios::out);
+    std::string tmpline;
+    int extralength = checkLineLength(content);
 
-void FileHandler::deleteTable() {
-    std::remove (path.data());
+    file.seekp((tmp_line_length + 1) * index);
+    file << content << std::string(extralength, ' ');
+    file.close();
 }
 
-void FileHandler::removePadding () {}
+void FileHandler::deleteLine (std::size_t index) {
+    std::fstream file (path, std::ios::in | std::ios::out);
 
+    file.seekp((tmp_line_length + 1) * index);
+    file << std::string(tmp_line_length, ' ');
+    file.close();
+}
 
+void FileHandler::deleteTable() {
+    std::filesystem::remove_all(db_root + '/' + database + '/' + name);
+}
+
+void FileHandler::deleteDatabase(){
+    std::filesystem::remove_all(db_root + '/' + database);
+}
+
+void FileHandler::clearLines () {
+    std::fstream file (path, std::ios::in | std::ios::out);
+    std::fstream newfile (db_root + database + '/' + name + "/table_tmp.tsv", std::ios::out);
+    std::string tmpline;
+
+    while (getline (file, tmpline)){
+        if (tmpline != std::string(tmp_line_length, ' ')){
+            newfile << tmpline << std::endl;
+        }
+    }
+    file.close();
+    newfile.close();
+    std::filesystem::remove(path);
+    std::filesystem::rename(db_root + database + '/' + name + "/table_tmp.tsv", path);
+}
+
+void FileHandler::cleanName(std::string & alnum_string){
+    for (auto const & letter : alnum_string){
+        if (!std::isalnum(letter)){
+            THROW (std::invalid_argument(
+                    "'" + alnum_string + "' is not valid as it contains non-alphanumeric characters"));
+        }
+    }
+}
+
+int FileHandler::checkLineLength(std::string const & content){
+    int extralength = tmp_line_length - content.length();
+    if (extralength < 0){
+        THROW (std::range_error ("Contents exceed maximum length " + content));
+    }
+    return extralength;
+}
+
+void FileHandler::cutTailingSpaces(std::string & content){
+    while (content.back() == ' ')   content.pop_back();
+}
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
