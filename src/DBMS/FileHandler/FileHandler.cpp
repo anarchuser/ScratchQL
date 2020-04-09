@@ -1,7 +1,5 @@
 #include "FileHandler.h"
 
-#include <utility>
-
 FileHandler::FileHandler (std::string & database, std::string & table) :
     db_root{DATABASE_DIR},
     database{database},
@@ -48,9 +46,7 @@ void FileHandler::createLine (std::string const & content) {
         std::cerr << e.what() << std::endl;
     }
     if (!out.is_open ()) {
-        LOG (ERROR) << "Could not open '" << path << "'";
-        std::cerr << "The filesystem exists: " << std::filesystem::exists(path) << std::endl;
-        throw (std::ios_base::failure ("Could not open file"));
+        THROW (std::ios_base::failure ("Could not open file"));
     }
     out << content << std::string(extralength, ' ') << std::endl;
     out.close();
@@ -58,10 +54,8 @@ void FileHandler::createLine (std::string const & content) {
 
 std::string FileHandler::readLine (std::size_t index) {
     std::ifstream in (path, std::ios::in);
-    if (!in.is_open ()) {
-        LOG (ERROR) << "Could not open '" << path << "'";
-        throw (std::ios_base::failure ("Could not open file"));
-    }
+    if (!in.is_open ()) THROW (std::ios_base::failure (STR+
+    "Could not open file " + path));
 
     char tmp_line[tmp_line_length + 1];
     tmp_line[tmp_line_length] = 0;

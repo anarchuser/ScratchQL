@@ -1,6 +1,3 @@
-model
-view
-controller
 cmake
 readme
 git
@@ -11,3 +8,6 @@ license
 database
 io
 server
+log
+query
+time

@@ -3,7 +3,7 @@
 # Run tests before committing, and abort if the tests fail
 
 export SCRATCHQL_ROOT=$PWD
-cmake --build cmake-build-debug --target Test && ./cmake-build-debug/Test
+/bin/bash test/test.sh 3
 result=$?
 if test $result -ne 0
 then echo "Your tests are failing - Aborting commit"

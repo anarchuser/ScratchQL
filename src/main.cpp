@@ -24,10 +24,17 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Start Running";
     LOG (INFO) << PROJECT_ROOT;
 
-    DBMS dbms;
-    Parser parser (dbms);
-    Server <Parser> server (parser);
-    server.listen (0, 0);
+
+    std::string address ((argc > 1) ? argv [1] : "*");
+    capnp::EzRpcServer server (kj::heap <DatabaseImpl <DBMS>> (), address);
+    uint port = server.getPort().wait (server.getWaitScope());
+    std::cout << "Setting database up on '" << address << ((argc > 1) ? "" :
+    STR+ ":" + std::to_string (port)) << "'..." << std::endl;
+
+    std::cout << "Connecting to '" << address << ((argc > 1) ? "" : STR+ ":" + std::to_string (port)) << "'..." << std::endl;
+
+    Client client = (argc > 1) ? Client (address) : Client (address, port);
+    client.startInterface([] (Response r) { std::cout << r; });
 
     LOG (INFO) << "Stop Running";
 }
