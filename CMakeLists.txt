@@ -13,7 +13,7 @@ add_executable(Test ${TEST_SRCS} ${SRCS})
 
 add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
-find_package(Catch2 REQUIRED)
+find_package(Catch2)
 target_link_libraries(Test Catch2::Catch2)
 include(CTest)
 include(Catch)

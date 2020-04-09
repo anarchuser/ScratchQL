@@ -4,3 +4,4 @@
 /.devcontainer
 /.ccls
 /*tmp*
+/capnproto*
