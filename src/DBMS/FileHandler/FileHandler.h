@@ -1,7 +1,7 @@
 #ifndef DATABASE_FILEHANDLER_H
 #define DATABASE_FILEHANDLER_H
 
-#include "../../main.h"
+#include "../../config.h"
 
 #include <cstdio>
 #include <iostream>
@@ -11,7 +11,7 @@ struct FileHandler {
 public:
     std::string path;
 
-    explicit FileHandler (std::string  path);
+    explicit FileHandler (std::string path);
 
     void createLine (std::string const & content);                         // Appends a line
     std::string readLine (std::size_t index);                              //
