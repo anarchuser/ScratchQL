@@ -15,6 +15,9 @@ Response unwrapResponse (::RPCServer::Response::Reader const & reader);
 kj::Own <capnp::MallocMessageBuilder> wrapTable (kj::Own <Table const> const & table);
 kj::Own <Table> unwrapTable (::RPCServer::Table::Reader const & reader);
 
+kj::Own <capnp::MallocMessageBuilder> wrapMeta (Meta const & meta);
+Meta unwrapMeta (RPCServer::Table::Meta::Reader const & reader);
+
 kj::Own <capnp::MallocMessageBuilder> wrapCell (Cell const & cell);
 Cell unwrapCell (RPCServer::Table::Cell::Reader const & cell);
 

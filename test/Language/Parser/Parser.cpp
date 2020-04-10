@@ -118,9 +118,7 @@ SCENARIO ("I can convert strings into meaningful Query structs (or errors)") {
                 "USERS()",
                 "DATABASES()",
         };
-        for (auto const & query : queries) {
-//            CHECK_NOTHROW (Parser::parseQuery (query));
-        }
+        for (auto const & query : queries) CHECK_NOTHROW (Parser::parseQuery (query));
     }
 }
 

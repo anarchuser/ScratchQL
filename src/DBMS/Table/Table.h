@@ -4,6 +4,7 @@
 #include "../../config.h"
 #include "../Cell/Cell.h"
 #include "../FileHandler/FileHandler.h"
+#include "Meta/Meta.h"
 
 #include <functional>
 #include <unordered_map>
@@ -16,6 +17,7 @@
 class Table {
 private:
     std::vector <std::string> header;
+    std::unordered_map <std::string, Meta const> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
     std::vector <std::vector <Cell const *>> matrix;
 
@@ -29,7 +31,7 @@ private:
 public:
     /// Creates a new Table where each element in `header` equals the name of one column
     // TODO: Create Constructor taking metadata which actually creates a new table
-    explicit Table (std::vector <std::string> const & header);
+    explicit Table (std::vector <Meta> const & meta);
 
     ~Table();
 
@@ -74,6 +76,9 @@ public:
     void removePadding() ;
 
     std::vector <std::string> const & getHeader() const;
+
+    std::unordered_map <std::string, Meta const> const & getMeta() const;
+    std::vector <Meta> getMetaAsVector() const;
 
     /// Returns a reference of the current table. Do not use while multithreading.
     std::vector <std::vector <Cell const *>> const & getContent() const;
