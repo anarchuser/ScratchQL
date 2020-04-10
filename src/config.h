@@ -35,12 +35,10 @@ static std::string const PROJECT_ROOT = []()->std::string const {
     throw (std::logic_error ("Couldn't find env var 'SCRATCHQL_ROOT'. Please set it to this project's folder."));
 }();
 
-enum KeyTypes {
+enum KeyType {
     NORMAL,
     PRIMARY,
-    UNIQUE,
     FOREIGN,
-    INDEXED,
 };
 
 static std::string const VALID_QUERY_CHARS (" <>!=+-*/{}[]().,:;@#\"");

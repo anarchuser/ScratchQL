@@ -4,6 +4,7 @@
 
 #include "../../../src/Server/generated/ServerDBMS.capnp.h"
 #include "../../../src/DBMS/Table/Table.h"
+#include "../../../src/DBMS/Table/Meta/Meta.h"
 
 using namespace Wrapper;
 
@@ -86,9 +87,29 @@ TEST_CASE ("I can encode and decode Cells") {
     }
 }
 
+TEST_CASE ("I can encode and decode Meta information") {
+    std::vector <Meta> const header {
+            {"surname", TEXT, PRIMARY, true, false},
+            {"name", TEXT, PRIMARY, true, false},
+            {"age", SHORT, NORMAL, true, false},
+            {"profession", TEXT, "Professions", false, true},
+    };
+    for (auto const & col : header) {
+        std::stringstream raw, proc;
+        CHECK (raw  << col);
+        CHECK (proc << unwrapMeta (wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader()));
+        CHECK (raw.str() == proc.str());
+        CHECK (col == unwrapMeta (wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader()));
+    }
+}
+
 TEST_CASE ("I can encode and decode Tables") {
-    std::vector <std::string> header {"surname", "name", "age", "profession"};
-    std::vector <KeyTypes> meta {PRIMARY, PRIMARY, NORMAL, FOREIGN};
+    std::vector <Meta> const header {
+        {"surname", TEXT, PRIMARY, true, false},
+        {"name", TEXT, PRIMARY, true, false},
+        {"age", SHORT, NORMAL, true, false},
+        {"profession", TEXT, "Professions", false, true},
+    };
     std::vector <std::vector <Cell>> content {
         std::vector <Cell> {Cell (std::string ("Adam")), Cell (std::string ("Abcde")), Cell (short (12)), Cell()},
         std::vector <Cell> {Cell (std::string ("Eva")), Cell (std::string ("Vwxyz")), Cell (short (102)), Cell (std::string ("Teacher"))},

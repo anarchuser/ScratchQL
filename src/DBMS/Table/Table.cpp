@@ -1,16 +1,15 @@
 #include "Table.h"
 
-Table::Table (std::vector <std::string> const & header)
+Table::Table (std::vector <Meta> const & meta)
 {
-    for (auto const & column : header) {
-        if (!column.empty()) {
-            this->header.emplace_back (column);
+    for (auto const & column : meta) {
+        if (!column.name.empty()) {
+            this->header.emplace_back (column.name);
+            this->meta.insert (std::make_pair (column.name, column));
             col_count++;
         }
     }
-    if (col_count < 1) {
-        THROW (std::range_error ("The list of column names is empty"));
-    }
+    if (col_count < 1) THROW (std::range_error ("The list of column names is empty"));
     for (auto const & key : header) {
         table.insert (std::make_pair (key, std::vector<Cell>()));
     }
@@ -165,6 +164,14 @@ std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index
 
 std::vector <std::string> const & Table::getHeader() const {
     return header;
+}
+std::unordered_map <std::string, Meta const> const & Table::getMeta() const {
+    return meta;
+}
+std::vector <Meta> Table::getMetaAsVector() const {
+    std::vector <Meta> meta_v;
+    for (const auto & col : header) meta_v.push_back (meta.at (col));
+    return std::move (meta_v);
 }
 std::vector <std::vector <Cell const *>> const & Table::getContent() const {
     return matrix;

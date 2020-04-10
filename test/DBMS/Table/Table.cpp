@@ -3,13 +3,13 @@
 
 SCENARIO ("I can create a table, modify and print it") {
     GIVEN ("Some test data") {
-        CHECK_THROWS_AS (Table (std::vector <std::string> ()), std::range_error);
-        CHECK_THROWS_AS (Table (std::vector <std::string> ({"", ""})), std::range_error);
+        CHECK_THROWS_AS (Table (std::vector <Meta> ()), std::range_error);
+        CHECK_THROWS_AS (Table (std::vector <Meta> ({}, {})), std::range_error);
 
-        std::vector <std::string> columns = {
-                "ID",
-                "Name",
-                "Birthday"
+        std::vector <Meta> columns = {
+                {"ID", SHORT, PRIMARY, true, false},
+                {"Name", TEXT, NORMAL, false, false},
+                {"Birthday", TEXT, "Events", true, true},
         };
         Table t1 (columns);
         REQUIRE_NOTHROW (Table (columns));
@@ -46,7 +46,7 @@ SCENARIO ("I can create a table, modify and print it") {
             THEN ("Printing gives something meaningful") {
                 std::stringstream ss;
                 std::stringstream ts;
-                for (auto const & col : columns) ts << col + "\t";
+                for (auto const & col : columns) ts << col.name + "\t";
                 ts << "\n\n";
 
                 for (auto const & row : rows) {
