@@ -25,6 +25,8 @@ then echo "Build failed!"
 exit $result
 fi
 
+clear
+echo "$0 $*"; echo "========"
 cmd="./cmake-build-debug/Database --server"
 
 if test $# -ne 0
