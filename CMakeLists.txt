@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12.4)
 project(Database)
 
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_REQUIRED_LIBRARIES "-lglog -lcapnp -lcapnp-rpc -lkj -lkj-async")
@@ -20,9 +20,13 @@ include(Catch)
 catch_discover_tests(Test)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-target_link_libraries(Database Threads::Threads)
-target_link_libraries(Test Threads::Threads)
+
+target_link_libraries(Database "/usr/include/threads.h")
+target_link_libraries(Test "/usr/include/threads.h")
+
+#find_package(Threads REQUIRED)
+#target_link_libraries(Database Threads::Threads)
+#target_link_libraries(Test Threads::Threads)
 
 target_link_libraries(Database glog)
 target_link_libraries(Test glog)
