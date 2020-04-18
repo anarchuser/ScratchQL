@@ -3,6 +3,7 @@
 
 #include "../../config.h"
 #include "../Cell/Cell.h"
+#include "Index/Index.h"
 #include "../FileHandler/FileHandler.h"
 #include "Meta/Meta.h"
 
@@ -87,7 +88,7 @@ public:
     std::vector <int> const getMetaColLength(std::vector <Meta> const & meta);
     std::vector <CellType> const getMetaDataType(std::vector <Meta> const & meta);
 
-    /// Returns a reference of the current table. Do not use while multithreading.
+    /// Returns a reference of the current table. Do not use concurrently.
     std::vector <std::vector <Cell const *>> const & getContent() const;
     std::size_t getRowCount() const;
     std::size_t getColumnCount() const;
