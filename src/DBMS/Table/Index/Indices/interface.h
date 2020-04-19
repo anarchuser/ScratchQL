@@ -7,13 +7,28 @@
 
 namespace idx {
 using Rows = std::variant <std::monostate, std::size_t, std::vector <std::size_t>>;
+
+template <typename T>
+bool eraseFromVector (std::vector <T> v, T const & target) {
+    for (auto i = v.begin(), last = v.end(); i != last;) {
+        if (* i == target) {
+            v.erase (i);
+            return true;
+        }
+        ++i;
+    }
+    return false;
+}
 }
 
 struct IndexImpl {
     virtual bool insert (Cell cell, std::size_t row)  = 0;
     virtual bool remove (Cell cell, std::size_t row)  = 0;
     virtual idx::Rows select (Cell const & cell) = 0;
-    virtual std::vector <idx::Rows> const & select_if (bool (check) (Cell const & cell)) = 0;
+    virtual std::vector <idx::Rows> select_if (bool (check) (Cell const & cell)) = 0;
+
+    virtual std::ostream & operator << (std::ostream & os) = 0;
+    virtual std::string str() = 0;
 };
 
 #endif //DATABASE_INTERFACE_H

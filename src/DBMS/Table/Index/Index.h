@@ -44,8 +44,15 @@ public:
         return index.select (cell);
     }
 
-    std::vector <idx::Rows> const & select_if (bool (check) (Cell const & cell)) {
-        return index.select_if (check);
+    std::vector <idx::Rows> select_if (bool (check) (Cell const & cell)) {
+        return std::move (index.select_if (check));
+    }
+
+    std::ostream & operator << (std::ostream & os) {
+        return os << index.str();
+    }
+    std::string str() {
+        return index.str();
     }
 };
 
