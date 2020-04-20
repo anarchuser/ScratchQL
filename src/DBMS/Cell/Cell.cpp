@@ -7,24 +7,39 @@ bool operator ! (Cell const & cell) {
 std::ostream & operator << (std::ostream & os, Cell const & cell) {
     switch (cell.index()) {
         case UNARY:
-            os << "v";
-            break;
+            return os;
         case BINARY:
-            os << "b'" << std::get <bool> (cell) << "'";
-            break;
+            return (os << std::get <bool> (cell));
         case SHORT:
-            os << "s'" << std::get <short> (cell) << "'";
-            break;
+            return (os << std::get <short> (cell));
         case LONG:
-            os << "l'" << std::get <long> (cell) << "'";
-            break;
+            return (os << std::get <long> (cell));
         case TEXT:
-            os << "t'" << std::get <std::string> (cell) << "'";
-            break;
+            return (os << std::get <std::string> (cell));
         default:
             LOG (FATAL) << "<< Cell has gone insane";
     }
-    return os;
+}
+std::ostream & operator < (std::ostream & os, Cell const & cell) {
+    switch (cell.index()) {
+        case UNARY:
+            return (os << "v");
+        case BINARY:
+            os << "b'";
+            break;
+        case SHORT:
+            os << "s'";
+            break;
+        case LONG:
+            os << "l'";
+            break;
+        case TEXT:
+            os << "t'";
+            break;
+        default:
+            LOG (FATAL) << "<<= Cell has gone insane";
+    }
+    return os << cell << "'";
 }
 
 void toNull (Cell & cell) {
