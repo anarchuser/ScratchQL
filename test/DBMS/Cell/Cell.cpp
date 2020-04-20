@@ -15,10 +15,10 @@ TEST_CASE ("I can store different data in Cells and modify and retrieve it") {
 
 
     std::stringstream ss;
-    CHECK_NOTHROW (ss << BOOL << std::endl);
-    CHECK_NOTHROW (ss << SHORT << std::endl);
-    CHECK_NOTHROW (ss << LONG << std::endl);
-    CHECK_NOTHROW (ss << STRING << std::endl);
+    CHECK_NOTHROW ((ss < BOOL) << std::endl);
+    CHECK_NOTHROW ((ss < SHORT) << std::endl);
+    CHECK_NOTHROW ((ss < LONG) << std::endl);
+    CHECK_NOTHROW ((ss < STRING) << std::endl);
 
     CHECK (std::get <bool> (BOOL) == Bool);
     CHECK (std::get <short> (SHORT) == Short);
