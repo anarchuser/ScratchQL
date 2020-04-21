@@ -42,7 +42,7 @@ public:
     }
     bool remove (Cell cell, std::size_t row) {
         if (!cell) return idx::eraseFromVector (nulls, row);
-        return false;
+
     }
     idx::Rows select (Cell const & cell) {
         if (!cell) return nulls;
