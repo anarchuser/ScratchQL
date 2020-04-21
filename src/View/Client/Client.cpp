@@ -36,16 +36,7 @@ uint Client::fetchPort (std::string const & address) {
 }
 
 void Client::connect () {
-    while (true) {
-        try {
-            client->connectRequest().send ().wait (waitScope);
-        } catch (kj::Exception & e) {
-            if (e.getType() != kj::Exception::Type::DISCONNECTED) throw;
-            continue;
-        }
-        std::cout << "Client: 'Connected!'" << std::endl;
-        return;
-    }
+    client->connectRequest().send ().wait (waitScope);
 }
 
 Response Client::sendQuery (std::string const & query) {
@@ -58,13 +49,11 @@ Response Client::sendQuery (std::string const & query) {
 }
 
 void Client::startInterface (std::function <void (Response)> const & action) {
-    connect();
+//    connect();
 
     std::string query;
     while (true) {
-        std::cout.flush();
-        std::cout << "$ ";
-        std::cout.flush();
+        (std::cout << "$ ").flush();
 
         // Request input
         getline (std::cin, query);

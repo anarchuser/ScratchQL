@@ -35,9 +35,51 @@ int main (int argc, char * argv[]) {
         return std::move (server);
     };
 
+    //TODO: move client implementation back to client class which currently refuses to connect
     auto execClient = [] (std::string const & address, int port = -1) {
-        Client client = (port < 0) ? Client (address) : Client (address, port);
-        client.startInterface ([] (Response r) {std::cout << r;});
+        (std::cout << "Connecting to server on '" << address << "'...").flush();
+
+        auto ezClient = kj::heap <capnp::EzRpcClient> (address, port);
+        auto client   = kj::heap <RPCServer::Client> (ezClient->getMain <RPCServer>());
+        auto & waitScope = ezClient->getWaitScope();
+        client->connectRequest().send().wait (waitScope);
+        
+        std::cout << " Done" << std::endl;
+
+        auto sendQuery = [&](std::string const & query) -> Response {
+            auto request = client->sendQueryRequest ();
+            request.setQuery (query);
+            return Wrapper::unwrapResponse (request.send().wait (waitScope).getResponse());
+        };
+
+        std::string query;
+        while (true) {
+            (std::cout << "$ ").flush();
+
+            // Request input
+            getline (std::cin, query);
+            bool pass = false;
+            for (char c : query) if (c != ' ' && c != '\n') pass = true;
+            if (!pass || query.empty()) continue;
+
+            if (query == "exit") return;
+            if (query == "ping") client->connectRequest().send().wait (waitScope);
+            else {
+                std::cout << query << std::endl;
+                try {
+                    std::cout << sendQuery (query);
+                } catch (std::exception & e) {
+                    std::cout << "Server: '" << e.what() << "'" << std::endl;
+                }
+            }
+        }
+
+//        try {
+//            client.startInterface ([] (Response r) {std::cout << r;});
+//        } catch (kj::Exception & e) {
+//            std::cerr << e.getDescription() << " (" << address << ")" << std::endl;
+////            throw;
+//        }
     };
 
     if (argc == 1) {

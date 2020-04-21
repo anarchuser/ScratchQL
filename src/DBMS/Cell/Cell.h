@@ -19,6 +19,7 @@ enum CellType {
 
 bool operator ! (Cell const & cell);
 std::ostream & operator << (std::ostream & os, Cell const & cell);
+std::ostream & operator < (std::ostream & os, Cell const & cell);
 
 template <class A, class B>
 bool operator == (std::variant <A, B> first, std::variant <A, B> second) {

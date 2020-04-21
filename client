@@ -16,7 +16,7 @@ fi
 export SCRATCHQL_ROOT=$PWD
 
 mkdir -p cmake-build-debug
-cmake --build cmake-build-debug --target Database > /dev/zero
+cmake --build cmake-build-debug --target Database
 result=$?
 
 if test $result -ne 0
