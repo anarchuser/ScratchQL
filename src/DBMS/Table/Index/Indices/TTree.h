@@ -6,55 +6,80 @@
 
 class TTree : public IndexImpl {
 private:
-    Cell c;
-    std::vector <std::size_t> rs;
-    TTree * smaller = nullptr;
-    TTree * bigger  = nullptr;
-    std::vector <std::size_t> nulls;
+    using Cont = idx::Container <std::pair <Cell, std::vector <std::size_t>>>;
 
-    void append_if (std::vector <idx::Rows> & v, bool (check) (Cell const & cell)) {
-        if (check (c)) v.push_back (rs);
-        if (smaller) smaller->append_if (v, check);
-        if (bigger) bigger->append_if (v, check);
+    std::vector <std::size_t> nulls;
+    Cont * root = nullptr;
+
+    void append_if (std::vector <idx::Rows> & rows, Cont * node, bool (check) (Cell const & cell)) {
+        if (!node) return;
+        if (check (node->val.first)) rows.push_back (node->val.second);
+        append_if (rows, node->smaller, check);
+        append_if (rows, node->bigger,  check);
     }
 
 public:
-    TTree () = default;
-    TTree (Cell cell, std::size_t row) : c { cell}, rs {row} {}
-    ~TTree() {
-        delete smaller;
-        delete bigger;
-    }
+    TTree() = default;
+    ~TTree() { delete root; }
 
     bool insert (Cell cell, std::size_t row) {
-        if (!cell) nulls.push_back (row);
-        if (!c) c = cell;
-        if (c == cell) rs.push_back (row);
-        if (c > cell) {
-            if (smaller) return smaller->insert (cell, row);
-            smaller = new TTree (cell, row);
+        if (!cell) {
+            nulls.push_back (row);
+            return true;
         }
-        if (c < cell) {
-            if (bigger) return bigger->insert (cell, row);
-             bigger = new TTree (cell, row);
+        Cont * node_ptr = root;
+        Cont * * trav_ptr = & root;
+        while (* trav_ptr) {
+            Cell const & stored = (* trav_ptr)->val.first;
+            if (cell == stored) return false;
+            node_ptr = * trav_ptr;
+            if (cell < stored) trav_ptr = & (* trav_ptr)->smaller;
+            else trav_ptr = & (* trav_ptr)->bigger;
         }
-        return true;
+        return * trav_ptr = new Cont ({cell, {row}}, node_ptr);
     }
     bool remove (Cell cell, std::size_t row) {
         if (!cell) return idx::eraseFromVector (nulls, row);
+        Cont * * trav_ptr = & root;
+        auto & stored = (* trav_ptr)->val;
+        while (stored.first != cell) {
+            if (cell < stored.first) trav_ptr = & (* trav_ptr)->smaller;
+            if (cell > stored.first) trav_ptr = & (* trav_ptr)->bigger;
+            if (!trav_ptr) return false;
+            stored = (* trav_ptr)->val;
+        }
+        if (stored.second.size() > 1) return idx::eraseFromVector (stored.second, row);
 
+        Cont * oldNode = * trav_ptr;
+        Cont * branch = (* trav_ptr)->smaller;
+        (* trav_ptr)->parent = * trav_ptr;
+        * trav_ptr = (* trav_ptr)->bigger;
+
+        oldNode->smaller = nullptr;
+        oldNode->bigger  = nullptr;
+        oldNode->parent  = nullptr;
+        delete oldNode;
+
+        while (* trav_ptr) trav_ptr = & (* trav_ptr)->smaller;
+        return * trav_ptr = branch;
     }
     idx::Rows select (Cell const & cell) {
         if (!cell) return nulls;
-        if (c == cell) return rs;
-        if (c > cell) return (smaller) ? smaller->select (cell) : idx::Rows();
-        if (c < cell) return (bigger) ? bigger->select (cell) : idx::Rows();
+        Cont * trav = root;
+        auto & stored = trav->val;
+        while (stored.first != cell) {
+            if (cell < stored.first) trav = trav->smaller;
+            if (cell > stored.first) trav = trav->bigger;
+            if (!trav) return false;
+            stored = trav->val;
+        }
+        return stored.second;
     }
     std::vector <idx::Rows> select_if (bool (check) (Cell const & cell)) {
         if (check (Cell())) return std::vector <idx::Rows> {nulls};
-        std::vector <idx::Rows> v;
-        append_if (v, check);
-        return std::move (v);
+        std::vector <idx::Rows> rows;
+        append_if (rows, root, check);
+        return std::move (rows);
     }
 
     std::ostream & operator << (std::ostream & os) {

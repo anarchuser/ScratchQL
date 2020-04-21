@@ -13,6 +13,7 @@ private:
     Cont * root = nullptr;
 
     void append_if (std::vector <idx::Rows> rows, Cont * node, bool (check) (Cell const & cell)) {
+        if (!node) return;
         if (check (node->val.first)) rows.emplace_back (node->val.second);
         append_if (rows, node->smaller, check);
         append_if (rows, node->bigger,  check);
@@ -23,6 +24,10 @@ public:
     ~BTree() { delete root; }
 
     bool insert (Cell cell, std::size_t row) {
+        if (!cell) {
+            nulls.push_back (row);
+            return true;
+        }
         Cont * node_ptr = root;
         Cont * * trav_ptr = & root;
         while (* trav_ptr) {
@@ -35,6 +40,7 @@ public:
         return * trav_ptr = new Cont ({cell, row}, node_ptr);
     }
     bool remove (Cell cell, std::size_t row) {
+        if (!cell) return idx::eraseFromVector (nulls, row);
         Cont * * trav_ptr = & root;
         auto & stored = (* trav_ptr)->val;
         while (stored.first != cell) {
@@ -57,6 +63,7 @@ public:
         return * trav_ptr = branch;
     }
     idx::Rows select (Cell const & cell) {
+        if (!cell) return nulls;
         Cont * trav = root;
         auto & stored = trav->val;
         while (stored.first != cell) {
@@ -68,6 +75,7 @@ public:
         return stored.second;
     }
     std::vector <idx::Rows> select_if (bool (check) (Cell const & cell)) {
+        if (check (Cell())) return std::vector <idx::Rows> {nulls};
         std::vector <idx::Rows> rows;
         append_if (rows, root, check);
         return std::move (rows);
