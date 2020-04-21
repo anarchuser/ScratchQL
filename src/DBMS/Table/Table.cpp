@@ -92,7 +92,7 @@ std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const {
 
    LOG (INFO) << "Read Row as Vector from Table.";
 
-   return row;
+   return std::move (row);
 }
 void Table::deleteRow (std::size_t row_index) {
     LOG (INFO) << "Deleting Row from Table...";
