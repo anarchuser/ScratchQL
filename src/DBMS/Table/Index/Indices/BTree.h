@@ -5,6 +5,9 @@
 #include "interface.h"
 #include "Container.h"
 
+#include <iostream>
+#include <sstream>
+
 class BTree : public IndexImpl {
 private:
     using Cont = idx::Container <std::pair <Cell, std::size_t>>;
@@ -21,16 +24,18 @@ public:
             nulls.push_back (row);
             return true;
         }
-        Cont * node_ptr = root;
-        Cont * * trav_ptr = & root;
-        while (* trav_ptr) {
-            Cell const & stored = (* trav_ptr)->val.first;
-            if (cell == stored) return false;
-            node_ptr = * trav_ptr;
-            if (cell < stored) trav_ptr = & (* trav_ptr)->smaller;
-            else trav_ptr = & (* trav_ptr)->bigger;
+        Cont *   node_ptr = root;
+        Cont * & trav_ptr = root;
+        while (trav_ptr) {
+            node_ptr = trav_ptr;
+            Cell const & stored = node_ptr->val.first;
+            if (cell == stored) {
+                LOG (WARNING) << "Cell already exists in Binary Tree with unique indices";
+                return false;
+            }
+            trav_ptr = (cell < stored) ? node_ptr->smaller : node_ptr->bigger;
         }
-        return * trav_ptr = new Cont ({cell, row}, node_ptr);
+        return trav_ptr = new Cont ({cell, row}, node_ptr);
     }
     bool remove (Cell cell, std::size_t row) {
         if (!cell) return std::erase (nulls, row);
@@ -62,17 +67,17 @@ public:
         while (stored.first != cell) {
             if (cell < stored.first) trav = trav->smaller;
             if (cell > stored.first) trav = trav->bigger;
-            if (!trav) return false;
+            if (!trav) return std::monostate();
             stored = trav->val;
+            std::cout << stored.second;
         }
         return stored.second;
     }
 
-    std::ostream & operator << (std::ostream & os) {
-        return os;
-    }
-    std::string str() {
-        return std::string();
+    std::string str() const {
+        std::stringstream ss;
+        root->operator << (ss);
+        return ss.str();
     }
 };
 

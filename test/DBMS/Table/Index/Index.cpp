@@ -5,10 +5,13 @@
 #include <algorithm>
 
 #define SEED 1
-#define N_INSERTS   1000
+#define N_INSERTS   10
 #define MAX_STR_LEN 10
 
 SCENARIO("I can create indices for large amounts of data") {
+    SECTION ("Constructor and Destructor work") {
+        delete new Index (CellType::LONG, false);
+    }
 
     auto rand_str = [] () -> std::string {
         std::string str;
@@ -74,10 +77,7 @@ SCENARIO("I can create indices for large amounts of data") {
             for (std::size_t i = 0; i < VEC_SIZE; i++) {
                 std::string str = rand_str();
                 if (!str) continue;
-                if (std::find (strings.begin(), strings.end(), str) != strings.end()) {
-                    --i;
-                    continue;
-                }
+                if (std::find (strings.begin(), strings.end(), str) != strings.end()) { --i; continue; }
                 else strings.push_back (str);
                 CHECK ( uniqueIDX.insert (strings [i], i));
                 CHECK (!uniqueIDX.insert (strings [i], i));
@@ -95,17 +95,19 @@ SCENARIO("I can create indices for large amounts of data") {
             }
         }
     }
-//    GIVEN ("A list of shorts") {
-//        const std::size_t VEC_SIZE = N_INSERTS;
-//        std::vector <short> shorts (VEC_SIZE);
-//        Index index (CellType::SHORT, false);
-//        for (std::size_t i = 0; i < VEC_SIZE; i++) {
-//            shorts.push_back (std::rand());
-//        }
-//        WHEN ("I store them in an Index") {
-//            for (std::size_t i = 0; i < VEC_SIZE; i++) {
-//                CHECK (index.insert (shorts.back(), i));
-//            }
+    GIVEN ("A list of shorts") {
+        const std::size_t VEC_SIZE = N_INSERTS;
+        std::vector <short> shorts;
+        Index index (CellType::SHORT, false);
+        for (std::size_t i = 0; i < VEC_SIZE; i++) {
+            shorts.push_back (std::rand());
+        }
+        WHEN ("I store them in a normal Index") {
+            for (std::size_t i = 0; i < VEC_SIZE; i++) {
+                CHECK ( index.insert (shorts.back(), i));
+                CHECK (!index.insert (shorts.back(), i));
+                CHECK ( index.insert (shorts.back(), i + 100));
+            }
 //            THEN ("I can retrieve their values from the Index") {
 //                for (std::size_t i = 0; i < VEC_SIZE; i++) {
 //                    bool contains = false;
@@ -121,8 +123,37 @@ SCENARIO("I can create indices for large amounts of data") {
 //                    CHECK (index.remove (shorts [i], i));
 //                }
 //            }
-//        }
-//    }
+        }
+    }
+    GIVEN ("A list of shorts") {
+        const std::size_t VEC_SIZE = N_INSERTS;
+        std::vector <short> shorts;
+        Index index (CellType::SHORT, true);
+        for (std::size_t i = 0; i < VEC_SIZE; i++) {
+            short sh = std::rand();
+            if (std::find (shorts.begin(), shorts.end(), sh) != shorts.end()) { --i; continue; }
+            else shorts.push_back (sh);
+        }
+        WHEN ("I store them in a unique Index") {
+            for (std::size_t i = 0; i < VEC_SIZE; i++) {
+                std::cout << "{ " << shorts [i] << " | " << i << " }" << std::endl;
+                CHECK ( index.insert (shorts [i], i));
+                CHECK (!index.insert (shorts [i], i));
+            }
+            std::cout << "BTree: " << index.str() << std::endl;
+//            THEN ("I can retrieve their values from the Index") {
+//                for (std::size_t i = 0; i < VEC_SIZE; i++) {
+//                    std::cout << "Loop " << i << std::endl;
+//                    CHECK (std::get <std::size_t> (index.select (shorts [i])) == i);
+//                }
+//            }
+//            THEN ("I can remove entries from the Index, given a cell and its respective row") {
+//                for (std::size_t i = 0; i < VEC_SIZE; i++) {
+//                    CHECK (index.remove (shorts [i], i));
+//                }
+//            }
+        }
+    }
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

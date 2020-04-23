@@ -20,16 +20,24 @@ public:
             nulls.push_back (row);
             return true;
         }
-        Cont * node_ptr = root;
-        Cont * * trav_ptr = & root;
-        while (* trav_ptr) {
-            Cell const & stored = (* trav_ptr)->val.first;
-            if (cell == stored) return false;
-            node_ptr = * trav_ptr;
-            if (cell < stored) trav_ptr = & (* trav_ptr)->smaller;
-            else trav_ptr = & (* trav_ptr)->bigger;
+        Cont *   node_ptr = root;
+        Cont * & trav_ptr = root;
+        while (trav_ptr) {
+            node_ptr = trav_ptr;
+            Cell const & stored = node_ptr->val.first;
+            if (cell == stored) {
+                auto & v = node_ptr->val.second;
+                if (std::find (v.begin(), v.end(), row) != v.end()) {
+                    LOG (WARNING) << "Cell already exists in Trinary Tree with unique indices";
+                    return false;
+                } else {
+                    v.push_back (row);
+                    return true;
+                }
+            }
+            trav_ptr = (cell < stored) ? node_ptr->smaller : node_ptr->bigger;
         }
-        return * trav_ptr = new Cont ({cell, {row}}, node_ptr);
+        return trav_ptr = new Cont ({cell, {row}}, node_ptr);
     }
     bool remove (Cell cell, std::size_t row) {
         if (!cell) return std::erase (nulls, row);
@@ -69,10 +77,7 @@ public:
         return stored.second;
     }
 
-    std::ostream & operator << (std::ostream & os) {
-        return os;
-    }
-    std::string str() {
+    std::string str() const {
         return std::string();
     }
 };

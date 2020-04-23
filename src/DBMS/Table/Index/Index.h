@@ -55,9 +55,9 @@ public:
     }
 
     std::ostream & operator << (std::ostream & os) {
-        return os << index->str();
+        return os << str();
     }
-    std::string str() {
+    std::string str() const {
         return index->str();
     }
 };

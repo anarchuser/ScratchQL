@@ -17,7 +17,6 @@ public:
     HMap (bool isUnique) : isUnique {isUnique} {}
 
     bool insert (Cell cell, std::size_t row) {
-        (LOG (INFO) << "Inserting Cell " < cell) << " from Row " << row;
         if (!cell) nulls.push_back (row);
         else {
             if (isUnique && !map [cell].empty()) {
@@ -50,10 +49,7 @@ public:
         }
     }
 
-    std::ostream & operator << (std::ostream & os) {
-        return os;
-    }
-    std::string str() {
+    std::string str() const {
         return std::string();
     }
 };
