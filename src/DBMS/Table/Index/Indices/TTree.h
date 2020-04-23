@@ -11,13 +11,6 @@ private:
     std::vector <std::size_t> nulls;
     Cont * root = nullptr;
 
-    void append_if (std::vector <idx::Rows> & rows, Cont * node, bool (check) (Cell const & cell)) {
-        if (!node) return;
-        if (check (node->val.first)) rows.push_back (node->val.second);
-        append_if (rows, node->smaller, check);
-        append_if (rows, node->bigger,  check);
-    }
-
 public:
     TTree() = default;
     ~TTree() { delete root; }
@@ -39,7 +32,7 @@ public:
         return * trav_ptr = new Cont ({cell, {row}}, node_ptr);
     }
     bool remove (Cell cell, std::size_t row) {
-        if (!cell) return idx::eraseFromVector (nulls, row);
+        if (!cell) return std::erase (nulls, row);
         Cont * * trav_ptr = & root;
         auto & stored = (* trav_ptr)->val;
         while (stored.first != cell) {
@@ -48,7 +41,7 @@ public:
             if (!trav_ptr) return false;
             stored = (* trav_ptr)->val;
         }
-        if (stored.second.size() > 1) return idx::eraseFromVector (stored.second, row);
+        if (stored.second.size() > 1) return std::erase (stored.second, row);
 
         Cont * oldNode = * trav_ptr;
         Cont * branch = (* trav_ptr)->smaller;
@@ -63,7 +56,7 @@ public:
         while (* trav_ptr) trav_ptr = & (* trav_ptr)->smaller;
         return * trav_ptr = branch;
     }
-    idx::Rows select (Cell const & cell) {
+    idx::Rows select (Cell const & cell) const {
         if (!cell) return nulls;
         Cont * trav = root;
         auto & stored = trav->val;
@@ -74,12 +67,6 @@ public:
             stored = trav->val;
         }
         return stored.second;
-    }
-    std::vector <idx::Rows> select_if (bool (check) (Cell const & cell)) {
-        if (check (Cell())) return std::vector <idx::Rows> {nulls};
-        std::vector <idx::Rows> rows;
-        append_if (rows, root, check);
-        return std::move (rows);
     }
 
     std::ostream & operator << (std::ostream & os) {

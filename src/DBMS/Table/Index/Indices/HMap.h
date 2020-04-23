@@ -17,41 +17,37 @@ public:
     HMap (bool isUnique) : isUnique {isUnique} {}
 
     bool insert (Cell cell, std::size_t row) {
+        (LOG (INFO) << "Inserting Cell " < cell) << " from Row " << row;
         if (!cell) nulls.push_back (row);
         else {
-            bool exists = select (cell).index();
-            if (isUnique && exists) return false;
-            if (exists) map.at (cell).push_back (row);
-            else map.emplace (cell, std::vector <std::size_t> {row});
+            if (isUnique && !map [cell].empty()) {
+                LOG (WARNING) << "Cell already exists in Hash Map with unique indices";
+                return false;
+            }
+            map [cell].push_back (row);
         }
         return true;
     }
     bool remove (Cell cell, std::size_t row) {
-        if (!cell) return idx::eraseFromVector (nulls, row);
-        if (!select (cell).index()) return false;
+        if (!cell) return std::erase (nulls, row);
+        if (!select (cell).index()) {
+            LOG (WARNING) << "Can't remove cell from Hash Map as it can't be found";
+            return false;
+        }
         if (isUnique) map.erase (cell);
-        else return idx::eraseFromVector (map.at (cell), row);
+        else return std::erase (map.at (cell), row);
         return true;
     }
-    idx::Rows select (Cell const & cell) {
+    idx::Rows select (Cell const & cell) const {
         if (!cell) return nulls;
-        if (isUnique) try {
-            return map.at (cell).front();
-        } catch (std::out_of_range & e) {
-            return idx::Rows();
+        try {
+            if (map.at (cell).empty ()) return std::monostate ();
+            if (isUnique) return map.at (cell).front ();
+            return map.at (cell);
+        } catch (std::exception & e) {
+            (LOG (WARNING) << "Can't find given value (" < cell) << ") in Hash Map";
+            return std::monostate();
         }
-        return map.at (cell);
-    }
-    std::vector <idx::Rows> select_if (bool (check) (Cell const & cell)) {
-        if (check (Cell())) return std::vector <idx::Rows> {nulls};
-        std::vector <idx::Rows> selectedRows;
-        for (auto const & cell : map) {
-            if (check (cell.first)) {
-                if (!isUnique) selectedRows.emplace_back (cell.second);
-                else selectedRows.emplace_back (cell.second.front());
-            }
-        }
-        return std::move (selectedRows);
     }
 
     std::ostream & operator << (std::ostream & os) {

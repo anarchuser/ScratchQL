@@ -5,54 +5,60 @@
 #include "Indices/interface.h"
 #include "Indices/indices.h"
 
+#include <memory>
+
+
 class Index {
 private:
     CellType dataType;
     bool isUnique;
-    IndexImpl & index;
+    std::unique_ptr <IndexImpl> index;
 
 public:
-    explicit Index (CellType dataType, bool isUnique) :
+    Index (CellType dataType, bool isUnique) :
         dataType {dataType},
         isUnique {isUnique},
-        index {[&]() -> IndexImpl & {
+        index {[&]() -> IndexImpl * {
             switch (dataType) {
                 case UNARY:
                     THROW (std::logic_error ("Column of type void not possible"));
                 case SHORT:
                 case LONG:
-                    isUnique ? index = BTree() : index = TTree();
-                    break;
+                    if (isUnique) return new BTree();
+                    return new TTree();
                 case BINARY:
                 case TEXT:
-                    index = HMap (isUnique && dataType == CellType::TEXT);
-                    break;
+                    return new HMap (isUnique && dataType == CellType::TEXT);
                 default:
                     LOG (FATAL) << "Cell type went insane = can't be larger than TEXT!";
             }
         }()} {}
 
+    Index (Index const & other) = delete;
+
     bool insert (Cell cell, std::size_t row) {
-        return index.insert (cell, row);
+        if (!cell) LOG (WARNING) << "Indexing cell of type 'void' (r " << row << ")...";
+        else if (cell.index() != dataType) THROW (std::logic_error ("Invalid cell type to index!"));
+        return index->insert (cell, row);
     }
 
     bool remove (Cell cell, std::size_t row) {
-        return index.remove (cell, row);
+        if (!cell) LOG (WARNING) << "Removing cell of type 'void' (r " << row << ")...";
+        else if (cell.index() != dataType) THROW (std::logic_error ("Invalid cell type to index!"));
+        return index->remove (cell, row);
     }
 
     idx::Rows select (Cell const & cell) {
-        return index.select (cell);
-    }
-
-    std::vector <idx::Rows> select_if (bool (check) (Cell const & cell)) {
-        return std::move (index.select_if (check));
+        if (!cell) LOG (WARNING) << "Searching for cell of type 'void'...";
+        else if (cell.index() != dataType) THROW (std::logic_error ("Invalid cell type to index!"));
+        return index->select (cell);
     }
 
     std::ostream & operator << (std::ostream & os) {
-        return os << index.str();
+        return os << index->str();
     }
     std::string str() {
-        return index.str();
+        return index->str();
     }
 };
 
