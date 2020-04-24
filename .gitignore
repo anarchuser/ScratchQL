@@ -4,4 +4,5 @@
 /.devcontainer
 /.ccls
 /*tmp*
+/src/Server/generated/
 /capnproto*
