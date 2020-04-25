@@ -51,7 +51,12 @@ public:
             if (!trav_ptr) return false;
             stored = (* trav_ptr)->val;
         }
-        if (stored.second.size() > 1) return std::erase (stored.second, row);
+        if (stored.second.size() > 1) {
+            if (std::find (stored.second.begin(), stored.second.end(), row) == stored.second.end()) {
+                LOG (WARNING) << "Trying to remove a non-existing element!";
+            }
+            return std::erase (stored.second, row);
+        }
 
         Cont * oldNode = * trav_ptr;
         Cont * branch = (* trav_ptr)->smaller;

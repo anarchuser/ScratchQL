@@ -120,11 +120,14 @@ SCENARIO("I can create indices for large amounts of data") {
                     CHECK (contains);
                 }
             }
-            THEN ("I can remove entries from the Index, given a cell and its respective row") {
-                for (std::size_t i = 0; i < VEC_SIZE; i++) {
-                    CHECK (index.remove (shorts [i], i));
-                }
-            }
+//            THEN ("I can remove entries from the Index, given a cell and its respective row") {
+//                for (std::size_t i = 0; i < VEC_SIZE; i++) {
+//                    std::cout << i << std::endl;
+//                    CHECK ( index.remove (shorts [i], i));
+//                    CHECK (!index.remove (shorts [i], i));
+//                    CHECK (index.remove (shorts [i], i + VEC_SIZE));
+//                }
+//            }
             WHEN ("I get the string representation") {
                 std::stringstream should;
                 std::stringstream is;
@@ -150,7 +153,8 @@ SCENARIO("I can create indices for large amounts of data") {
             }
 //            THEN ("I can remove entries from the Index, given a cell and its respective row") {
 //                for (std::size_t i = 0; i < VEC_SIZE; i++) {
-//                    CHECK (index.remove (shorts [i], i));
+//                    CHECK ( index.remove (shorts [i], i));
+//                    CHECK (!index.remove (shorts [i], i));
 //                }
 //            }
             WHEN ("I get the string representation") {
