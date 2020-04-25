@@ -139,12 +139,11 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK ( index.insert (shorts [i], i));
                 CHECK (!index.insert (shorts [i], i));
             }
-//            THEN ("I can retrieve their values from the Index") {
-//                for (std::size_t i = 0; i < VEC_SIZE; i++) {
-//                    std::cout << "Loop " << i << std::endl;
-//                    CHECK (std::get <std::size_t> (index.select (shorts [i])) == i);
-//                }
-//            }
+            THEN ("I can retrieve their values from the Index") {
+                for (std::size_t i = 0; i < VEC_SIZE; i++) {
+                    CHECK (std::get <std::size_t> (index.select (shorts [i])) == i);
+                }
+            }
 //            THEN ("I can remove entries from the Index, given a cell and its respective row") {
 //                for (std::size_t i = 0; i < VEC_SIZE; i++) {
 //                    CHECK (index.remove (shorts [i], i));
