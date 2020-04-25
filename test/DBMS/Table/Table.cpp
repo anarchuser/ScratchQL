@@ -8,7 +8,7 @@ SCENARIO ("I can create a table, modify and print it") {
 
         std::vector <Meta> columns = {
                 {"ID", SHORT, PRIMARY, true, false},
-                {"Name", TEXT, NORMAL, false, false},
+                {"Name", TEXT, NORMAL, false, false, 20},
                 {"Birthday", TEXT, "Events", true, true},
         };
         Table t1 (columns);

@@ -9,7 +9,7 @@
 #include <capnp/capability.h>
 #endif  // !CAPNP_LITE
 
-#if CAPNP_VERSION != 7000
+#if CAPNP_VERSION != 8000
 #error "Version mismatch between generated code and library headers.  You must use the same version of the Cap'n Proto compiler and library."
 #endif
 
@@ -311,7 +311,8 @@ class RPCServer::Server
 public:
   typedef RPCServer Serves;
 
-  ::kj::Promise<void> dispatchCall(uint64_t interfaceId, uint16_t methodId,
+  ::capnp::Capability::Server::DispatchCallResult dispatchCall(
+      uint64_t interfaceId, uint16_t methodId,
       ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context)
       override;
 
@@ -330,7 +331,8 @@ protected:
         .template castAs< ::RPCServer>();
   }
 
-  ::kj::Promise<void> dispatchCallInternal(uint16_t methodId,
+  ::capnp::Capability::Server::DispatchCallResult dispatchCallInternal(
+      uint16_t methodId,
       ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context);
 };
 #endif  // !CAPNP_LITE

@@ -1,9 +1,10 @@
 #include "Meta.h"
 
-Meta::Meta (std::string name, CellType dataType, KeyType keyType, bool index, bool nullable) :
+Meta::Meta (std::string name, CellType dataType, KeyType keyType, bool index, bool nullable, int stringLength) :
         name {std::move (name)},
         dataType {dataType},
         keyType {keyType},
+        columnLength {dataType != CellType::TEXT ? CellLength[dataType] : stringLength},
         index {index},
         nullable {nullable}
 {
@@ -12,11 +13,12 @@ Meta::Meta (std::string name, CellType dataType, KeyType keyType, bool index, bo
     if (keyType == KeyType::FOREIGN) THROW (std::logic_error (STR+
     "Missing Reference of foreign key for column " + this->name));
 }
-Meta::Meta (std::string name, CellType dataType, std::string reference, bool index, bool nullable) :
+Meta::Meta (std::string name, CellType dataType, std::string reference, bool index, bool nullable, int stringLength) :
         name {std::move (name)},
         dataType {dataType},
         keyType {FOREIGN},
         reference {std::move (reference)},
+        columnLength {dataType != CellType::TEXT ? CellLength[dataType] : stringLength},
         index {index},
         nullable {nullable}
 {
@@ -35,7 +37,7 @@ std::ostream & operator << (std::ostream & os, Meta const & meta) {
     return os;
 }
 
-bool  Meta::operator == (Meta const & other) const {
+bool Meta::operator == (Meta const & other) const {
     return  name     == other.name     &&
             dataType == other.dataType &&
             keyType  == other.keyType  &&
