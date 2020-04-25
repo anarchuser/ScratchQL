@@ -20,7 +20,7 @@ struct Container {
     ~Container() {
         delete smaller; smaller = nullptr;
         delete bigger;  bigger  = nullptr;
-        delete parent;
+//        delete parent;
     }
 
     std::ostream & operator << (std::ostream & os) const {

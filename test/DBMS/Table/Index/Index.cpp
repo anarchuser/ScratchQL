@@ -136,11 +136,9 @@ SCENARIO("I can create indices for large amounts of data") {
         }
         WHEN ("I store them in a unique Index") {
             for (std::size_t i = 0; i < VEC_SIZE; i++) {
-                std::cout << "{ " << shorts [i] << " | " << i << " }" << std::endl;
                 CHECK ( index.insert (shorts [i], i));
                 CHECK (!index.insert (shorts [i], i));
             }
-            std::cout << "BTree: " << index.str() << std::endl;
 //            THEN ("I can retrieve their values from the Index") {
 //                for (std::size_t i = 0; i < VEC_SIZE; i++) {
 //                    std::cout << "Loop " << i << std::endl;

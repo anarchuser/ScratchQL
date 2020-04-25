@@ -25,17 +25,19 @@ public:
             return true;
         }
         Cont *   node_ptr = root;
-        Cont * & trav_ptr = root;
-        while (trav_ptr) {
-            node_ptr = trav_ptr;
+        Cont * * trav_ptr = & root;
+        while (* trav_ptr) {
+            node_ptr = * trav_ptr;
             Cell const & stored = node_ptr->val.first;
             if (cell == stored) {
                 LOG (WARNING) << "Cell already exists in Binary Tree with unique indices";
                 return false;
             }
-            trav_ptr = (cell < stored) ? node_ptr->smaller : node_ptr->bigger;
+            auto tmp = trav_ptr;
+            trav_ptr = (cell < stored) ? & node_ptr->smaller : & node_ptr->bigger;
+            if (tmp == trav_ptr) LOG (FATAL) << "Circular dependency in tree detected!";
         }
-        return trav_ptr = new Cont ({cell, row}, node_ptr);
+        return * trav_ptr = new Cont ({cell, row}, node_ptr);
     }
     bool remove (Cell cell, std::size_t row) {
         if (!cell) return std::erase (nulls, row);
