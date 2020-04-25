@@ -1,16 +1,25 @@
 cmake_minimum_required(VERSION 3.12.4)
 project(Database)
 
+
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 20)
 
 set(CMAKE_REQUIRED_LIBRARIES "-lglog -lcapnp -lcapnp-rpc -lkj -lkj-async")
 set(CMAKE_CXX_FLAGS "-fconcepts")
 
+set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
+add_custom_target(CapnProto
+        COMMAND bash -c "./gen_proto"
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
+        SOURCES "src/Server/ServerDBMS.capnp"
+)
+
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
+add_dependencies(Database CapnProto)
 
-add_compile_definitions(Test ERRORS_AS_WARNINGS)
+install()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 target_link_libraries(Database "/usr/include/threads.h")
@@ -29,6 +38,9 @@ find_package(Catch2)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
     add_executable(Test ${TEST_SRCS} ${SRCS})
+    add_dependencies(Test CapnProto)
+
+    add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
     target_link_libraries(Test Catch2::Catch2)
     include(CTest)
