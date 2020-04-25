@@ -24,7 +24,7 @@ public:
             nulls.push_back (row);
             return true;
         }
-        Cont *   node_ptr = root;
+        Cont *   node_ptr =   root;
         Cont * * trav_ptr = & root;
         while (* trav_ptr) {
             node_ptr = * trav_ptr;
@@ -71,7 +71,6 @@ public:
             if (cell > stored.first) trav = trav->bigger;
             if (!trav) return std::monostate();
             stored = trav->val;
-            std::cout << stored.second;
         }
         return stored.second;
     }

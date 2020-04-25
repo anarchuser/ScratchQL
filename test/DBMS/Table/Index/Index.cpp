@@ -98,20 +98,23 @@ SCENARIO("I can create indices for large amounts of data") {
     GIVEN ("A list of shorts") {
         const std::size_t VEC_SIZE = N_INSERTS;
         std::vector <short> shorts;
-        Index index (CellType::SHORT, false);
-        for (std::size_t i = 0; i < VEC_SIZE; i++) {
-            shorts.push_back (std::rand());
-        }
+        for (std::size_t i = 0; i < VEC_SIZE; i++) shorts.push_back (std::rand());
+
+        std::vector <short> sorted = shorts;
+        std::sort (sorted.begin(), sorted.end());
         WHEN ("I store them in a normal Index") {
+            Index index (CellType::SHORT, false);
             for (std::size_t i = 0; i < VEC_SIZE; i++) {
-                CHECK ( index.insert (shorts.back(), i));
-                CHECK (!index.insert (shorts.back(), i));
-                CHECK ( index.insert (shorts.back(), i + 100));
+                CHECK ( index.insert (shorts [i], i));
+                CHECK (!index.insert (shorts [i], i));
+                CHECK ( index.insert (shorts [i], i + VEC_SIZE));
             }
+//            std::cout << "TTree: " << index.str() << std::endl;
 //            THEN ("I can retrieve their values from the Index") {
 //                for (std::size_t i = 0; i < VEC_SIZE; i++) {
 //                    bool contains = false;
-//                    idx::Rows rows = index.select (shorts [i]);
+//                    idx::Rows rows;
+//                    CHECK_NOTHROW (rows = index.select (shorts [i]));
 //                    for (auto const & val : std::get <std::vector <std::size_t>> (rows)) {
 //                        contains = contains || val == i;
 //                    }
@@ -123,18 +126,20 @@ SCENARIO("I can create indices for large amounts of data") {
 //                    CHECK (index.remove (shorts [i], i));
 //                }
 //            }
-        }
-    }
-    GIVEN ("A list of shorts") {
-        const std::size_t VEC_SIZE = N_INSERTS;
-        std::vector <short> shorts;
-        Index index (CellType::SHORT, true);
-        for (std::size_t i = 0; i < VEC_SIZE; i++) {
-            short sh = std::rand();
-            if (std::find (shorts.begin(), shorts.end(), sh) != shorts.end()) { --i; continue; }
-            else shorts.push_back (sh);
+            WHEN ("I get the string representation") {
+                std::stringstream should;
+                std::stringstream is;
+
+                for (auto const & val : sorted) should << val << '\t';
+                CHECK_NOTHROW (is << index.str());
+
+                THEN ("All values appear ordered ascendingly") {
+                    CHECK (should.str() == is.str());
+                }
+            }
         }
         WHEN ("I store them in a unique Index") {
+            Index index (CellType::SHORT, true);
             for (std::size_t i = 0; i < VEC_SIZE; i++) {
                 CHECK ( index.insert (shorts [i], i));
                 CHECK (!index.insert (shorts [i], i));
@@ -149,6 +154,17 @@ SCENARIO("I can create indices for large amounts of data") {
 //                    CHECK (index.remove (shorts [i], i));
 //                }
 //            }
+            WHEN ("I get the string representation") {
+                std::stringstream should;
+                std::stringstream is;
+
+                for (auto const & val : sorted) should << val << '\t';
+                CHECK_NOTHROW (is << index.str());
+
+                THEN ("All values appear ordered ascendingly") {
+                    CHECK (should.str() == is.str());
+                }
+            }
         }
     }
 }
