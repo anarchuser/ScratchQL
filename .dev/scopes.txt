@@ -11,3 +11,4 @@ server
 log
 query
 time
+catch2
