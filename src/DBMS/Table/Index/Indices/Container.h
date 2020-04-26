@@ -51,26 +51,41 @@ public:
         return success;
     }
 
-    static Container <U, V> * select (U const & key, Container <U, V> * const * node) {
+    static bool remove (U key, Container <U, V> * * node) {
         Container <U, V> * deref = * node;
         if (!deref) {
-            LOG (WARNING) << "Selected element not found!";
-            return nullptr;
+            LOG (WARNING) << "The element you want to remove does not exist (" << key << ")!";
+            return false;
         }
+        if (key == deref->key) {
+            * node = (deref->bigger ?: deref->smaller);
+            if (!deref->smaller || !deref->bigger) return true;
+            Container <U, V> * trav = deref->bigger;
+            while (trav->smaller) trav = trav->smaller;
+            trav->smaller = deref->smaller;
+            deref->destroy();
+            return true;
+        }
+        bool isSmaller = key < deref->key;
+        bool success = remove (key, isSmaller ? & deref->smaller : & deref->bigger);
+        (isSmaller ? deref->small_kids : deref->big_kids) -= success;
+        return success;
+    }
+
+    static Container <U, V> * select (U const & key, Container <U, V> * const * node) {
+        Container <U, V> * deref = * node;
+        if (!deref) return nullptr;
         if (key == deref->key) return deref;
         return select (key, (key < deref->key) ? & deref->smaller : & deref->bigger);
     }
 
     std::ostream & operator << (std::ostream & os) const {
-//        if (smaller) os << * smaller;
-//        os << key << "\t";
-//        if (bigger) os << * bigger;
         return os << str();
     }
     std::string str () const {
         std::stringstream ss;
         if (smaller) ss << smaller->str();
-        ss << key << "\t";
+        ss << '\t' << key;
         if (bigger) ss << bigger->str();
         return ss.str();
     }

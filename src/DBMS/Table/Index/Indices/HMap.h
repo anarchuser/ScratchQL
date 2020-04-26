@@ -20,7 +20,7 @@ public:
         if (!cell) nulls.push_back (row);
         else {
             if (isUnique && !map [cell].empty()) {
-                LOG (WARNING) << "Cell already exists in Hash Map with unique indices";
+                LOG (WARNING) << "Cell already exists (while entries are unique)";
                 return false;
             }
             map [cell].push_back (row);
@@ -30,7 +30,7 @@ public:
     bool remove (Cell cell, std::size_t row) {
         if (!cell) return std::erase (nulls, row);
         if (!select (cell).index()) {
-            LOG (WARNING) << "Can't remove cell from Hash Map as it can't be found";
+            LOG (WARNING) << "Can't remove cell as it can't be found";
             return false;
         }
         if (isUnique) map.erase (cell);
@@ -44,7 +44,7 @@ public:
             if (isUnique) return map.at (cell).front ();
             return map.at (cell);
         } catch (std::exception & e) {
-            (LOG (WARNING) << "Can't find given value (" < cell) << ") in Hash Map";
+            (LOG (WARNING) << "Can't find given value (" < cell) << ")";
             return std::monostate();
         }
     }

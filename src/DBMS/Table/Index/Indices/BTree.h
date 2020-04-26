@@ -26,15 +26,19 @@ public:
         return true;
     }
     bool remove (Cell cell, std::size_t row) override {
-        return false;
+        if (!cell) return std::erase (nulls, row);
+        return Cont::remove (cell, & root);
     }
     [[nodiscard]] idx::Rows select (Cell const & cell) const override {
         if (!cell) return nulls;
         Cont * node = Cont::select (cell, & root);
-        return (node) ? idx::Rows (node->val) : idx::Rows();
+        if (node) return node->val;
+        LOG (WARNING) << "Selected element not found!";
+        return std::monostate();
     }
 
     [[nodiscard]] std::string str() const override {
+        if (!root) return "[empty]";
         std::stringstream ss;
         root->operator << (ss);
         return ss.str();

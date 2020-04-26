@@ -34,15 +34,30 @@ public:
     }
     bool remove (Cell cell, std::size_t row) override {
         if (!cell) return std::erase (nulls, row);
-
+        Cont * node = Cont::select (cell, & root);
+        if (!node) return false;
+        std::vector const v = std::get <std::vector <std::size_t>> (select (cell));
+        if (std::find (v.begin(), v.end(), row) == v.end()) {
+            LOG (WARNING) << "Couldn't remove the given kv pair (" << cell << "|" << "row" << ")!";
+            return false;
+        }
+        if (node->val.size() > 1) {
+            bool erased = std::erase (node->val, row);
+            if (!erased) LOG (WARNING) << "Couldn't remove the given row for element (" << cell << "|" << row << ")!";
+            return erased;
+        }
+        return Cont::remove (cell, & root);
     }
     [[nodiscard]] idx::Rows select (Cell const & cell) const override {
         if (!cell) return nulls;
         Cont * node = Cont::select (cell, & root);
-        return (node) ? idx::Rows (node->val) : idx::Rows();
+        if (node) return node->val;
+        LOG (WARNING) << "Selected element (" << cell << ") can't be found!";
+        return std::monostate();
     }
 
     [[nodiscard]] std::string str() const override {
+        if (!root) return "\t[empty]";
         std::stringstream ss;
         root->operator << (ss);
         return ss.str();
