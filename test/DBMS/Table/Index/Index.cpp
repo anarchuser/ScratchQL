@@ -98,10 +98,22 @@ SCENARIO("I can create indices for large amounts of data") {
     GIVEN ("A list of shorts") {
         const std::size_t VEC_SIZE = N_INSERTS;
         std::vector <short> shorts;
-        for (std::size_t i = 0; i < VEC_SIZE; i++) shorts.push_back (std::rand());
+        for (std::size_t i = 0; i < VEC_SIZE; i++) {
+            short rand = std::rand();
+            if (std::find (shorts.begin(), shorts.end(), rand) != shorts.end()) --i;
+            else shorts.push_back (std::rand());
+        }
 
         std::vector <short> sorted = shorts;
         std::sort (sorted.begin(), sorted.end());
+
+        std::vector <short> unique;
+        for (std::size_t i = 0; i < VEC_SIZE; i++) {
+            short rand = std::rand();
+            if (std::find (shorts.begin(), shorts.end(), rand) != shorts.end()) --i;
+            else unique.push_back (rand);
+        }
+
         WHEN ("I store them in a normal Index") {
             Index index (CellType::SHORT, false);
             for (std::size_t i = 0; i < VEC_SIZE; i++) {
@@ -120,12 +132,17 @@ SCENARIO("I can create indices for large amounts of data") {
                     CHECK (contains);
                 }
             }
+            THEN ("Trying to retrieve non-existent values fails") {
+                for (std::size_t i = 0; i < VEC_SIZE; i++) {
+                    CHECK (!index.select (unique [i]).index());
+                }
+            }
 //            THEN ("I can remove entries from the Index, given a cell and its respective row") {
 //                for (std::size_t i = 0; i < VEC_SIZE; i++) {
-//                    std::cout << i << std::endl;
+//                    std::cout << "{" << i << " | " << shorts [i] << "\t}: " << index.str() << std::endl;
 //                    CHECK ( index.remove (shorts [i], i));
 //                    CHECK (!index.remove (shorts [i], i));
-//                    CHECK (index.remove (shorts [i], i + VEC_SIZE));
+////                    CHECK (index.remove (shorts [i], i + VEC_SIZE));
 //                }
 //            }
             WHEN ("I get the string representation") {
@@ -151,8 +168,14 @@ SCENARIO("I can create indices for large amounts of data") {
                     CHECK (std::get <std::size_t> (index.select (shorts [i])) == i);
                 }
             }
+            THEN ("Trying to retrieve non-existent values fails") {
+                for (std::size_t i = 0; i < VEC_SIZE; i++) {
+                    CHECK (!index.select (unique [i]).index());
+                }
+            }
 //            THEN ("I can remove entries from the Index, given a cell and its respective row") {
 //                for (std::size_t i = 0; i < VEC_SIZE; i++) {
+//                    std::cout << "{" << i << " | " << shorts [i] << "\t}: " << index.str() << std::endl;
 //                    CHECK ( index.remove (shorts [i], i));
 //                    CHECK (!index.remove (shorts [i], i));
 //                }
