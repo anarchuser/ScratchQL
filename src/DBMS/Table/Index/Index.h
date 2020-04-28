@@ -35,6 +35,12 @@ public:
         }()} {}
 
     Index (Index const & other) = delete;
+    Index & operator = (Index && other) {
+        this->dataType = other.dataType;
+        this->isUnique = other.isUnique;
+        this->index = std::move (index);
+        return * this;
+    }
 
     bool insert (Cell cell, std::size_t row) {
         if (!cell) LOG (WARNING) << "Indexing cell of type 'void' (r " << row << ")...";
@@ -54,11 +60,17 @@ public:
         return index->select (cell);
     }
 
-    std::ostream & operator << (std::ostream & os) {
-        return os << str();
-    }
     std::string str() const {
         return index->str();
+    }
+    std::istream & operator >> (std::istream & is) {
+        int type; is >> type >> std::ws >> isUnique;
+        * this = Index ((CellType) type, isUnique);
+        // TODO: call index->load appropriately
+        return is;
+    }
+    std::ostream & operator << (std::ostream & os) {
+        return os << dataType << ' ' << isUnique << '\n' << index->str();
     }
 };
 

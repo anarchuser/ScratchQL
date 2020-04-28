@@ -43,6 +43,19 @@ public:
         root->operator << (ss);
         return ss.str();
     }
+
+    virtual std::string dump() const override {
+        std::stringstream os;
+//        for (auto const & pair : map) {
+//            os << pair.first;
+//            for (auto const row : pair.second) os << '\t' << row;
+//            os << '\n';
+//        }
+        return os.str();
+    }
+    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) override {
+
+    }
 };
 
 

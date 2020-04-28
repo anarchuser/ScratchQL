@@ -16,8 +16,11 @@ struct IndexImpl {
     virtual bool remove (Cell cell, std::size_t row) = 0;
     virtual idx::Rows select (Cell const & cell) const = 0;
 
-    virtual std::ostream & operator << (std::ostream & os) const { return os << str(); }
     virtual std::string str() const = 0;
+    virtual std::ostream & operator << (std::ostream & os) { return os << str(); }
+
+    virtual std::string dump() const = 0;
+    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) = 0;
 };
 
 #endif //DATABASE_INTERFACE_H

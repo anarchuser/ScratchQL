@@ -16,7 +16,7 @@ private:
 public:
     HMap (bool isUnique) : isUnique {isUnique} {}
 
-    bool insert (Cell cell, std::size_t row) {
+    bool insert (Cell cell, std::size_t row) override {
         if (!cell) nulls.push_back (row);
         else {
             if (isUnique && !map [cell].empty()) {
@@ -27,7 +27,7 @@ public:
         }
         return true;
     }
-    bool remove (Cell cell, std::size_t row) {
+    bool remove (Cell cell, std::size_t row) override {
         if (!cell) return std::erase (nulls, row);
         if (!select (cell).index()) {
             LOG (WARNING) << "Can't remove cell as it can't be found";
@@ -37,7 +37,7 @@ public:
         else return std::erase (map.at (cell), row);
         return true;
     }
-    idx::Rows select (Cell const & cell) const {
+    idx::Rows select (Cell const & cell) const override {
         if (!cell) return nulls;
         try {
             if (map.at (cell).empty ()) return std::monostate ();
@@ -49,8 +49,23 @@ public:
         }
     }
 
-    std::string str() const {
-        return std::string();
+    std::string str() const override {
+        std::stringstream ss;
+        for (auto const & pair : map) ss << '\t' << pair.first;
+        return ss.str();
+    }
+
+    virtual std::string dump() const override {
+        std::stringstream os;
+        for (auto const & pair : map) {
+            os << pair.first;
+            for (auto const row : pair.second) os << '\t' << row;
+            os << '\n';
+        }
+        return os.str();
+    }
+    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) override {
+        for (auto & pair : data) map.insert (std::move (pair));
     }
 };
 

@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #define SEED                3
-#define N_INSERTS           2000
+#define N_INSERTS           200
 #define N_UNIQUE_INSERTS    200
 #define MAX_STR_LEN         16
 
@@ -134,6 +134,10 @@ SCENARIO("I can create indices for large amounts of data") {
                     CHECK (!index.select (unique [i]).index());
                 }
             }
+            THEN ("I can print it to an ostream") {
+                std::stringstream is;
+                CHECK_NOTHROW (is << index.str ());
+            }
             THEN ("I can remove entries from the Index, given a cell and its respective row") {
                 for (std::size_t i = 0; i < VEC_SIZE; i++) {
                     CHECK ( index.remove (shorts [i], i));
@@ -141,20 +145,6 @@ SCENARIO("I can create indices for large amounts of data") {
 
                     CHECK ( index.remove (shorts [i], i + VEC_SIZE));
                     CHECK (!index.remove (shorts [i], i + VEC_SIZE));
-                }
-            }
-            WHEN ("I get the string representation") {
-                std::vector <short> sorted = shorts;
-                std::sort (sorted.begin(), sorted.end());
-
-                std::stringstream should;
-                std::stringstream is;
-
-                for (auto const & val : sorted) should << val << '\t';
-                CHECK_NOTHROW (is << index.str());
-
-                THEN ("All values appear ordered ascendingly") {
-//                    CHECK (should.str() == is.str());
                 }
             }
         }
@@ -181,6 +171,10 @@ SCENARIO("I can create indices for large amounts of data") {
                     CHECK (std::get <std::size_t> (index.select (shorts [i])) == i);
                 }
             }
+            THEN ("I can print it to an ostream") {
+                std::stringstream is;
+                CHECK_NOTHROW (is << index.str ());
+            }
             THEN ("Trying to retrieve non-existent values fails") {
                 for (std::size_t i = 0; i < VEC_SIZE; i++) {
                     CHECK (!index.select (unique [i]).index());
@@ -190,20 +184,6 @@ SCENARIO("I can create indices for large amounts of data") {
                 for (std::size_t i = 0; i < VEC_SIZE; i++) {
                     CHECK ( index.remove (shorts [i], i));
                     CHECK (!index.remove (shorts [i], i));
-                }
-            }
-            WHEN ("I get the string representation") {
-                std::vector <short> sorted = shorts;
-                std::sort (sorted.begin(), sorted.end());
-
-                std::stringstream should;
-                std::stringstream is;
-
-                for (auto const & val : sorted) should << val << '\t';
-                CHECK_NOTHROW (is << index.str());
-
-                THEN ("All values appear ordered ascendingly") {
-//                    CHECK (should.str() == is.str());
                 }
             }
         }
