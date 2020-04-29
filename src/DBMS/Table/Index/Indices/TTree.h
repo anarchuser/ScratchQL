@@ -63,7 +63,7 @@ public:
         return ss.str();
     }
 
-    virtual std::string dump() const override {
+     std::string dump() const override {
         std::stringstream ss;
         Cont::dump (ss, root, [] (std::stringstream & ss, Cell const & cell, std::vector <std::size_t > const & rows) {
             ss << cell;
@@ -72,7 +72,7 @@ public:
         });
         return ss.str();
     }
-    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) override {
+     void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> data) override {
         for (auto & pair : data) {
             std::vector <std::size_t> & v = pair.second;
             for (auto const val : v) {
@@ -81,6 +81,10 @@ public:
                 }
             }
         }
+    }
+    void load (std::vector <std::size_t> nulls) override {
+        if (this->nulls.empty()) this->nulls = std::move (nulls);
+        else for (auto & null : nulls) this->nulls.push_back (std::move (null));
     }
 };
 

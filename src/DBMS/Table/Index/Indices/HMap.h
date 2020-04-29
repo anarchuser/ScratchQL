@@ -55,7 +55,7 @@ public:
         return ss.str();
     }
 
-    virtual std::string dump() const override {
+     std::string dump() const override {
         std::stringstream ss;
         for (auto const & n : nulls) ss << n << '\t';
         ss << '\n';
@@ -66,8 +66,12 @@ public:
         }
         return ss.str();
     }
-    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) override {
+     void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> data) override {
         for (auto & pair : data) map.insert (std::move (pair));
+    }
+    void load (std::vector <std::size_t> nulls) override {
+        if (this->nulls.empty()) this->nulls = std::move (nulls);
+        else for (auto & null : nulls) this->nulls.push_back (std::move (null));
     }
 };
 

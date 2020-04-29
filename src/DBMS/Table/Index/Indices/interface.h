@@ -20,7 +20,8 @@ struct IndexImpl {
     virtual std::ostream & operator << (std::ostream & os) const { return os << str(); }
 
     virtual std::string dump() const = 0;
-    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) = 0;
+    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> data) = 0;
+    virtual void load (std::vector <std::size_t> nulls) = 0;
 };
 
 #endif //DATABASE_INTERFACE_H

@@ -44,7 +44,7 @@ public:
         return ss.str();
     }
 
-    virtual std::string dump() const override {
+    std::string dump() const override {
         std::stringstream ss;
         Cont::dump (ss, root, [] (std::stringstream & ss, Cell const & cell, std::size_t const & row) {
             ss << cell << '\t'
@@ -52,12 +52,16 @@ public:
         });
         return ss.str();
     }
-    virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) override {
+    void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> data) override {
         for (auto & pair : data) {
             if (!insert (std::move (pair.first), std::move (pair.second.front()))) {
                 LOG (WARNING) << "Loading of KV pair {" << pair.first << ":" << pair.second.front() << "} failed";
             }
         }
+    }
+    void load (std::vector <std::size_t> nulls) override {
+        if (this->nulls.empty()) this->nulls = std::move (nulls);
+        else for (auto & null : nulls) this->nulls.push_back (std::move (null));
     }
 };
 
