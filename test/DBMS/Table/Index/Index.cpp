@@ -171,9 +171,10 @@ SCENARIO("I can create indices for large amounts of data") {
                     CHECK (std::get <std::size_t> (index.select (shorts [i])) == i);
                 }
             }
-            THEN ("I can print it to an ostream") {
+            THEN ("I can print and dump it to an ostream") {
                 std::stringstream is;
                 CHECK_NOTHROW (is << index.str ());
+                CHECK_NOTHROW (index.dump());
             }
             THEN ("Trying to retrieve non-existent values fails") {
                 for (std::size_t i = 0; i < VEC_SIZE; i++) {

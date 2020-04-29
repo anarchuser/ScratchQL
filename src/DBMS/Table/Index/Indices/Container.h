@@ -79,6 +79,14 @@ public:
         return select (key, (key < deref->key) ? & deref->smaller : & deref->bigger);
     }
 
+    static std::stringstream & dump (std::stringstream & ss, Container <U, V> const * node, void (print) (std::stringstream & ss, U const & key, V const & val)) {
+        if (!node) return ss;
+        if (node->smaller) dump (ss, node->smaller, print);
+        print (ss, node->key, node->val);
+        if (node->bigger) dump (ss, node->bigger, print);
+        return ss;
+    }
+
     std::ostream & operator << (std::ostream & os) const {
         return os << str();
     }

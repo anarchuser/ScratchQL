@@ -56,13 +56,15 @@ public:
     }
 
     virtual std::string dump() const override {
-        std::stringstream os;
+        std::stringstream ss;
+        for (auto const & n : nulls) ss << n << '\t';
+        ss << '\n';
         for (auto const & pair : map) {
-            os << pair.first;
-            for (auto const row : pair.second) os << '\t' << row;
-            os << '\n';
+            ss << pair.first;
+            for (auto const row : pair.second) ss << '\t' << row;
+            ss << '\n';
         }
-        return os.str();
+        return ss.str();
     }
     virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) override {
         for (auto & pair : data) map.insert (std::move (pair));

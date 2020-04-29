@@ -64,16 +64,23 @@ public:
     }
 
     virtual std::string dump() const override {
-        std::stringstream os;
-//        for (auto const & pair : map) {
-//            os << pair.first;
-//            for (auto const row : pair.second) os << '\t' << row;
-//            os << '\n';
-//        }
-        return os.str();
+        std::stringstream ss;
+        Cont::dump (ss, root, [] (std::stringstream & ss, Cell const & cell, std::vector <std::size_t > const & rows) {
+            ss << cell;
+            for (auto const & row : rows) ss << '\t' << row;
+            ss << '\n';
+        });
+        return ss.str();
     }
     virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) override {
-
+        for (auto & pair : data) {
+            std::vector <std::size_t> & v = pair.second;
+            for (auto const val : v) {
+                if (!insert (pair.first, val)) {
+                    LOG (WARNING) << "Loading of KV pair {" << pair.first << ":" << pair.second.front() << "} failed";
+                }
+            }
+        }
     }
 };
 

@@ -17,7 +17,7 @@ struct IndexImpl {
     virtual idx::Rows select (Cell const & cell) const = 0;
 
     virtual std::string str() const = 0;
-    virtual std::ostream & operator << (std::ostream & os) { return os << str(); }
+    virtual std::ostream & operator << (std::ostream & os) const { return os << str(); }
 
     virtual std::string dump() const = 0;
     virtual void load (std::vector <std::pair <Cell, std::vector <std::size_t>>> & data) = 0;
