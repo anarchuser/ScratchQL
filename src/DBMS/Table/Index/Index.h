@@ -2,6 +2,7 @@
 #define DATABASE_INDEX_H
 
 #include "../../../config.h"
+#include "../../../Util/Tokens.h"
 #include "Indices/interface.h"
 #include "Indices/indices.h"
 
@@ -35,21 +36,7 @@ public:
             }
         }()} {}
 
-    Index (std::string const & database, std::string const & table, std::string const & column) {
-        //TODO: Replace path by a proper one
-        std::ifstream is;
-        try {
-            is = std::ifstream (STR+ "/var/log/ScratchQL/" + database + '/' + table + '/' + column + ".idx");
-        } catch (std::exception & e) THROW (e);
-
-        // TODO: Add path to error message
-        if (!is.is_open()) THROW (std::ios_base::failure ("Can't open file"));
-        int type; is >> type >> std::ws >> unique;
-        * this = Index ((CellType) type, unique);
-        // TODO: implement lodaing of null array
-        // TODO: call index->load appropriately
-        is.close();
-    }
+    Index (std::string const & path) { load (path); }
 
     Index (Index const & other) = delete;
     Index & operator = (Index && other) {
@@ -84,19 +71,40 @@ public:
         return os << dataType << ' ' << unique << '\n' << index->str();
     }
 
-    void save (std::string const & database, std::string const & table, std::string const & column) const {
+    void save (std::string const & path) const {
         std::ofstream os;
         try {
-            os = std::ofstream (STR+ "/var/log/ScratchQL/" + database + '/' + table + '/' + column + ".idx", std::ios::trunc);
+            os = std::ofstream (path);
         } catch (std::exception & e) THROW (e);
+        if (!os.is_open()) THROW (std::ios_base::failure (STR+ "Can't open file at '" + path + "'"));
 
-        // TODO: Add path to error message
-        if (!os.is_open()) THROW (std::ios_base::failure ("Can't open file"));
         os << dataType << ' ' << unique << '\n';
         os << index->dump() << std::endl;
         os.close();
     }
-    std::string dump () const { return index->dump(); }
+//    std::string dump () const { return index->dump(); }
+    std::string dump () const { return std::string(); }
+
+private:
+    void load (std::string const & path) {
+        std::ifstream is;
+        try {
+            is = std::ifstream (path);
+        } catch (std::exception & e) THROW (e);
+
+        if (!is.is_open()) THROW (std::ios_base::failure (STR+ "Can't open file at '" + path + "'"));
+        int type; is >> type >> std::ws >> unique;
+        index = std::move (Index ((CellType) type, unique).index);
+
+        std::string line;
+        std::getline (is, line);
+        std::vector <std::size_t> nulls;
+        for (auto const & str : sv::splitTokens (line, '\t')) nulls.push_back (std::stoi (str));
+        index->load (nulls);
+
+        // TODO: call index->load appropriately
+        is.close();
+    }
 };
 
 
