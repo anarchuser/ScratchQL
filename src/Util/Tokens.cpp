@@ -1,12 +1,18 @@
 #include "Tokens.h"
 
 
-std::vector <std::string> sv::splitTokens (std::string const & line, char delimiter) {
+std::vector <std::string> sv::splitTokens (std::string line, char delimiter) {
     std::vector <std::string> tokens;
-    std::size_t index = 0;
-    for (char c : line) {
-        if (c == delimiter) ++index;
-        else tokens [index] += c;
+    while(line.size()){
+        int index = line.find (delimiter);
+        if (index != std::string::npos) {
+            tokens.push_back (line.substr (0, index));
+            line = line.substr(index + 1);
+            if (line.empty()) tokens.emplace_back();
+        } else {
+            tokens.push_back (line);
+            line = "";
+        }
     }
     return tokens;
 }

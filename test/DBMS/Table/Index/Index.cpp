@@ -38,7 +38,8 @@ SCENARIO("I can create indices for large amounts of data") {
                 std::string const PATH {PROJECT_ROOT + "/tmp/indices/bools.idx"};
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
-                    CHECK_NOTHROW (std::cout << Index (PATH).dump());
+                    CHECK_NOTHROW (Index (PATH).dump());
+//                    CHECK (index.dump() == Index (PATH).dump());
                 }
             }
             THEN ("I can retrieve their values from the Index") {
@@ -72,7 +73,8 @@ SCENARIO("I can create indices for large amounts of data") {
                 std::string const PATH {PROJECT_ROOT + "/tmp/indices/strings_normal.idx"};
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
-                    CHECK_NOTHROW (std::cout << Index (PATH).dump());
+                    CHECK_NOTHROW (Index (PATH).dump());
+//                    CHECK (index.dump() == Index (PATH).dump());
                 }
             }
             THEN ("I can retrieve their values from the Index") {
@@ -102,7 +104,8 @@ SCENARIO("I can create indices for large amounts of data") {
                 std::string const PATH {PROJECT_ROOT + "/tmp/indices/strings_unique.idx"};
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
-                    CHECK_NOTHROW (std::cout << Index (PATH).dump());
+                    CHECK_NOTHROW (Index (PATH).dump());
+//                    CHECK (index.dump() == Index (PATH).dump());
                 }
             }
             THEN ("I can retrieve their values from the Index") {
@@ -143,7 +146,8 @@ SCENARIO("I can create indices for large amounts of data") {
                 std::string const PATH {PROJECT_ROOT + "/tmp/indices/shorts_normal.idx"};
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
-                    CHECK_NOTHROW (std::cout << Index (PATH).dump());
+                    CHECK_NOTHROW (Index (PATH).dump());
+//                    CHECK (index.dump() == Index (PATH).dump());
                 }
             }
             THEN ("I can retrieve their values from the Index") {
@@ -197,7 +201,8 @@ SCENARIO("I can create indices for large amounts of data") {
                 std::string const PATH {PROJECT_ROOT + "/tmp/indices/shorts_unique.idx"};
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
-                    CHECK_NOTHROW (std::cout << Index (PATH).dump());
+                    CHECK_NOTHROW (Index (PATH).dump());
+//                    CHECK (index.dump() == Index (PATH).dump());
                 }
             }
             THEN ("I can retrieve their values from the Index") {

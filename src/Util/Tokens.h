@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace sv {
-std::vector <std::string> splitTokens (std::string const & line, char delimiter = '\t');
+std::vector <std::string> splitTokens (std::string line, char delimiter = '\t');
 }
 
 

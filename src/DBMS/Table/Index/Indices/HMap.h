@@ -71,7 +71,7 @@ public:
     }
     void load (std::vector <std::size_t> nulls) override {
         if (this->nulls.empty()) this->nulls = std::move (nulls);
-        else for (auto & null : nulls) this->nulls.push_back (std::move (null));
+        else for (auto & null : nulls) this->nulls.push_back (null);
     }
 };
 
