@@ -66,8 +66,9 @@ SCENARIO("I can create indices for large amounts of data") {
             Index index (CellType::TEXT, false);
             for (std::size_t i = 0; i < VEC_SIZE; i++) {
                 strings.push_back (rand_str());
-                CHECK (index.insert (strings [i], i));
-                CHECK (index.insert (strings [i], i));
+                CHECK (  index.insert (strings [i], i));
+                CHECK (! index.insert (strings [i], i));
+                CHECK (  index.insert (strings [i], i + VEC_SIZE));
             }
             WHEN ("I store the values to file") {
                 std::string const PATH {PROJECT_ROOT + "/tmp/indices/strings_normal.idx"};

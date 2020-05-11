@@ -23,7 +23,12 @@ public:
                 LOG (WARNING) << "Cell already exists (while entries are unique)";
                 return false;
             }
-            map [cell].push_back (row);
+            std::vector <std::size_t> & v = map [cell];
+            if (std::find (v.begin(), v.end(), row) == v.end()) v.push_back (row);
+            else {
+                LOG (WARNING) << "Duplicate row for non-unique entries detected. Will be ignored";
+                return false;
+            }
         }
         return true;
     }
