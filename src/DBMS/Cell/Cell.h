@@ -1,10 +1,10 @@
 #ifndef DATABASE_CELL_H
 #define DATABASE_CELL_H
 
-#include "../../config.h"
 
 #include <stdexcept>
 #include <string>
+#include <vector>
 #include <variant>
 
 using Cell = std::variant <std::monostate, bool, short, long, std::string>;
@@ -20,6 +20,7 @@ enum CellType {
 bool operator ! (Cell const & cell);
 std::ostream & operator << (std::ostream & os, Cell const & cell);
 std::ostream & operator < (std::ostream & os, Cell const & cell);
+std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell);
 
 template <class A, class B>
 bool operator == (std::variant <A, B> first, std::variant <A, B> second) {

@@ -3,16 +3,18 @@
 
 SCENARIO ("I can create a table, modify and print it") {
     GIVEN ("Some test data") {
-        CHECK_THROWS_AS (Table (std::vector <Meta> ()), std::range_error);
-        CHECK_THROWS_AS (Table (std::vector <Meta> ({}, {})), std::range_error);
+        std::string testdbname = "TableTestDatabase";
+        std::string testtablename = "TableTestTable";
+        CHECK_THROWS_AS (Table (std::vector <Meta> (), testdbname, testtablename), std::range_error);
+        CHECK_THROWS_AS (Table (std::vector <Meta> ({}, {}), testdbname, testtablename), std::range_error);
 
         std::vector <Meta> columns = {
                 {"ID", SHORT, PRIMARY, true, false},
                 {"Name", TEXT, NORMAL, false, false, 20},
-                {"Birthday", TEXT, "Events", true, true},
+                {"Birthday", TEXT, "Events", true, true, 10},
         };
-        Table t1 (columns);
-        REQUIRE_NOTHROW (Table (columns));
+        Table t1 (columns, testdbname, testtablename);
+        REQUIRE_NOTHROW (Table (columns, testdbname, testtablename));
 
         std::vector <std::vector <Cell>> rows;
         std::vector <Cell> row1 {1l, std::string ("John"), std::string ("2020-02-02")};
@@ -36,12 +38,20 @@ SCENARIO ("I can create a table, modify and print it") {
             }
 
             THEN ("I can successfully read lines") {
-                for (int i = 0; i < t1.getRowCount(); i++) {
-                    CHECK_NOTHROW (t1.readRow (i));
-                    CHECK_NOTHROW (t1.readRowAsVector (i));
-                    CHECK (t1.readRowAsVector (i) == rows [i]);
+                auto const & t2 = t1;
+                for (int i = 0; i < t2.getRowCount(); i++) {
+                    CHECK_NOTHROW (t2.readRow (i));
+                    CHECK_NOTHROW (t2.readRowAsVector (i));
+                    CHECK (t2.readRowAsVector (i) == rows [i]);
                 }
             }
+//            THEN ("I can successfully read lines") {
+//                for (int i = 0; i < t1.getRowCount(); i++) {
+//                    CHECK_NOTHROW (t1.readRow (i));
+//                    CHECK_NOTHROW (t1.readRowAsVector (i));
+//                    CHECK (t1.readRowAsVector (i) == rows [i]);
+//                }
+//            }
 
             THEN ("Printing gives something meaningful") {
                 std::stringstream ss;

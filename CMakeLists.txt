@@ -4,7 +4,7 @@ project(Database)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_REQUIRED_LIBRARIES "-lglog -lcapnp -lcapnp-rpc -lkj -lkj-async")
+set(CMAKE_REQUIRED_LIBRARIES "-lglog -lcapnp -lcapnp-rpc -lkj -lkj-async -pthread")
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)

@@ -6,99 +6,112 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
         std::string test_path = PROJECT_ROOT + "/tmp/fileHandlerTest.tsv";
         std::string testdb = "testdb";
         std::string testtable = "testtable";
+        std::vector <int> const testColLength = {25};
+        std::vector <Cell> testContent = {"HappyBirthday"};
+        std::vector <CellType> testCellType = {TEXT};
         FileHandler * fh;
 
-        std::vector<std::string> test_strings = {
-                "Hello, world!",
+        std::vector <std::vector <Cell>> test_strings1 = {
+                {"Hello, world!",
                 "1234567890fghij",
                 "I'm a test",
                 "abcde",
-                "vwxyz"
+                "vwxyz"}
         };
+        std::vector <int> const testColLengths1 = {15, 15, 10, 6, 5};
+        std::vector <CellType> testCellTypes1 = {TEXT, TEXT, TEXT, TEXT, TEXT};
         SECTION("We create database and table with the filehandler"){
-            FileHandler *fhbadtest;
+            FileHandler * fhbadtest;
             std::string badname = "!&nogooddbname";
             WHEN("Database and table name are valid"){
                 THEN("The constructor creates Folders for database and table and the table file"){
-                    REQUIRE_NOTHROW(fhbadtest = new FileHandler(testdb, testtable));
+                    REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLength, testCellType++++++));
                 }
             }
             WHEN("We delete the Database"){
                 THEN("The filehandler removes the directory of the database with all subdirectories"){
-                    REQUIRE_NOTHROW(fhbadtest->deleteDatabase());
+                    REQUIRE_NOTHROW(fh->deleteDatabase());
                 }
             }
             WHEN("The database name is invalid"){
                 THEN("The constructor throws an exception"){
-                    REQUIRE_THROWS_AS(fhbadtest = new FileHandler(badname, testtable), std::invalid_argument);
+                    REQUIRE_THROWS_AS(fhbadtest = new FileHandler(badname, testtable, testColLength, testCellType), std::invalid_argument);
                 };
             }
             fhbadtest->deleteDatabase();
             WHEN("The table name is invalid"){
                 THEN("The constructor throws an exception"){
-                    REQUIRE_THROWS_AS(fhbadtest = new FileHandler(testdb, badname), std::invalid_argument);
+                    REQUIRE_THROWS_AS(fhbadtest = new FileHandler(testdb, badname, testColLength, testCellType), std::invalid_argument);
                 };
             }
             fhbadtest->deleteDatabase();
         }
         SECTION ("We read lines from a file") {
-            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
+            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLengths1, testCellTypes1));
             WHEN ("We append lines to a file") {
-                for (auto const & str : test_strings) {
+                for (std::vector <Cell> & str : test_strings1) {
+                    std::cout << "handing over strings for creation: " << str << std::endl;
                     REQUIRE_NOTHROW (fh->createLine (str));
                 }
                 THEN ("We can successfully read them") {
+                    std::cout << "read init...";
                     int i = 0;
-                    for (auto const & str : test_strings) {
+                    std::cout << "in progress..." << std::endl << std::endl;
+                    for (std::vector <Cell> const & str : test_strings1) {
                         CHECK (fh->readLine (i++) == str);
+                        std::cout << std::endl << std::endl << "partial success...";
                     }
+                    std::cout << "read finished successfully" << std::endl;
                 }
             }
             CHECK_NOTHROW(fh->deleteDatabase());
         }
         SECTION ("We \"delete\" lines from a file") {
-            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
-            for (auto &str : test_strings) fh->createLine(str);
+            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLengths1, testCellTypes1));
+            for (std::vector <Cell> & str : test_strings1) fh->createLine(str);
             WHEN ("We delete one line with valid index") {
                 int del_valid_index = 0;
                 int strlength;
                 THEN("It's characters are replaced with spaces") {
-                    std::string del_string(fh->readLine(del_valid_index));
+                    std::vector <Cell> del_string = fh->readLine(del_valid_index);
                     CHECK(!del_string.empty());
-                    CHECK_NOTHROW(strlength = del_string.length());
                     fh->deleteLine(del_valid_index);
                     del_string = fh->readLine(del_valid_index);
-                    CHECK (del_string == std::string(0, ' '));
+                    std::vector <Cell> deletedCells;
+                    for (int const & cellLength :testColLength){
+                        deletedCells.emplace_back(std::string(cellLength, ' '));
+                    }
+                    CHECK (del_string == deletedCells);
                 }
             }
-//            WHEN ("We try to delete one line with invalid index") {
-//                int del_invalid_index = 100;
-//                std::string old_string;
-//                THEN("No changes are made to the line") {
-//                    std::string del_string(fh->readLine(del_invalid_index));
-//                    old_string = del_string;
-//                    CHECK(del_string.empty());
-//                    fh->deleteLine(del_invalid_index);
-//                    del_string = fh->readLine(del_invalid_index);
-//                    CHECK(del_string == old_string);
-//                }
-//            }
+            WHEN ("We try to delete one line with invalid index") {
+                int del_invalid_index = 100;
+                std::vector <Cell> old_string;
+                THEN("No changes are made to the line") {
+                    std::vector <Cell> del_string = fh->readLine(del_invalid_index);
+                    old_string = del_string;
+                    CHECK(del_string.empty());
+                    fh->deleteLine(del_invalid_index);
+                    del_string = fh->readLine(del_invalid_index);
+                    CHECK(del_string == old_string);
+                }
+            }
             CHECK_NOTHROW (fh->deleteDatabase());
         }
         SECTION("We update lines of a file"){
-            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable));
-            for (auto &str : test_strings) fh->createLine(str);
+            REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLengths1, testCellTypes1));
+            for (std::vector <Cell> & str : test_strings1) fh->createLine(str);
             std::ifstream testfile (fh->path, std::ios::in);
             WHEN ("We update one line with valid index"){
                 int replace_index = 0;
                 int strlength;
-                std::string target_string = "Goodbye, World - Sayonara";
+                std::vector <Cell> target_string = {"Goodbye, World - Sayonara"};
                 THEN("It's characters are replaced with a new string"){
-                    std::string old_string (fh->readLine(replace_index));
+                    std::vector <Cell> old_string (fh->readLine(replace_index));
                     CHECK(!old_string.empty());
-                    CHECK_NOTHROW(strlength = old_string.length());
+//                    CHECK_NOTHROW(strlength = calcLineLength(old_string));
                     fh->updateLine(replace_index, target_string);
-                    std::string new_string = fh->readLine(replace_index);
+                    std::vector <Cell> new_string = fh->readLine(replace_index);
                     CHECK (new_string == target_string);
                 }
             }
@@ -107,18 +120,18 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
 //                std::string old_string;
 //                std::string new_string = "Goodbye, World - Sayonara";
 //                THEN("No changes are made to the line"){
-//                    std::string replaceable_string(fh->readLine(invalid_num));
+//                    std::vector <Cell> replaceable_string(fh->readLine(invalid_num));
 //                    std::cerr << replaceable_string << std::endl;
 //                    REQUIRE(replaceable_string.empty());
 //                    old_string = replaceable_string;
 //                    fh->updateLine(invalid_num, new_string);
 //                    std::string current_line;
-//                    std::vector <std::string> newfile {};
+//                    std::vector <Cell> newfile {};
 //                    while (getline (testfile, current_line)){
 //                        fh->cutTailingSpaces(current_line);
 //                        newfile.push_back(current_line);
 //                    }
-//                    CHECK(test_strings == newfile);
+//                    CHECK(test_strings1 == newfile);
 //                    replaceable_string = fh->readLine(invalid_num);
 //                    CHECK(replaceable_string == old_string);
 //                    testfile.close();
@@ -134,7 +147,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                     CHECK_NOTHROW (fh-> clearLines());
                     testfile.open(fh->path, std::ios::in);
                     while (getline (testfile, tmpline)){
-                        CHECK (tmpline.length() == fh->tmp_line_length);
+                        CHECK (tmpline.length() == fh->lineLength);
                         counter_after++;
                     }
                     testfile.close();

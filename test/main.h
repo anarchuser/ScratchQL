@@ -7,7 +7,7 @@
 #include <glog/logging.h>
 #include <catch2/catch.hpp>
 
-#include "../src/config.h"
+//#include "../src/config.h"
 
 #endif //DATABASE_MAIN_H
 

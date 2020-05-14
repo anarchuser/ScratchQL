@@ -20,6 +20,7 @@ private:
     std::unordered_map <std::string, Meta const> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
     std::vector <std::vector <Cell const *>> matrix;
+    FileHandler tablefile;
 
     std::string database, name;
     FileHandler * file = nullptr;
@@ -31,7 +32,7 @@ private:
 public:
     /// Creates a new Table where each element in `header` equals the name of one column
     // TODO: Create Constructor taking metadata which actually creates a new table
-    explicit Table (std::vector <Meta> const & meta);
+    explicit Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename);
 
     ~Table();
 
@@ -40,18 +41,21 @@ public:
 
     /// Append `row` to this table. Throws if its size doesn't match the amount of columns
     // TODO: Call FileHandler::createLine accordingly
-    void createRow (std::vector <Cell> const & row_index);
+    void createRow (std::vector <Cell> const & row);
 
     /// Replace row with index `row_index` with `row`
     // TODO: Call FileHandler::updateLine accordingly
-    void updateRow (std::size_t row_index, std::vector <Cell> const & row);
+    void updateRow (std::size_t row_index, std::vector <Cell> const & row, bool updateFileHandler = true);
 
     /// Read row with index `row_index` as unordered hash map
     std::unordered_map <std::string, Cell> readRow (std::size_t row_index) const;
+    std::unordered_map <std::string, Cell> readRow (std::size_t row_index);
 
     /// Read row with index `row_index` as list of cells
     // TODO: Call FileHandler::readLine accordingly
     std::vector <Cell> readRowAsVector (std::size_t row_index) const;
+    std::vector <Cell> readRowAsVector (std::size_t row_index);
+
 
     /// Delete row with index `row_index`
     // TODO: Call FileHandler::deleteLine accordingly
@@ -79,6 +83,8 @@ public:
 
     std::unordered_map <std::string, Meta const> const & getMeta() const;
     std::vector <Meta> getMetaAsVector() const;
+    std::vector <int> const getMetaColLength(std::vector <Meta> const & meta);
+    std::vector <CellType> const getMetaDataType(std::vector <Meta> const & meta);
 
     /// Returns a reference of the current table. Do not use while multithreading.
     std::vector <std::vector <Cell const *>> const & getContent() const;

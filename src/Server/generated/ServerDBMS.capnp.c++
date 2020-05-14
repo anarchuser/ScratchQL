@@ -865,7 +865,7 @@ RPCServer::Client::connectRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
       "ServerDBMS.capnp:RPCServer", "connect",
       0xcb711ada46b974b8ull, 1);
 }
-::capnp::Capability::Server::DispatchCallResult RPCServer::Server::dispatchCall(
+::kj::Promise<void> RPCServer::Server::dispatchCall(
     uint64_t interfaceId, uint16_t methodId,
     ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
   switch (interfaceId) {
@@ -875,22 +875,16 @@ RPCServer::Client::connectRequest(::kj::Maybe< ::capnp::MessageSize> sizeHint) {
       return internalUnimplemented("ServerDBMS.capnp:RPCServer", interfaceId);
   }
 }
-::capnp::Capability::Server::DispatchCallResult RPCServer::Server::dispatchCallInternal(
+::kj::Promise<void> RPCServer::Server::dispatchCallInternal(
     uint16_t methodId,
     ::capnp::CallContext< ::capnp::AnyPointer, ::capnp::AnyPointer> context) {
   switch (methodId) {
     case 0:
-      return {
-        sendQuery(::capnp::Capability::Server::internalGetTypedContext<
-             ::RPCServer::SendQueryParams,  ::RPCServer::SendQueryResults>(context)),
-        false
-      };
+      return sendQuery(::capnp::Capability::Server::internalGetTypedContext<
+           ::RPCServer::SendQueryParams,  ::RPCServer::SendQueryResults>(context));
     case 1:
-      return {
-        connect(::capnp::Capability::Server::internalGetTypedContext<
-             ::RPCServer::ConnectParams,  ::RPCServer::ConnectResults>(context)),
-        false
-      };
+      return connect(::capnp::Capability::Server::internalGetTypedContext<
+           ::RPCServer::ConnectParams,  ::RPCServer::ConnectResults>(context));
     default:
       (void)context;
       return ::capnp::Capability::Server::internalUnimplemented(
