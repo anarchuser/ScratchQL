@@ -25,7 +25,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
             std::string badname = "!&nogooddbname";
             WHEN("Database and table name are valid"){
                 THEN("The constructor creates Folders for database and table and the table file"){
-                    REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLength, testCellType++++++));
+                    REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLength, testCellType));
                 }
             }
             WHEN("We delete the Database"){
