@@ -29,6 +29,10 @@ void Table::initDiskMode (std::string database, std::string table) {
     diskMode = true;
 }
 
+void Table::deleteTable () {
+    tablefile.deleteTable();
+}
+
 void Table::removePadding () {
     LOG (INFO) << "Removing Padding of Table...";
     LOG_ASSERT (row_count <= table.at (header [0]).size());

@@ -32,6 +32,7 @@ public:
     void deleteLine (std::size_t index);                                   // Removes a line
 
     static void cutTailingSpaces(std::string & content);
+    static Cell writeToCell (std::string & inputString, CellType cellType);
     void clearLines ();
     void deleteTable ();
     void deleteDatabase ();
@@ -42,7 +43,6 @@ private:
     void cleanName(std::string & alnum_string);
     int checkLineLength(std::string const & content);
     std::vector <int> const surplusColumnLengths(std::vector <Cell> const & contentVector);
-    std::vector <Cell> const writeToCells (std::vector <std::string> & inputVector) const;
 };
 
 int calcLineLength(std::vector <int> const & colLength);

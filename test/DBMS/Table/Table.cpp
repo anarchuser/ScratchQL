@@ -13,16 +13,15 @@ SCENARIO ("I can create a table, modify and print it") {
                 {"Name", TEXT, NORMAL, false, false, 20},
                 {"Birthday", TEXT, "Events", true, true, 10},
         };
-        Table t1 (columns, testdbname, testtablename);
         REQUIRE_NOTHROW (Table (columns, testdbname, testtablename));
+        Table t1 (columns, testdbname, testtablename);
 
-        std::vector <std::vector <Cell>> rows;
-        std::vector <Cell> row1 {1l, std::string ("John"), std::string ("2020-02-02")};
-        std::vector <Cell> row2 {2l, std::string ("Peter"), std::string ("1929-03-20")};
-        std::vector <Cell> row3 {3l, std::string ("Emily"), std::string ("1978-10-31")};
-        rows.push_back (row1);
-        rows.push_back (row2);
-        rows.push_back (row3);
+        std::vector <std::vector <Cell>> rows {
+                { short(1), std::string("John"), std::string("2020-02-02") },
+                { short(2), std::string("Peter"), std::string("1929-03-20") },
+                { short(3), std::string("Emily"), std::string("1978-10-31") },
+                { short(4), std::string("Emily2"), std::string("1979-10-31") },
+        };
 
         WHEN ("I add lines to it") {
             CHECK (!t1);
@@ -74,6 +73,7 @@ SCENARIO ("I can create a table, modify and print it") {
             THEN ("I can successfully modify lines") {
                 for (int i = 0; i < t1.getRowCount(); i++) {
                     CHECK_NOTHROW (t1.updateRow (i, rows[(i + 1) % rows.size()]));
+                    std::vector <Cell> testvector =  t1.readRowAsVector (i);
                     CHECK (t1.readRowAsVector (i) == rows [(i + 1) % rows.size()]);
                     CHECK (!!t1);
                 }
@@ -93,6 +93,7 @@ SCENARIO ("I can create a table, modify and print it") {
                 CHECK (!tc1);
             }
         }
+        t1.deleteTable();
     }
 }
 

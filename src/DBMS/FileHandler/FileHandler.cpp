@@ -62,26 +62,29 @@ std::vector <Cell> FileHandler::readLine (std::size_t index) const {
     std::vector <std::string> contentStringVector;
     std::vector <Cell> content;
 
-    std::cout << "reading from file initialized.....";
     std::ifstream in (path, std::ios::in);
     if (!in.is_open ()) THROW (std::ios_base::failure (STR+
     "Could not open file " + path));
 
     in.seekg(+(lineLength + 1 ) * index);
+    char waste[1];
     for (int const & cellLength : columnLength){
-        char tmp_line[cellLength];
+        char tmp_line[cellLength + 1];
+        for (int i = 0; i < cellLength; i++) tmp_line[i] = ' '; tmp_line[cellLength] = 0;
         in.read(tmp_line, cellLength);
-        in.seekg(+1);
         contentStringVector.emplace_back(std::string(tmp_line));
+        in.read(waste, 1);
     }
     in.close();
-    std::cout << "reading into memory finished successfully" << std::endl << "proceding write to cells..." << std::endl;
-
-    return (writeToCells(contentStringVector));
+    int counter = 0;
+    for (std::string element : contentStringVector){
+        content.emplace_back(writeToCell(element, columnType[counter++]));
+    }
+    return content;
 }
 
 void FileHandler::updateLine (std::size_t index, std::vector <Cell> content) {
-    std::fstream file (path, std::ios::in | std::ios::out);
+    std::ofstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;
     std::vector <int> extralength = surplusColumnLengths(content);
 
@@ -150,6 +153,7 @@ int FileHandler::checkLineLength(std::string const & content){
 std::vector <int> const FileHandler::surplusColumnLengths(std::vector <Cell> const & contentVector) {
     int maxLen;
     int actualLen;
+    int counter = 0;
     std::vector <int> lengths;
     for (Cell celly : contentVector){
         if (celly.index() == TEXT){
@@ -160,36 +164,32 @@ std::vector <int> const FileHandler::surplusColumnLengths(std::vector <Cell> con
             tmpContent << celly;
             actualLen = tmpContent.str().length();
         }
-        maxLen = columnLength[celly.index()];
-        if (maxLen - actualLen < 0) THROW(std::range_error ("Contents exceed maximum length"));
+        maxLen = columnLength[counter];
+        if (maxLen - actualLen < 0) {
+            std::stringstream errorMsg;
+            (errorMsg << "Contents exceed maximum length - maximum allowed Length: " << maxLen
+                    << " -actual Length: " << actualLen << " -- content in question: ") < celly;
+            THROW(std::range_error (errorMsg.str()));
+        }
         lengths.emplace_back(maxLen - actualLen);
+        counter++;
     }
-    return (lengths);
+    return lengths;
 }
-std::vector <Cell> const FileHandler::writeToCells (std::vector <std::string> & inputVector) const{
-    std::vector <Cell> targetVector;
-    for (int colCounter = 0; colCounter < inputVector.size(); colCounter += 1){
-        cutTailingSpaces(inputVector[colCounter]);
-        if (columnType[colCounter] == TEXT){
-            std::cout << "writing string to vector...";
-            targetVector.emplace_back(inputVector[colCounter]);
-            std::cout << "success" << std::endl;
-        }
-        else {
-            std::cout << "converting string |"<< inputVector[colCounter] << "| to int...";
-            int contentAsInt = std::stoi(inputVector[colCounter]);
-            std::cout << "success...";
-            if (columnType[colCounter] == SHORT) {
-                targetVector.emplace_back(short(contentAsInt));
-            } else if (columnType[colCounter] == LONG) {
-                targetVector.emplace_back(long(contentAsInt));
-            } else if (columnType[colCounter] == BINARY) {
-                targetVector.emplace_back(bool(contentAsInt));
-            }
-            std::cout << "finished conversion" << std::endl;
-        }
+Cell FileHandler::writeToCell (std::string & inputString, CellType cellType){
+    Cell targetCell;
+    cutTailingSpaces(inputString);
+    if (cellType == TEXT){
+        targetCell = inputString;
     }
-    return (targetVector);
+    else {
+        int contentAsInt = std::stoi(inputString);
+        if      (cellType == SHORT)  targetCell = short(contentAsInt);
+        else if (cellType == LONG)   targetCell = long(contentAsInt);
+        else if (cellType == BINARY) targetCell = bool(contentAsInt);
+
+    }
+    return targetCell;
 }
 
 void FileHandler::cutTailingSpaces(std::string & content) {

@@ -32,7 +32,7 @@ Response DBMS::evalTableQuery (kj::Own <Query> const & query) {
             {"age", SHORT, NORMAL, true, false},
             {"profession", TEXT, "Professions", false, true},
     };
-    auto testTable = kj::heap <Table> (header, STR, STR);
+    auto testTable = kj::heap <Table> (header, "TODO", "TODO");
     testTable->createRow(std::vector <Cell> {std::string ("Adam"), std::string ("Abcd"), short (30), Cell()});
     testTable->createRow(std::vector <Cell> {std::string ("Tom"),  std::string ("Efgh"), short (30), std::string ("jfuesfeoies")});
     testTable->createRow(std::vector <Cell> {std::string ("Eve"),  std::string ("Ijkl"), short (30), std::string ("nfwiufew")});

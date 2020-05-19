@@ -56,6 +56,7 @@ public:
     std::vector <Cell> readRowAsVector (std::size_t row_index) const;
     std::vector <Cell> readRowAsVector (std::size_t row_index);
 
+    void deleteTable ();
 
     /// Delete row with index `row_index`
     // TODO: Call FileHandler::deleteLine accordingly
