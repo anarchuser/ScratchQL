@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Run tests before pushing, and abort if the tests fail
+
+export SCRATCHQL_ROOT=$PWD
+/bin/bash test/test.sh 3
+result=$?
+if test $result -ne 0
+then echo "Your tests are failing - Aborting push"
+fi
+exit $result
