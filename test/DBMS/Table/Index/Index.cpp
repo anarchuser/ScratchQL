@@ -32,7 +32,7 @@ SCENARIO("I can create indices for large amounts of data") {
         WHEN ("I store them in an Index") {
             Index index (CellType::BINARY, false);
             for (std::size_t i = 0; i < VEC_SIZE; i++) {
-                CHECK (index.insert (bools [i], i));
+                CHECK (index.insert ((bool) bools [i], i));
             }
             WHEN ("I store the values to file") {
                 std::string const PATH {PROJECT_ROOT + "/tmp/indices/bools.idx"};
@@ -45,7 +45,7 @@ SCENARIO("I can create indices for large amounts of data") {
             THEN ("I can retrieve their values from the Index") {
                 for (std::size_t i = 0; i < VEC_SIZE; i++) {
                     bool contains = false;
-                    idx::Rows rows = index.select (bools [i]);
+                    idx::Rows rows = index.select ((bool) bools [i]);
                     for (auto const & val : std::get <std::vector <std::size_t>> (rows)) {
                         contains = contains || val == i;
                     }
@@ -54,7 +54,7 @@ SCENARIO("I can create indices for large amounts of data") {
             }
             THEN ("I can remove entries from the Index, given a cell and its respective row") {
                 for (std::size_t i = 0; i < VEC_SIZE; i++) {
-                    CHECK (index.remove (bools [i], i));
+                    CHECK (index.remove ((bool) bools [i], i));
                 }
             }
         }
@@ -148,7 +148,7 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
                     CHECK_NOTHROW (Index (PATH).dump());
-//                    CHECK (index.dump() == Index (PATH).dump());
+                    CHECK (index.dump() == Index (PATH).dump());
                 }
             }
             THEN ("I can retrieve their values from the Index") {
@@ -203,7 +203,7 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
                     CHECK_NOTHROW (Index (PATH).dump());
-//                    CHECK (index.dump() == Index (PATH).dump());
+                    CHECK (index.dump() == Index (PATH).dump());
                 }
             }
             THEN ("I can retrieve their values from the Index") {

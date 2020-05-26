@@ -8,7 +8,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
         std::string testtable = "testtable";
         std::vector <int> const testColLength = {25};
         std::vector <Cell> testContent = {"HappyBirthday"};
-        std::vector <CellType> testCellType = {TEXT};
+        std::vector <CellType> testCellType = {CellType::TEXT};
         FileHandler * fh;
 
         std::vector <std::vector <Cell>> test_strings1 = {
@@ -19,7 +19,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                 "vwxyz"}
         };
         std::vector <int> const testColLengths1 = {15, 15, 10, 6, 5};
-        std::vector <CellType> testCellTypes1 = {TEXT, TEXT, TEXT, TEXT, TEXT};
+        std::vector <CellType> testCellTypes1 = {CellType::TEXT, CellType::TEXT, CellType::TEXT, CellType::TEXT, CellType::TEXT};
         SECTION("We create database and table with the filehandler"){
             FileHandler * fhbadtest;
             std::string badname = "!&nogooddbname";

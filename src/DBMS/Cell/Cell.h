@@ -11,7 +11,7 @@
 using Cell = std::variant <std::monostate, bool, short, long, std::string>;
 
 enum CellType {
-    UNARY,
+    UNARY = 0,
     BINARY,
     SHORT,
     LONG,
