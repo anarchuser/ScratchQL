@@ -42,6 +42,12 @@ std::ostream & operator < (std::ostream & os, Cell const & cell) {
     return os << cell << "'";
 }
 
+std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell) {
+    for (auto const & key:cell){
+        os << key << '\t';
+    }
+    return os;
+}
 void toNull (Cell & cell) {
     cell = Cell();
 }

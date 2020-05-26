@@ -31,8 +31,12 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> 
     kj::Own <capnp::MallocMessageBuilder> tableBuilder = kj::heap <capnp::MallocMessageBuilder>();
     RPCServer::Table::Builder builder = tableBuilder->initRoot <::RPCServer::Table>();
 
-    auto headerBuilder = builder.initHeader (table->getColumnCount());
-    duplicateList (headerBuilder, table->getHeader());
+    auto metaBuilder = builder.initMeta (table->getColumnCount());
+    auto meta = table->getMetaAsVector();
+    std::size_t idx = 0;
+    for (auto const & col : meta) {
+        metaBuilder.setWithCaveats (idx++, wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader());
+    }
 
     auto contentBuilder = builder.initContent (table->getRowCount());
     for (std::size_t r = 0; r < table->getRowCount (); r++) {
@@ -44,15 +48,14 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> 
             LOG_ASSERT (cell == unwrapCell (rowBuilder.asReader()[c-1]));
         }
     }
+
     return tableBuilder;
 }
 
 kj::Own <Table> Wrapper::unwrapTable (::RPCServer::Table::Reader const & reader) {
-    std::vector <std::string> header;
-    std::vector <KeyTypes> meta;
-    for (auto const & column : reader.getHeader()) header.emplace_back (column);
-    for (auto const & info : reader.getMeta ()) meta.push_back (KeyTypes (info));
-    kj::Own <Table> table = kj::heap <Table> (header);
+    std::vector <Meta> metae;
+    for (auto const & meta : reader.getMeta ()) metae.push_back (unwrapMeta (meta));
+    kj::Own <Table> table = kj::heap <Table> (metae, std::string(""), std::string(""));             //TODO: Serialise Database- and Tablename
 
     for (auto const & row : reader.getContent ()) {
         std::vector <Cell> newRow;
@@ -60,6 +63,37 @@ kj::Own <Table> Wrapper::unwrapTable (::RPCServer::Table::Reader const & reader)
         table->createRow (newRow);
     }
     return table;
+}
+
+kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapMeta (Meta const & meta) {
+    kj::Own <capnp::MallocMessageBuilder> metaBuilder = kj::heap <capnp::MallocMessageBuilder>();
+    RPCServer::Table::Meta::Builder builder = metaBuilder->initRoot <RPCServer::Table::Meta>();
+    builder.setName (meta.name);
+    builder.setDataType (meta.dataType);
+    builder.setKeyType (meta.keyType);
+    builder.setIndex (meta.index);
+    builder.setNullable (meta.nullable);
+
+    auto dataBuilder = builder.initReference().initData();
+    meta.reference.index() ?
+        dataBuilder.setTable (std::get <std::string> (meta.reference)) :
+        dataBuilder.setUnary();
+
+    return metaBuilder;
+}
+
+Meta Wrapper::unwrapMeta (RPCServer::Table::Meta::Reader const & reader) {
+    Meta meta;
+    meta.name     = reader.getName ();
+    meta.dataType = (CellType) reader.getDataType();
+    meta.keyType  = (KeyType)  reader.getKeyType ();
+    meta.index    = reader.getIndex();
+    meta.nullable = reader.getNullable();
+
+    auto ref = reader.getReference ().getData();
+    if (ref.isTable()) meta.reference = Key::Reference (ref.getTable());
+
+    return std::move (meta);
 }
 
 kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapCell (Cell const & cell) {

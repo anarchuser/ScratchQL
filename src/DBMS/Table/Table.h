@@ -3,6 +3,8 @@
 
 #include "../../config.h"
 #include "../Cell/Cell.h"
+#include "../FileHandler/FileHandler.h"
+#include "Meta/Meta.h"
 
 #include <functional>
 #include <unordered_map>
@@ -15,8 +17,14 @@
 class Table {
 private:
     std::vector <std::string> header;
+    std::unordered_map <std::string, Meta const> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
     std::vector <std::vector <Cell const *>> matrix;
+    FileHandler tablefile;
+
+    std::string database, name;
+    FileHandler * file = nullptr;
+    bool diskMode = false;
 
     std::size_t row_count = 0;
     std::size_t col_count = 0;
@@ -24,7 +32,12 @@ private:
 public:
     /// Creates a new Table where each element in `header` equals the name of one column
     // TODO: Create Constructor taking metadata which actually creates a new table
-    explicit Table (std::vector <std::string> const & header);
+    explicit Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename);
+
+    ~Table();
+
+    /// Initialises syncing with file on disk
+    void initDiskMode (std::string database, std::string table);
 
     /// Append `row` to this table. Throws if its size doesn't match the amount of columns
     // TODO: Call FileHandler::createLine accordingly
@@ -32,14 +45,18 @@ public:
 
     /// Replace row with index `row_index` with `row`
     // TODO: Call FileHandler::updateLine accordingly
-    void updateRow (std::size_t row_index, std::vector <Cell> const & row);
+    void updateRow (std::size_t row_index, std::vector <Cell> const & row, bool updateFileHandler = true);
 
     /// Read row with index `row_index` as unordered hash map
     std::unordered_map <std::string, Cell> readRow (std::size_t row_index) const;
+    std::unordered_map <std::string, Cell> readRow (std::size_t row_index);
 
     /// Read row with index `row_index` as list of cells
     // TODO: Call FileHandler::readLine accordingly
     std::vector <Cell> readRowAsVector (std::size_t row_index) const;
+    std::vector <Cell> readRowAsVector (std::size_t row_index);
+
+    void deleteTable ();
 
     /// Delete row with index `row_index`
     // TODO: Call FileHandler::deleteLine accordingly
@@ -64,6 +81,11 @@ public:
     void removePadding() ;
 
     std::vector <std::string> const & getHeader() const;
+
+    std::unordered_map <std::string, Meta const> const & getMeta() const;
+    std::vector <Meta> getMetaAsVector() const;
+    std::vector <int> const getMetaColLength(std::vector <Meta> const & meta);
+    std::vector <CellType> const getMetaDataType(std::vector <Meta> const & meta);
 
     /// Returns a reference of the current table. Do not use while multithreading.
     std::vector <std::vector <Cell const *>> const & getContent() const;

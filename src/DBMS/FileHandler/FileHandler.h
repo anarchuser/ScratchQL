@@ -1,30 +1,51 @@
 #ifndef DATABASE_FILEHANDLER_H
 #define DATABASE_FILEHANDLER_H
 
-#include "../../main.h"
+#include "../../config.h"
+#include "../Table/Meta/Meta.h"
 
 #include <cstdio>
-#include <iostream>
+#include <cctype>
+#include <clocale>
+#include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <string>
+#include <unordered_map>
 
 struct FileHandler {
 public:
+    FileHandler(std::string const & database, std::string const & table, std::vector <int> const & columnLen, std::vector <CellType> const & colType);
+    std::string db_root;
+    std::string database;
+    std::string name;
     std::string path;
+    int lineLength;                                                       //for testing purposes until a meta file is created TODO: remove ASAP
+    std::vector <int> columnLength;
+    std::vector <CellType> columnType;
 
-    explicit FileHandler (std::string  path);
+    explicit FileHandler (std::string path);
 
-    void createLine (std::string const & content);                         // Appends a line
-    std::string readLine (std::size_t index);                              //
-    void updateLine (std::string const & content, std::size_t index);      // Writes a line
+    void createLine (std::vector <Cell> const & content);                         // Appends a line
+    std::vector <Cell> readLine (std::size_t index) const;                                     //
+    void updateLine (std::size_t index, std::vector <Cell> content);              // Writes a line
     void deleteLine (std::size_t index);                                   // Removes a line
 
+    static void cutTailingSpaces(std::string & content);
+    static Cell writeToCell (std::string & inputString, CellType cellType);
+    void clearLines ();
     void deleteTable ();
+    void deleteDatabase ();
 
 private:
-    void removePadding ();
-
+    void createDatabase();
+    void createTable();
+    void cleanName(std::string & alnum_string);
+    int checkLineLength(std::string const & content);
+    std::vector <int> const surplusColumnLengths(std::vector <Cell> const & contentVector);
 };
 
+int calcLineLength(std::vector <int> const & colLength);
 
 #endif //DATABASE_FILEHANDLER_H
 

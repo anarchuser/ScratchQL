@@ -12,19 +12,27 @@ Response DBMS::evalQuery (std::string const & rawQuery) {
         default:
             LOG (FATAL) << "Invalid Target Type - Expected [0, 2], got " << procQuery->targetType;
     }
-    return kj::heap <Table const> (std::vector <std::string>({"a"}));
+    return kj::heap <Table const> (std::vector <Meta> {{"a", TEXT, "_a", false, false}}, procQuery->database, procQuery->target);
 }
 
 Response DBMS::evalTableQuery (kj::Own <Query> const & query) {
     if (query->actionOnTarget == Database::Target::Action::CREATE) {
         auto const & spec = std::get <Database::Target::Table::Specification> (query->spec);
-        std::vector <std::string> header;
-        for (auto const & pair : spec.values) header.emplace_back (pair.first);
-        return kj::heap <Table const> (header);
+        std::vector <Meta> header;
+        for (auto const & pair : spec.values) {
+            header.emplace_back (pair.first, TEXT, NORMAL, false, true);
+        }
+        return kj::heap <Table const> (header, query->database, query->target);
     }
 
     /* TEST IMPLEMENTATION. REMOVE AFTER SUCCESSFUL QUERY EXECUTION */
-    auto testTable = kj::heap <Table> (std::vector <std::string> {"surname", "name", "age", "profession"});
+    std::vector <Meta> header {
+            {"surname", TEXT, PRIMARY, true, false},
+            {"name", TEXT, PRIMARY, true, false},
+            {"age", SHORT, NORMAL, true, false},
+            {"profession", TEXT, "Professions", false, true},
+    };
+    auto testTable = kj::heap <Table> (header, "TODO", "TODO");
     testTable->createRow(std::vector <Cell> {std::string ("Adam"), std::string ("Abcd"), short (30), Cell()});
     testTable->createRow(std::vector <Cell> {std::string ("Tom"),  std::string ("Efgh"), short (30), std::string ("jfuesfeoies")});
     testTable->createRow(std::vector <Cell> {std::string ("Eve"),  std::string ("Ijkl"), short (30), std::string ("nfwiufew")});
@@ -34,7 +42,10 @@ Response DBMS::evalTableQuery (kj::Own <Query> const & query) {
 }
 
 Response DBMS::evalUserQuery (kj::Own <Query> const & query) {
-    return kj::heap <Table> (std::vector <std::string> { "USER", "PERMISSION" });
+    return kj::heap <Table> (std::vector <Meta> {
+        {"USER", TEXT, "_Users", false, false},
+        {"PERMISSION", TEXT, "_Permissions", false, false}
+    }, std::string("database"), std::string("system"));
 }
 
 std::ostream & operator << (std::ostream & os, Response const & response) {
