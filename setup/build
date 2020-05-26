@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# Builds the project and runs the server
+# The server tries to run on port PORT which is defined in config.h
+# On default, it listens to all addresses.
+# Otherwise, a specific address and port may be given as follows:
+#
+#         Syntax:  ```./server ADDRESS:PORT```
+#         Example: ```./server 127.0.0.1:12345```
+#
+
+build_dir="../cmake-build-debug"
+
+if test $# -gt 0
+then build_dir=$1
+fi
+
+if test "$1" == "--license"
+then cat LICENSE | less
+exit
+fi
+
+cmake -H. -B$build_dir
+cmake --build $build_dir --target Database
+result=$?
+
+if test $result -ne 0
+then echo "Build failed!"
+exit $result
+fi

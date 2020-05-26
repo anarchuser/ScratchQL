@@ -1,33 +1,35 @@
 #!/bin/bash
 #
-# Builds the project and runs the client
+# Starts the client.
 # The client tries to connect to "localhost:PORT" where PORT is defined in config.h
 # Otherwise, a specific address and port may be given as follows:
 #
-#         Syntax:  ```./client ADDRESS:PORT```
-#         Example: ```./client 127.0.0.1:12345```
+#         Syntax:  ```./client ADDRESS:PORT [OPTION]```
 #
+# [OPTION] may be either of:
+#     	--license	Print the License and exit
+#	--build		(Re-)build the project before execution
+# 
+
+build_dir="cmake-build-debug"
 
 if test "$1" == "--license"
-then cat LICENSE | less
+then cat LICENSE
 exit
+fi
+
+if test $? -eq 0 || test "$1" == "--build"
+then ./setup/build $build_dir > "$build_dir/Debug $(date).log" 2> "$build_dir/Error $(date).log"
 fi
 
 export SCRATCHQL_ROOT=$PWD
 
-mkdir -p cmake-build-debug
-cmake --build cmake-build-debug --target Database
-result=$?
+echo "$0 $*"; echo "========"
+cmd="./$build_dir/Database --client"
 
-if test $result -ne 0
-then echo "Build failed!"
-exit $result
-fi
-
-cmd="./cmake-build-debug/Database --client"
-
-if test $# -ne 0
-then
-  cmd="$cmd $1"
+if test $# -gt 1
+then cmd="$cmd $2"
+elif test $# -gt 0 && test "$1" != "--build"
+then cmd="$cmd $1"
 fi
 $cmd
