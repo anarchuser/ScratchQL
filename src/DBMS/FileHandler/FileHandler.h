@@ -24,10 +24,8 @@ public:
     std::vector <std::size_t> columnLength;
     std::vector <CellType> columnType;
 
-    explicit FileHandler (std::string path);
-
     void createLine (std::vector <Cell> const & content);                         // Appends a line
-    std::vector <Cell> readLine (std::size_t index) const;                                     //
+    [[nodiscard]] std::vector <Cell> readLine (std::size_t index) const;                                     //
     void updateLine (std::size_t index, std::vector <Cell> const & content);              // Writes a line
     void deleteLine (std::size_t index);                                   // Removes a line
 
@@ -41,7 +39,7 @@ private:
     void createDatabase();
     void createTable();
     static void cleanName(std::string & alnum_string);
-    std::size_t checkLineLength(std::string const & content) const;
+    [[nodiscard]] std::size_t checkLineLength(std::string const & content) const;
     std::vector <std::size_t> surplusColumnLengths(std::vector <Cell> const & contentVector);
 };
 
