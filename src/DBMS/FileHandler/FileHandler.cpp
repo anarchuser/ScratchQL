@@ -179,17 +179,20 @@ std::vector <int> const FileHandler::surplusColumnLengths(std::vector <Cell> con
 Cell FileHandler::writeToCell (std::string & inputString, CellType cellType){
     Cell targetCell;
     cutTailingSpaces(inputString);
-    if (cellType == TEXT){
-        targetCell = inputString;
+    switch (cellType) {
+        case CellType::UNARY:
+            return Cell();
+        case CellType::BINARY:
+            return bool  (std::stoi (inputString));
+        case CellType::SHORT:
+            return short (std::stoi (inputString));
+        case CellType::LONG:
+            return long  (std::stoi (inputString));
+        case CellType::TEXT:
+            return inputString;
+        default:
+            LOG (FATAL) << "Wrong data type given!";
     }
-    else {
-        int contentAsInt = std::stoi(inputString);
-        if      (cellType == SHORT)  targetCell = short(contentAsInt);
-        else if (cellType == LONG)   targetCell = long(contentAsInt);
-        else if (cellType == BINARY) targetCell = bool(contentAsInt);
-
-    }
-    return targetCell;
 }
 
 void FileHandler::cutTailingSpaces(std::string & content) {

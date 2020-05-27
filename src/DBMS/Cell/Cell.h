@@ -11,7 +11,7 @@
 using Cell = std::variant <std::monostate, bool, short, long, std::string>;
 
 enum CellType {
-    UNARY,
+    UNARY = 0,
     BINARY,
     SHORT,
     LONG,
@@ -29,7 +29,7 @@ bool operator == (std::variant <A, B> first, std::variant <A, B> second) {
 
 template <class A, class B>
 bool operator != (std::variant <A, B> first, std::variant <A, B> second) {
-    return  !(first == second);}
+    return  first.index() != second.index() || !(first == second);}
 
 
 
