@@ -14,13 +14,13 @@ struct Meta {
     CellType dataType;
     KeyType keyType;
     Key::Reference reference;
-    const int columnLength{};
+    std::size_t const columnLength{};
     bool index{};
     bool nullable{};
 
     Meta() = default;
-    Meta (std::string name, CellType dataType, KeyType keyType, bool index, bool nullable, int stringLength = 10);
-    Meta (std::string name, CellType dataType, std::string reference, bool index, bool nullable, int stringLength = 10);
+    Meta (std::string name, CellType dataType, KeyType keyType, bool index, bool nullable, std::size_t stringLength = 10);
+    Meta (std::string name, CellType dataType, std::string reference, bool index, bool nullable, std::size_t stringLength = 10);
 
     bool operator == (Meta const & other) const;
 };

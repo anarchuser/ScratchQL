@@ -23,9 +23,6 @@ Table::~Table () {
 void Table::initDiskMode (std::string database, std::string table) {
     database = std::move (database);
     name = std::move (table);
-
-    //file = new FileHandler ("database, table");               //TODO: implement or delete
-
     diskMode = true;
 }
 
@@ -44,9 +41,6 @@ void Table::removePadding () {
             }
         }
     }
-
-//    file->removePadding ();
-
     LOG_ASSERT (row_count == table.at (header [0]).size());
     tablefile.clearLines();
     LOG (INFO) << "Removed Padding of Table.";
@@ -104,7 +98,7 @@ std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) co
 }
 std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) {
     readRowAsVector (row_index);
-    auto const ref = this;
+    auto * const ref = this;
     return ref->readRow (row_index);
 }
 
@@ -125,7 +119,7 @@ std::vector <Cell> Table::readRowAsVector (std::size_t row_index) {
 //       row.push_back (table.at (key) [row_index]);
 //   }
    LOG (INFO) << "Read Row as Vector from Table.";
-   return std::move (row);
+   return row;
 }
 
 // reads data from table in memory
@@ -141,7 +135,7 @@ std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const{
        row.push_back (table.at (key) [row_index]);
    }
     LOG (INFO) << "Read Row as Vector from Table.";
-    return std::move (row);
+    return row;
 }
 void Table::deleteRow (std::size_t row_index) {
     LOG (INFO) << "Deleting Row from Table...";
@@ -207,21 +201,21 @@ std::unordered_map <std::string, Meta const> const & Table::getMeta() const {
 std::vector <Meta> Table::getMetaAsVector() const {
     std::vector <Meta> meta_v;
     for (const auto & col : header) meta_v.push_back (meta.at (col));
-    return std::move (meta_v);
+    return meta_v;
 }
 std::vector <std::size_t> Table::getMetaColLength(std::vector <Meta> const & meta){
     std::vector <std::size_t> columnLengths;
     for (auto const & counter : meta){
-        columnLengths.emplace_back(counter.columnLength);
+        columnLengths.push_back(counter.columnLength);
     }
-    return std::move(columnLengths);
+    return columnLengths;
 }
 std::vector <CellType> Table::getMetaDataType(std::vector <Meta> const & meta){
     std::vector <CellType> columnTypes;
     for (auto const & counter : meta){
-        columnTypes.emplace_back(counter.dataType);
+        columnTypes.push_back(counter.dataType);
     }
-    return std::move(columnTypes);
+    return columnTypes;
 }
 std::vector <std::vector <Cell const *>> const & Table::getContent() const {
     return matrix;
