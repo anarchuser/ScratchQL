@@ -28,8 +28,8 @@
 #define ADDRESS "localhost"
 #define PORT 32786
 
-static std::string const DATABASE_DIR = "/var/db/scratchql/";
-static std::string const PROJECT_ROOT = []()->std::string const {
+std::string const DATABASE_DIR = "/var/db/scratchql/";
+std::string const PROJECT_ROOT = []()->std::string const {
     char * envvar = std::getenv ("SCRATCHQL_ROOT");
     if (envvar) return std::string (envvar);
     throw (std::logic_error ("Couldn't find env var 'SCRATCHQL_ROOT'. Please set it to this project's folder."));
@@ -41,9 +41,9 @@ enum KeyType {
     FOREIGN,
 };
 
-static std::string const VALID_QUERY_CHARS (" <>!=+-*/{}[]().,:;@#\"");
+std::string const VALID_QUERY_CHARS (" <>!=+-*/{}[]().,:;@#\"");
 
-static auto const STR = std::string();
+std::string const STR = std::string();
 
 
 #endif //DATABASE_CONFIG_H
