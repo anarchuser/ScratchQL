@@ -34,7 +34,7 @@ bool operator != (std::variant <A, B> first, std::variant <A, B> second) {
 
 
 
-void toNull (Cell & cell);
+Cell & toNull (Cell & cell);
 const int CellLength[]= {0, 1, 6, 11}; //Defines number of reserved characters for each CellType
 
 #endif //DATABASE_CELL_H

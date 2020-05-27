@@ -50,8 +50,8 @@ std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell) {
     }
     return os;
 }
-void toNull (Cell & cell) {
-    cell = Cell();
+Cell & toNull (Cell & cell) {
+    return cell = Cell();
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
