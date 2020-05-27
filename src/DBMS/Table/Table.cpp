@@ -209,14 +209,14 @@ std::vector <Meta> Table::getMetaAsVector() const {
     for (const auto & col : header) meta_v.push_back (meta.at (col));
     return std::move (meta_v);
 }
-std::vector <std::size_t> const Table::getMetaColLength(std::vector <Meta> const & meta){
+std::vector <std::size_t> Table::getMetaColLength(std::vector <Meta> const & meta){
     std::vector <std::size_t> columnLengths;
     for (auto const & counter : meta){
         columnLengths.emplace_back(counter.columnLength);
     }
     return std::move(columnLengths);
 }
-std::vector <CellType> const Table::getMetaDataType(std::vector <Meta> const & meta){
+std::vector <CellType> Table::getMetaDataType(std::vector <Meta> const & meta){
     std::vector <CellType> columnTypes;
     for (auto const & counter : meta){
         columnTypes.emplace_back(counter.dataType);
