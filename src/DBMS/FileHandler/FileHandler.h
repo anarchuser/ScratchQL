@@ -28,21 +28,21 @@ public:
 
     void createLine (std::vector <Cell> const & content);                         // Appends a line
     std::vector <Cell> readLine (std::size_t index) const;                                     //
-    void updateLine (std::size_t index, std::vector <Cell> content);              // Writes a line
+    void updateLine (std::size_t index, std::vector <Cell> const & content);              // Writes a line
     void deleteLine (std::size_t index);                                   // Removes a line
 
     static void cutTailingSpaces(std::string & content);
     static Cell writeToCell (std::string & inputString, CellType cellType);
-    void clearLines ();
-    void deleteTable ();
-    void deleteDatabase ();
+    void clearLines () const;
+    void deleteTable () const;
+    void deleteDatabase () const;
 
 private:
     void createDatabase();
     void createTable();
-    void cleanName(std::string & alnum_string);
-    int checkLineLength(std::string const & content);
-    std::vector <int> const surplusColumnLengths(std::vector <Cell> const & contentVector);
+    static void cleanName(std::string & alnum_string);
+    int checkLineLength(std::string const & content) const;
+    std::vector <int> surplusColumnLengths(std::vector <Cell> const & contentVector);
 };
 
 int calcLineLength(std::vector <int> const & colLength);

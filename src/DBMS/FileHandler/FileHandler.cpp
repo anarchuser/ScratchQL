@@ -9,12 +9,9 @@ FileHandler::FileHandler (std::string const & database, std::string const & tabl
     lineLength{calcLineLength(columnLen)},
     columnLength(columnLen),
     columnType(colType)
-    {
-    createDatabase();
-    createTable();
-}
+    { createTable(); }
 
-void FileHandler::createDatabase(){
+void FileHandler::createDatabase() {
     try {
         cleanName(database);
     }
@@ -25,7 +22,7 @@ void FileHandler::createDatabase(){
     std::filesystem::create_directory(db_root + database, db_root);
 }
 
-void FileHandler::createTable(){
+void FileHandler::createTable() {
     createDatabase();
     try {
         cleanName(name);
@@ -50,7 +47,7 @@ void FileHandler::createLine (std::vector <Cell> const & content) {
         THROW (std::ios_base::failure ("Could not open file"));
     }
     int cellCount = 0;
-    for (Cell cell : content) {
+    for (Cell const & cell : content) {
         out << cell << std::string(extralength[cellCount], ' ') << '\t';
         cellCount++;
     }
@@ -83,14 +80,14 @@ std::vector <Cell> FileHandler::readLine (std::size_t index) const {
     return content;
 }
 
-void FileHandler::updateLine (std::size_t index, std::vector <Cell> content) {
+void FileHandler::updateLine (std::size_t index, std::vector <Cell> const & content) {
     std::ofstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;
     std::vector <int> extralength = surplusColumnLengths(content);
 
     file.seekp((lineLength + 1) * index);
-    int cellCounter;
-    for (Cell cell : content){
+    int cellCounter {};
+    for (Cell const & cell : content){
         file << cell << std::string(extralength[cellCounter], ' ') << '\t';
         cellCounter++;
     }
@@ -107,15 +104,15 @@ void FileHandler::deleteLine (std::size_t index) {
     file.close();
 }
 
-void FileHandler::deleteTable() {
+void FileHandler::deleteTable() const {
     std::filesystem::remove_all(db_root + '/' + database + '/' + name);
 }
 
-void FileHandler::deleteDatabase(){
+void FileHandler::deleteDatabase() const {
     std::filesystem::remove_all(db_root + '/' + database);
 }
 
-void FileHandler::clearLines () {
+void FileHandler::clearLines () const {
     std::fstream file (path, std::ios::in | std::ios::out);
     std::fstream newfile (db_root + database + '/' + name + "/table_tmp.tsv", std::ios::out);
     std::string tmpline;
@@ -142,7 +139,7 @@ void FileHandler::cleanName(std::string & alnum_string){
     }
 }
 
-int FileHandler::checkLineLength(std::string const & content){
+int FileHandler::checkLineLength(std::string const & content) const {
     int extralength = lineLength - content.length();
     if (extralength < 0){
         THROW (std::range_error ("Contents exceed maximum length " + content));
@@ -150,7 +147,7 @@ int FileHandler::checkLineLength(std::string const & content){
     return extralength;
 }
 
-std::vector <int> const FileHandler::surplusColumnLengths(std::vector <Cell> const & contentVector) {
+std::vector <int> FileHandler::surplusColumnLengths(std::vector <Cell> const & contentVector) {
     int maxLen;
     int actualLen;
     int counter = 0;
