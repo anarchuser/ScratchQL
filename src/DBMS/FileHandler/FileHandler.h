@@ -15,13 +15,13 @@
 
 struct FileHandler {
 public:
-    FileHandler(std::string const & database, std::string const & table, std::vector <int> const & columnLen, std::vector <CellType> const & colType);
+    FileHandler(std::string const & database, std::string const & table, std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType);
     std::string db_root;
     std::string database;
     std::string name;
     std::string path;
-    int lineLength;                                                       //for testing purposes until a meta file is created TODO: remove ASAP
-    std::vector <int> columnLength;
+    std::size_t lineLength;                                                       //for testing purposes until a meta file is created TODO: remove ASAP
+    std::vector <std::size_t> columnLength;
     std::vector <CellType> columnType;
 
     explicit FileHandler (std::string path);
@@ -41,11 +41,11 @@ private:
     void createDatabase();
     void createTable();
     static void cleanName(std::string & alnum_string);
-    int checkLineLength(std::string const & content) const;
-    std::vector <int> surplusColumnLengths(std::vector <Cell> const & contentVector);
+    std::size_t checkLineLength(std::string const & content) const;
+    std::vector <std::size_t> surplusColumnLengths(std::vector <Cell> const & contentVector);
 };
 
-int calcLineLength(std::vector <int> const & colLength);
+std::size_t calcLineLength(std::vector <std::size_t> const & colLength);
 
 #endif //DATABASE_FILEHANDLER_H
 

@@ -60,7 +60,7 @@ void Table::createRow (std::vector <Cell> const & row) {
     }
 
     matrix.emplace_back (std::vector <Cell const *>());
-    for (int col_index = 0; col_index < row.size(); col_index++) {
+    for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]].push_back (row [col_index]);
         matrix [getRowCount()].push_back (& table [header [col_index]] [getRowCount()]);
     }
@@ -209,8 +209,8 @@ std::vector <Meta> Table::getMetaAsVector() const {
     for (const auto & col : header) meta_v.push_back (meta.at (col));
     return std::move (meta_v);
 }
-std::vector <int> const Table::getMetaColLength(std::vector <Meta> const & meta){
-    std::vector <int> columnLengths;
+std::vector <std::size_t> const Table::getMetaColLength(std::vector <Meta> const & meta){
+    std::vector <std::size_t> columnLengths;
     for (auto const & counter : meta){
         columnLengths.emplace_back(counter.columnLength);
     }
