@@ -167,8 +167,8 @@ std::vector <int> const FileHandler::surplusColumnLengths(std::vector <Cell> con
         maxLen = columnLength[counter];
         if (maxLen - actualLen < 0) {
             std::stringstream errorMsg;
-            (errorMsg << "Contents exceed maximum length - maximum allowed Length: " << maxLen
-                    << " -actual Length: " << actualLen << " -- content in question: ") < celly;
+            errorMsg << "Contents exceed maximum length - maximum allowed Length: " << maxLen
+                    << " -actual Length: " << actualLen << " -- content in question: " << +celly;
             THROW(std::range_error (errorMsg.str()));
         }
         lengths.emplace_back(maxLen - actualLen);

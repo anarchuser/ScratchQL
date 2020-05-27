@@ -17,29 +17,31 @@ std::ostream & operator << (std::ostream & os, Cell const & cell) {
         case TEXT:
             return (os << std::get <std::string> (cell));
         default:
-            LOG (FATAL) << "<< Cell has gone insane";
+            LOG (FATAL) << "Cell printer has gone insane";
     }
 }
-std::ostream & operator < (std::ostream & os, Cell const & cell) {
+std::string operator + (Cell const & cell) {
+    std::stringstream ss;
     switch (cell.index()) {
         case UNARY:
-            return (os << "v");
+            return "v";
         case BINARY:
-            os << "b'";
+            ss << "b'";
             break;
         case SHORT:
-            os << "s'";
+            ss << "s'";
             break;
         case LONG:
-            os << "l'";
+            ss << "l'";
             break;
         case TEXT:
-            os << "t'";
+            ss << "t'";
             break;
         default:
-            LOG (FATAL) << "<<= Cell has gone insane";
+            LOG (FATAL) << "Cell pretty printer has gone insane";
     }
-    return os << cell << "'";
+    ss << cell << '\'';
+    return ss.str();
 }
 
 std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell) {

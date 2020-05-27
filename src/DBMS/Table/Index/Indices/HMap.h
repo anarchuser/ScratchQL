@@ -49,7 +49,7 @@ public:
             if (isUnique) return map.at (cell).front ();
             return map.at (cell);
         } catch (std::exception & e) {
-            (LOG (WARNING) << "Can't find given value (" < cell) << ")";
+            LOG (WARNING) << "Can't find given value (" << +cell << ")";
             return std::monostate();
         }
     }
