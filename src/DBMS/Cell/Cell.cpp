@@ -20,6 +20,11 @@ std::ostream & operator << (std::ostream & os, Cell const & cell) {
             LOG (FATAL) << "Cell printer has gone insane";
     }
 }
+std::string operator - (Cell const & cell) {
+    std::stringstream ss;
+    ss << cell;
+    return ss.str();
+}
 std::string operator + (Cell const & cell) {
     std::stringstream ss;
     switch (cell.index()) {

@@ -157,9 +157,7 @@ std::vector <std::size_t> FileHandler::surplusColumnLengths(std::vector <Cell> c
             actualLen = std::get <std::string> (celly).size();
         }
         else{
-            std::stringstream tmpContent;
-            tmpContent << celly;
-            actualLen = tmpContent.str().length();
+            actualLen = (-celly).length();
         }
         maxLen = columnLength[counter];
         if (maxLen - actualLen < 0) {
