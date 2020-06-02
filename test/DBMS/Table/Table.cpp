@@ -5,16 +5,17 @@ SCENARIO ("I can create a table, modify and print it") {
     GIVEN ("Some test data") {
         std::string testdbname = "TableTestDatabase";
         std::string testtablename = "TableTestTable";
-        CHECK_THROWS_AS (Table (std::vector <Meta> (), testdbname, testtablename), std::range_error);
-        CHECK_THROWS_AS (Table (std::vector <Meta> ({}, {}), testdbname, testtablename), std::range_error);
+        CHECK_THROWS_AS (Table (std::vector <Meta> ()), std::range_error);
+        CHECK_THROWS_AS (Table (std::vector <Meta> ({}, {})), std::range_error);
 
         std::vector <Meta> columns = {
                 {"ID", SHORT, PRIMARY, true, false},
                 {"Name", TEXT, NORMAL, false, false, 20},
                 {"Birthday", TEXT, "Events", true, true, 10},
         };
-        REQUIRE_NOTHROW (Table (columns, testdbname, testtablename));
-        Table t1 (columns, testdbname, testtablename);
+        REQUIRE_NOTHROW (Table (columns).initDiskMode (testdbname, testtablename));
+        Table t1 (columns);
+        t1.initDiskMode (testdbname, testtablename);
 
         std::vector <std::vector <Cell>> rows {
                 { short(1), std::string("John"), std::string("2020-02-02") },
@@ -24,12 +25,10 @@ SCENARIO ("I can create a table, modify and print it") {
         };
 
         WHEN ("I add lines to it") {
-            CHECK (!t1);
             int row_counter = 0;
             for (auto const & row : rows) {
                 CHECK (t1.getRowCount() == row_counter++);
                 CHECK_NOTHROW (t1.createRow (row));
-                CHECK (!!t1);
             }
 
             THEN ("The lines get added successfully") {
@@ -75,20 +74,15 @@ SCENARIO ("I can create a table, modify and print it") {
                     CHECK_NOTHROW (t1.updateRow (i, rows[(i + 1) % rows.size()]));
                     std::vector <Cell> testvector =  t1.readRowAsVector (i);
                     CHECK (t1.readRowAsVector (i) == rows [(i + 1) % rows.size()]);
-                    CHECK (!!t1);
                 }
             }
 
             THEN ("I can successfully delete lines") {
                 while (row_counter) {
-                    CHECK (!!t1);
                     CHECK (t1.getRowCount() == row_counter--);
                     CHECK_NOTHROW (t1.deleteRow (row_counter));
                 }
-                Table const tc1 (t1);
-                CHECK (!t1.getRowCount());
-                CHECK (!t1);
-
+                Table const & tc1 = t1;
                 CHECK (!tc1.getRowCount());
                 CHECK (!tc1);
             }

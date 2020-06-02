@@ -55,7 +55,8 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> 
 kj::Own <Table> Wrapper::unwrapTable (::RPCServer::Table::Reader const & reader) {
     std::vector <Meta> metae;
     for (auto const & meta : reader.getMeta ()) metae.push_back (unwrapMeta (meta));
-    kj::Own <Table> table = kj::heap <Table> (metae, std::string(""), std::string(""));             //TODO: Serialise Database- and Tablename
+    //TODO: SERIALISE database and table name
+    kj::Own <Table> table = kj::heap <Table> (metae);
 
     for (auto const & row : reader.getContent ()) {
         std::vector <Cell> newRow;

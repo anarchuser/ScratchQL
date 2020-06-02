@@ -1,14 +1,16 @@
 #include "FileHandler.h"
 
-FileHandler::FileHandler (std::string const & database, std::string const & table,
-        std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType) :
-    db_root{DATABASE_DIR},
-    database{database},
-    name{table},
-    path{db_root + database + '/' + name + "/table.tsv"},       //purely for transition path coexists with the other three directory paths
-    lineLength{calcLineLength(columnLen)},
-    columnLength(columnLen),
-    columnType(colType)
+#include <utility>
+
+FileHandler::FileHandler (std::string database, std::string  table,
+        std::vector <std::size_t> columnLen, std::vector <CellType> colType) :
+    db_root {DATABASE_DIR},
+    database {std::move (database)},
+    name {std::move(table)},
+    path {db_root + database + '/' + name + "/table.tsv"},       //purely for transition path coexists with the other three directory paths
+    lineLength {calcLineLength(columnLen)},
+    columnLength {std::move (columnLen)},
+    columnType {std::move (colType)}
     { createTable(); }
 
 void FileHandler::createDatabase() {
@@ -129,9 +131,9 @@ void FileHandler::clearLines () const {
 }
 
 void FileHandler::cleanName(std::string & alnum_string){
-    if (alnum_string.empty()){
-        THROW (std::invalid_argument("String cannot be empty"));
-    }
+//    if (alnum_string.empty()){
+//        THROW (std::invalid_argument("String cannot be empty"));
+//    }
     for (auto const & letter : alnum_string){
         if (!std::isalnum(letter)){
             THROW (std::invalid_argument("String contains non-alphanumeric characters"));

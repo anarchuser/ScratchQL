@@ -8,6 +8,7 @@
 #include "Meta/Meta.h"
 
 #include <functional>
+#include <memory>
 #include <unordered_map>
 #include <variant>
 #include <vector>
@@ -21,24 +22,17 @@ private:
     std::unordered_map <std::string, Meta const> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
     std::vector <std::vector <Cell const *>> matrix;
-    FileHandler tablefile;
-
-    std::string database, name;
-    FileHandler * file = nullptr;
-    bool diskMode = false;
+    std::shared_ptr <FileHandler> tablefile;
 
     std::size_t row_count = 0;
     std::size_t col_count = 0;
 
 public:
     /// Creates a new Table where each element in `header` equals the name of one column
-    // TODO: Create Constructor taking metadata which actually creates a new table
-    explicit Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename);
-
-    ~Table();
+    explicit Table (std::vector <Meta> const & meta);
 
     /// Initialises syncing with file on disk
-    void initDiskMode (std::string database, std::string table);
+    void initDiskMode (std::string const & database, std::string const & table);
 
     /// Append `row` to this table. Throws if its size doesn't match the amount of columns
     // TODO: Call FileHandler::createLine accordingly
@@ -49,12 +43,12 @@ public:
     void updateRow (std::size_t row_index, std::vector <Cell> const & row, bool updateFileHandler = true);
 
     /// Read row with index `row_index` as unordered hash map
-    std::unordered_map <std::string, Cell> readRow (std::size_t row_index) const;
+    [[nodiscard]] std::unordered_map <std::string, Cell> readRow (std::size_t row_index) const;
     std::unordered_map <std::string, Cell> readRow (std::size_t row_index);
 
     /// Read row with index `row_index` as list of cells
     // TODO: Call FileHandler::readLine accordingly
-    std::vector <Cell> readRowAsVector (std::size_t row_index) const;
+    [[nodiscard]] std::vector <Cell> readRowAsVector (std::size_t row_index) const;
     std::vector <Cell> readRowAsVector (std::size_t row_index);
 
     void deleteTable ();
@@ -92,6 +86,9 @@ public:
     std::vector <std::vector <Cell const *>> const & getContent() const;
     std::size_t getRowCount() const;
     std::size_t getColumnCount() const;
+
+    /// Tells if table is currently writing to disk
+    bool diskMode() const;
 
     /// Returns true if table is empty. Removes empty rows.
     bool operator ! ();

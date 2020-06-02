@@ -12,7 +12,7 @@ Response DBMS::evalQuery (std::string const & rawQuery) {
         default:
             LOG (FATAL) << "Invalid Target Type - Expected [0, 2], got " << procQuery->targetType;
     }
-    return kj::heap <Table const> (std::vector <Meta> {{"a", TEXT, "_a", false, false}}, procQuery->database, procQuery->target);
+    return Response();
 }
 
 Response DBMS::evalTableQuery (kj::Own <Query> const & query) {
@@ -22,7 +22,9 @@ Response DBMS::evalTableQuery (kj::Own <Query> const & query) {
         for (auto const & pair : spec.values) {
             header.emplace_back (pair.first, TEXT, NORMAL, false, true);
         }
-        return kj::heap <Table const> (header, query->database, query->target);
+        auto table = kj::heap <Table> (header);
+        table->initDiskMode (query->database, query->target);
+        return table;
     }
 
     /* TEST IMPLEMENTATION. REMOVE AFTER SUCCESSFUL QUERY EXECUTION */
@@ -32,7 +34,7 @@ Response DBMS::evalTableQuery (kj::Own <Query> const & query) {
             {"age", SHORT, NORMAL, true, false},
             {"profession", TEXT, "Professions", false, true},
     };
-    auto testTable = kj::heap <Table> (header, "TODO", "TODO");
+    auto testTable = kj::heap <Table> (header);
     testTable->createRow(std::vector <Cell> {std::string ("Adam"), std::string ("Abcd"), short (30), Cell()});
     testTable->createRow(std::vector <Cell> {std::string ("Tom"),  std::string ("Efgh"), short (30), std::string ("jfuesfeoies")});
     testTable->createRow(std::vector <Cell> {std::string ("Eve"),  std::string ("Ijkl"), short (30), std::string ("nfwiufew")});
@@ -45,20 +47,18 @@ Response DBMS::evalUserQuery (kj::Own <Query> const & query) {
     return kj::heap <Table> (std::vector <Meta> {
         {"USER", TEXT, "_Users", false, false},
         {"PERMISSION", TEXT, "_Permissions", false, false}
-    }, std::string("database"), std::string("system"));
+    });
 }
 
 std::ostream & operator << (std::ostream & os, Response const & response) {
     switch (response.index()) {
         case ResponseType::VOID:
-            break;
+            return os;
         case ResponseType::TABLE:
-            os << * std::get <kj::Own <Table const>> (response);
-            break;
+            return os << * std::get <kj::Own <Table const>> (response);
         default:
             LOG (FATAL) << "Response has gone insane";
     }
-    return os;
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

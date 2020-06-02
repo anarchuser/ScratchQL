@@ -15,7 +15,7 @@
 
 struct FileHandler {
 public:
-    FileHandler(std::string const & database, std::string const & table, std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType);
+    FileHandler(std::string database, std::string table, std::vector <std::size_t> columnLen, std::vector <CellType> colType);
     std::string db_root;
     std::string database;
     std::string name;
@@ -31,9 +31,9 @@ public:
 
     static void cutTailingSpaces(std::string & content);
     static Cell writeToCell (std::string & inputString, CellType cellType);
-    void clearLines () const;
-    void deleteTable () const;
-    void deleteDatabase () const;
+    void clearLines() const;
+    void deleteTable() const;
+    void deleteDatabase() const;
 
 private:
     void createDatabase();

@@ -1,7 +1,6 @@
 #include "Table.h"
 
-Table::Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename):
-    tablefile{FileHandler(dbname, tablename, getMetaColLength(meta), getMetaDataType(meta))}
+Table::Table (std::vector <Meta> const & meta)
 {
     for (auto const & column : meta) {
         if (!column.name.empty()) {
@@ -16,18 +15,16 @@ Table::Table (std::vector <Meta> const & meta, std::string const & dbname, std::
     }
 }
 
-Table::~Table () {
-    if (diskMode) delete file;
-}
-
-void Table::initDiskMode (std::string database, std::string table) {
-    database = std::move (database);
-    name = std::move (table);
-    diskMode = true;
+void Table::initDiskMode (std::string const & database, std::string const & table) {
+    LOG_ASSERT (!tablefile);
+    std::vector <Meta> meta_v;
+    for (auto const & pair : meta) meta_v.push_back (pair.second);
+    tablefile = std::make_unique <FileHandler> (database, table, getMetaColLength (meta_v), getMetaDataType (meta_v));
+    LOG_ASSERT (tablefile);
 }
 
 void Table::deleteTable () {
-    tablefile.deleteTable();
+    if (tablefile) tablefile->deleteTable();
 }
 
 void Table::removePadding () {
@@ -42,7 +39,7 @@ void Table::removePadding () {
         }
     }
     LOG_ASSERT (row_count == table.at (header [0]).size());
-    tablefile.clearLines();
+    if (tablefile) tablefile->clearLines();
     LOG (INFO) << "Removed Padding of Table.";
 }
 
@@ -60,7 +57,7 @@ void Table::createRow (std::vector <Cell> const & row) {
     }
     row_count++;
 
-    tablefile.createLine(row);
+    if (tablefile) tablefile->createLine(row);
     LOG (INFO) << "Created Row in Table.";
 }
 void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row, bool updateFileHandler) {
@@ -78,8 +75,8 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row, bo
         matrix [col_index] [row_index] = & table [header [col_index]] [row_index];
     }
 
-    if (updateFileHandler) {
-        tablefile.updateLine(row_index, row);
+    if (updateFileHandler && tablefile) {
+        tablefile->updateLine(row_index, row);
     }
     LOG (INFO) << "Updated Row in Table.";
 }
@@ -110,7 +107,7 @@ std::vector <Cell> Table::readRowAsVector (std::size_t row_index) {
         THROW (std::range_error ("Index for readRow out of bounds"));
     }
 
-    std::vector <Cell> row = tablefile.readLine(row_index);
+    std::vector <Cell> row = tablefile->readLine(row_index);
     std::stringstream tmp_line;
     updateRow(row_index, row, false);
 
@@ -123,7 +120,7 @@ std::vector <Cell> Table::readRowAsVector (std::size_t row_index) {
 }
 
 // reads data from table in memory
-std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const{
+std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const {
     LOG (INFO) << "Reading Row as Vector from Table...";
 
     if (row_index >= table.at (header [0]).size()) {
@@ -148,7 +145,8 @@ void Table::deleteRow (std::size_t row_index) {
         toNull (table [key] [row_index]);
     }
     row_count--;
-    tablefile.deleteLine(row_index);
+
+    if (tablefile) tablefile->deleteLine(row_index);
 
     LOG (INFO) << "Deleted Row from Table.";
 }
@@ -227,6 +225,10 @@ std::size_t Table::getRowCount() const {
 std::size_t Table::getColumnCount() const {
     LOG_ASSERT (col_count > 0 && col_count == header.size());
     return col_count;
+}
+
+bool Table::diskMode() const {
+    return tablefile != nullptr;
 }
 
 bool Table::operator ! () {

@@ -19,7 +19,7 @@ SCENARIO ("Issuing a query returns a valid Table") {
         };
         for (auto const & query : queries) {
             REQUIRE_NOTHROW (Parser::parseQuery (query));
-            //CHECK_NOTHROW (DBMS::evalQuery (query));
+            CHECK_NOTHROW (DBMS::evalQuery (query));
         }
     }
 
@@ -38,11 +38,11 @@ SCENARIO ("Issuing a query returns a valid Table") {
         Response response;
         for (auto const & query : queries) {
             WHEN ("I evaluate a query with supposed return type " << ((query.second) ? "TABLE" : "NULL")) {
-                //CHECK_NOTHROW (response = DBMS::evalQuery (query.first));
+                CHECK_NOTHROW (response = DBMS::evalQuery (query.first));
                 switch (query.second) {
                     case ResponseType::VOID:
                         THEN ("I get a NULL response") {
-//                            CHECK (!response.index ());
+                            CHECK (!response.index ());
                         }
                         break;
                     case ResponseType::TABLE:
