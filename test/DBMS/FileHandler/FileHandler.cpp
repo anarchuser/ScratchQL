@@ -6,7 +6,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
         std::string test_path = PROJECT_ROOT + "/tmp/fileHandlerTest.tsv";
         std::string testdb = "testdb";
         std::string testtable = "testtable";
-        std::vector <int> const testColLength = {25};
+        std::vector <std::size_t> const testColLength = {25};
         std::vector <Cell> testContent = {"HappyBirthday"};
         std::vector <CellType> testCellType = {CellType::TEXT};
         FileHandler * fh;
@@ -18,7 +18,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                 "abcde",
                 "vwxyz"}
         };
-        std::vector <int> const testColLengths1 = {15, 15, 10, 6, 5};
+        std::vector <std::size_t> const testColLengths1 = {15, 15, 10, 6, 5};
         std::vector <CellType> testCellTypes1 = {CellType::TEXT, CellType::TEXT, CellType::TEXT, CellType::TEXT, CellType::TEXT};
         SECTION("We create database and table with the filehandler"){
             FileHandler * fhbadtest;
@@ -51,7 +51,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                     REQUIRE_NOTHROW (fh->createLine (str));
                 }
                 THEN ("We can successfully read them") {
-                    int i = 0;
+                    std::size_t i = 0;
                     for (std::vector <Cell> const & str : test_strings1) {
                         CHECK (fh->readLine (i++) == str);
                     }
@@ -63,7 +63,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
             REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLengths1, testCellTypes1));
             for (std::vector <Cell> & str : test_strings1) fh->createLine(str);
             WHEN ("We delete one line with valid index") {
-                int del_valid_index = 0;
+                std::size_t del_valid_index = 0;
                 THEN("It's characters are replaced with spaces") {
                     std::vector <Cell> del_string = fh->readLine(del_valid_index);
                     CHECK(!del_string.empty());
@@ -77,7 +77,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
             }
             //This Test assumes readLine on an invalid index returns nothing, which is not true (yet, May 18th 2020)
 //            WHEN ("We try to delete one line with invalid index") {
-//                int del_invalid_index = 100;
+//                std::size_t del_invalid_index = 100;
 //                std::vector <Cell> old_string;
 //                THEN("No changes are made to the line") {
 //                    std::vector <Cell> del_string = fh->readLine(del_invalid_index);
@@ -95,8 +95,8 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
             for (std::vector <Cell> & str : test_strings1) fh->createLine(str);
             std::ifstream testfile (fh->path, std::ios::in);
             WHEN ("We update one line with valid index"){
-                int replace_index = 0;
-                int strlength;
+                std::size_t replace_index = 0;
+                std::size_t strlength;
                 std::vector <Cell> target_string = {"Hello, world!", "1234567890fghij",
                             "I'm a test", "abcde", "vwxyz"};
                 THEN("It's characters are replaced with a new string"){
@@ -109,7 +109,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
                 }
             }
 //            WHEN ("We try to replace one line with invalid index"){
-//                int invalid_num = 100;
+//                std::size_t invalid_num = 100;
 //                std::string old_string;
 //                std::string new_string = "Goodbye, World - Sayonara";
 //                THEN("No changes are made to the line"){
@@ -132,7 +132,7 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
 //            }
 //            WHEN ("We use clearLines()"){
 //                std::string tmpline;
-//                int counter_before = 0, counter_after = 0;
+//                std::size_t counter_before = 0, counter_after = 0;
 //                THEN ("Empty lines are removed"){
 //                    while (getline (testfile, tmpline)) counter_before++;
 //                    testfile.close();

@@ -49,7 +49,7 @@ Response Client::sendQuery (std::string const & query) {
 }
 
 void Client::startInterface (std::function <void (Response)> const & action) {
-//    connect();
+    connect();
 
     std::string query;
     while (true) {

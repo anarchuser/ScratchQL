@@ -1,6 +1,6 @@
 #include "Meta.h"
 
-Meta::Meta (std::string name, CellType dataType, KeyType keyType, bool index, bool nullable, int stringLength) :
+Meta::Meta (std::string name, CellType dataType, KeyType keyType, bool index, bool nullable, std::size_t stringLength) :
         name {std::move (name)},
         dataType {dataType},
         keyType {keyType},
@@ -13,7 +13,7 @@ Meta::Meta (std::string name, CellType dataType, KeyType keyType, bool index, bo
     if (keyType == KeyType::FOREIGN) THROW (std::logic_error (STR+
     "Missing Reference of foreign key for column " + this->name));
 }
-Meta::Meta (std::string name, CellType dataType, std::string reference, bool index, bool nullable, int stringLength) :
+Meta::Meta (std::string name, CellType dataType, std::string reference, bool index, bool nullable, std::size_t stringLength) :
         name {std::move (name)},
         dataType {dataType},
         keyType {FOREIGN},

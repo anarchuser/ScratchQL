@@ -1,7 +1,7 @@
 #include "FileHandler.h"
 
 FileHandler::FileHandler (std::string const & database, std::string const & table,
-        std::vector <int> const & columnLen, std::vector <CellType> const & colType) :
+        std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType) :
     db_root{DATABASE_DIR},
     database{database},
     name{table},
@@ -9,12 +9,9 @@ FileHandler::FileHandler (std::string const & database, std::string const & tabl
     lineLength{calcLineLength(columnLen)},
     columnLength(columnLen),
     columnType(colType)
-    {
-    createDatabase();
-    createTable();
-}
+    { createTable(); }
 
-void FileHandler::createDatabase(){
+void FileHandler::createDatabase() {
     try {
         cleanName(database);
     }
@@ -25,7 +22,7 @@ void FileHandler::createDatabase(){
     std::filesystem::create_directory(db_root + database, db_root);
 }
 
-void FileHandler::createTable(){
+void FileHandler::createTable() {
     createDatabase();
     try {
         cleanName(name);
@@ -38,7 +35,7 @@ void FileHandler::createTable(){
 }
 
 void FileHandler::createLine (std::vector <Cell> const & content) {
-    std::vector <int> extralength = surplusColumnLengths(content);
+    std::vector <std::size_t> extralength = surplusColumnLengths(content);
     std::ofstream out;
     try {
         out = std::ofstream (path, std::ios::app);
@@ -49,8 +46,8 @@ void FileHandler::createLine (std::vector <Cell> const & content) {
     if (!out.is_open ()) {
         THROW (std::ios_base::failure ("Could not open file"));
     }
-    int cellCount = 0;
-    for (Cell cell : content) {
+    std::size_t cellCount = 0;
+    for (Cell const & cell : content) {
         out << cell << std::string(extralength[cellCount], ' ') << '\t';
         cellCount++;
     }
@@ -68,29 +65,29 @@ std::vector <Cell> FileHandler::readLine (std::size_t index) const {
 
     in.seekg(+(lineLength + 1 ) * index);
     char waste[1];
-    for (int const & cellLength : columnLength){
+    for (std::size_t const & cellLength : columnLength){
         char tmp_line[cellLength + 1];
-        for (int i = 0; i < cellLength; i++) tmp_line[i] = ' '; tmp_line[cellLength] = 0;
+        for (std::size_t i = 0; i < cellLength; i++) tmp_line[i] = ' '; tmp_line[cellLength] = 0;
         in.read(tmp_line, cellLength);
         contentStringVector.emplace_back(std::string(tmp_line));
         in.read(waste, 1);
     }
     in.close();
-    int counter = 0;
+    std::size_t counter = 0;
     for (std::string element : contentStringVector){
         content.emplace_back(writeToCell(element, columnType[counter++]));
     }
     return content;
 }
 
-void FileHandler::updateLine (std::size_t index, std::vector <Cell> content) {
+void FileHandler::updateLine (std::size_t index, std::vector <Cell> const & content) {
     std::ofstream file (path, std::ios::in | std::ios::out);
     std::string tmpline;
-    std::vector <int> extralength = surplusColumnLengths(content);
+    std::vector <std::size_t> extralength = surplusColumnLengths(content);
 
     file.seekp((lineLength + 1) * index);
-    int cellCounter;
-    for (Cell cell : content){
+    std::size_t cellCounter {};
+    for (Cell const & cell : content){
         file << cell << std::string(extralength[cellCounter], ' ') << '\t';
         cellCounter++;
     }
@@ -101,21 +98,21 @@ void FileHandler::deleteLine (std::size_t index) {
     std::fstream file (path, std::ios::in | std::ios::out);
 
     file.seekp((lineLength + 1) * index);
-    for (int const & cellLength : columnLength){
+    for (std::size_t const & cellLength : columnLength){
         file << std::string(cellLength, ' ') << '\t';
     }
     file.close();
 }
 
-void FileHandler::deleteTable() {
+void FileHandler::deleteTable() const {
     std::filesystem::remove_all(db_root + '/' + database + '/' + name);
 }
 
-void FileHandler::deleteDatabase(){
+void FileHandler::deleteDatabase() const {
     std::filesystem::remove_all(db_root + '/' + database);
 }
 
-void FileHandler::clearLines () {
+void FileHandler::clearLines () const {
     std::fstream file (path, std::ios::in | std::ios::out);
     std::fstream newfile (db_root + database + '/' + name + "/table_tmp.tsv", std::ios::out);
     std::string tmpline;
@@ -142,33 +139,31 @@ void FileHandler::cleanName(std::string & alnum_string){
     }
 }
 
-int FileHandler::checkLineLength(std::string const & content){
-    int extralength = lineLength - content.length();
+std::size_t FileHandler::checkLineLength(std::string const & content) const {
+    std::size_t extralength = lineLength - content.length();
     if (extralength < 0){
         THROW (std::range_error ("Contents exceed maximum length " + content));
     }
     return extralength;
 }
 
-std::vector <int> const FileHandler::surplusColumnLengths(std::vector <Cell> const & contentVector) {
-    int maxLen;
-    int actualLen;
-    int counter = 0;
-    std::vector <int> lengths;
+std::vector <std::size_t> FileHandler::surplusColumnLengths(std::vector <Cell> const & contentVector) {
+    std::size_t maxLen;
+    std::size_t actualLen;
+    std::size_t counter = 0;
+    std::vector <std::size_t> lengths;
     for (Cell celly : contentVector){
         if (celly.index() == TEXT){
             actualLen = std::get <std::string> (celly).size();
         }
         else{
-            std::stringstream tmpContent;
-            tmpContent << celly;
-            actualLen = tmpContent.str().length();
+            actualLen = (-celly).length();
         }
         maxLen = columnLength[counter];
         if (maxLen - actualLen < 0) {
             std::stringstream errorMsg;
-            (errorMsg << "Contents exceed maximum length - maximum allowed Length: " << maxLen
-                    << " -actual Length: " << actualLen << " -- content in question: ") < celly;
+            errorMsg << "Contents exceed maximum length - maximum allowed Length: " << maxLen
+                    << " -actual Length: " << actualLen << " -- content in question: " << +celly;
             THROW(std::range_error (errorMsg.str()));
         }
         lengths.emplace_back(maxLen - actualLen);
@@ -199,9 +194,9 @@ void FileHandler::cutTailingSpaces(std::string & content) {
     while (content.back() == ' ')   content.pop_back();
 }
 //shall iterate over all columns of one table and return a maximum line length for the fileHandler
-int calcLineLength(std::vector <int> const & colLength) {
-    int lineLength = 0;
-    for (int length: colLength){  //how to iterate over all columns of a certain table?
+std::size_t calcLineLength(std::vector <std::size_t> const & colLength) {
+    std::size_t lineLength = 0;
+    for (std::size_t length: colLength){  //how to iterate over all columns of a certain table?
         lineLength += length + 1;
     }
     return lineLength;

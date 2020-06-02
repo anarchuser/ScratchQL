@@ -85,8 +85,8 @@ public:
 
     std::unordered_map <std::string, Meta const> const & getMeta() const;
     std::vector <Meta> getMetaAsVector() const;
-    std::vector <int> const getMetaColLength(std::vector <Meta> const & meta);
-    std::vector <CellType> const getMetaDataType(std::vector <Meta> const & meta);
+    std::vector <std::size_t> getMetaColLength(std::vector <Meta> const & meta);
+    std::vector <CellType> getMetaDataType(std::vector <Meta> const & meta);
 
     /// Returns a reference of the current table. Do not use concurrently.
     std::vector <std::vector <Cell const *>> const & getContent() const;
