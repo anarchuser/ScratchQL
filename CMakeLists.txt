@@ -5,7 +5,7 @@ project(Database)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_REQUIRED_LIBRARIES "-lglog -lcapnp -lcapnp-rpc -lkj -lkj-async -pthread")
+set(CMAKE_REQUIRED_LIBRARIES "-lglog -lstdc++fs -lcapnp -lcapnp-rpc -lkj -lkj-async -pthread")
 set(CMAKE_CXX_FLAGS "-fconcepts")
 
 set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
