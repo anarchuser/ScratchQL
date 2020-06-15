@@ -10,6 +10,7 @@ addons:
       - libgoogle-glog-dev
       - libc++-dev
       - capnproto
+      - libpthread-stubs0-dev
 
 env:
   - SCRATCHQL_ROOT=$PWD
