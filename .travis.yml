@@ -25,5 +25,7 @@ script:
   - cmake --build build --target Test && mkdir tmp && ./build/Test
   - cmake --build build --target Database
   - ls src/Server/generated
+  - ls build/CMakeFiles/Test.dir/src/Server/
   - ls build/CMakeFiles/Test.dir/src/Server/generated
+  - ls build/CMakeFiles/Database.dir/src/Server/
   - ls build/CMakeFiles/Database.dir/src/Server/generated
