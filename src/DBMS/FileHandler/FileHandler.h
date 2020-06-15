@@ -6,11 +6,10 @@
 #include "../Table/Table.h"
 #include "../Table/Meta/Meta.h"
 
-#include "../../Util/legacy.h"
-
 #include <cstdio>
 #include <cctype>
 #include <clocale>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
