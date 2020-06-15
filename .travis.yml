@@ -8,7 +8,6 @@ addons:
     packages:
       - cmake
       - libgoogle-glog-dev
-#      - libc++-dev
 
 env:
   - SCRATCHQL_ROOT=$PWD
@@ -22,6 +21,6 @@ before_install:
   - wd="$PWD" && cd .. && git clone https://github.com/catchorg/Catch2.git && cd Catch2 && cmake -Bbuild -H. -DBUILD_TESTING=OFF && sudo cmake --build build/ --target install && cd $wd
 
 script:
-  - rm -rf build && cmake -H. -Bbuild
+  - bash setup/build
   - cmake --build build --target Test && mkdir tmp && ./build/Test
   - cmake --build build --target Database
