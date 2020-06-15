@@ -5,7 +5,7 @@ project(Database)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_REQUIRED_LIBRARIES "-lglog -lstdc++fs -lcapnp -lcapnp-rpc -lkj -lkj-async -pthread")
+set(CMAKE_REQUIRED_LIBRARIES "-lglog -lstdc++fs -lcapnp -lcapnp-rpc -lkj -lkj-async -pthread -lpthread")
 set(CMAKE_CXX_FLAGS "-fconcepts")
 
 set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
@@ -22,6 +22,7 @@ add_dependencies(Database CapnProto)
 install()
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
 target_link_libraries(Database "/usr/include/threads.h")
 target_link_libraries(Database Threads::Threads)
 
@@ -57,4 +58,3 @@ IF (Catch2_FOUND)
     target_link_libraries(Test kj-async)
 ENDIF()
 
-find_package(Threads REQUIRED)
