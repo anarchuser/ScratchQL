@@ -21,11 +21,11 @@ add_dependencies(Database CapnProto)
 
 install()
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+target_link_libraries(Database Threads::Threads)
 target_link_libraries(Database "/usr/include/pthread.h")
 target_link_libraries(Database "/usr/include/threads.h")
-target_link_libraries(Database Threads::Threads)
 
 target_link_libraries(Database glog)
 
@@ -50,9 +50,9 @@ IF (Catch2_FOUND)
 
     target_link_libraries(Test glog)
 
+    target_link_libraries(Test Threads::Threads)
     target_link_libraries(Test "/usr/include/pthread.h")
     target_link_libraries(Test "/usr/include/threads.h")
-    target_link_libraries(Test Threads::Threads)
 
     target_link_libraries(Test CapnProto::capnp)
     target_link_libraries(Test CapnProto::capnp-rpc)
