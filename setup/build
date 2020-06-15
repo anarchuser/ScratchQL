@@ -9,7 +9,7 @@
 #         Example: ```./server 127.0.0.1:12345```
 #
 
-build_dir="../cmake-build-debug"
+build_dir="cmake-build-debug"
 
 if test $# -gt 0
 then build_dir=$1

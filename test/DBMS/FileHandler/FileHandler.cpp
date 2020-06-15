@@ -93,7 +93,6 @@ SCENARIO ("Reading from and writing to a file is executed correctly") {
         SECTION("We update lines of a file"){
             REQUIRE_NOTHROW(fh = new FileHandler(testdb, testtable, testColLengths1, testCellTypes1));
             for (std::vector <Cell> & str : test_strings1) fh->createLine(str);
-            std::ifstream testfile (fh->path, std::ios::in);
             WHEN ("We update one line with valid index"){
                 std::size_t replace_index = 0;
                 std::size_t strlength;

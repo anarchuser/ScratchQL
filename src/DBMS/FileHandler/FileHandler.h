@@ -2,6 +2,8 @@
 #define DATABASE_FILEHANDLER_H
 
 #include "../../config.h"
+#include "../Cell/Cell.h"
+#include "../Table/Table.h"
 #include "../Table/Meta/Meta.h"
 
 #include <cstdio>
@@ -13,9 +15,9 @@
 #include <string>
 #include <unordered_map>
 
-struct FileHandler {
-public:
-    FileHandler(std::string const & database, std::string const & table, std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType);
+
+class FileHandler {
+private:
     std::string db_root;
     std::string database;
     std::string name;
@@ -24,23 +26,24 @@ public:
     std::vector <std::size_t> columnLength;
     std::vector <CellType> columnType;
 
-    void createLine (std::vector <Cell> const & content);                         // Appends a line
-    [[nodiscard]] std::vector <Cell> readLine (std::size_t index) const;                                     //
-    void updateLine (std::size_t index, std::vector <Cell> const & content);              // Writes a line
-    void deleteLine (std::size_t index);                                   // Removes a line
-
-    static void cutTailingSpaces(std::string & content);
-    static Cell writeToCell (std::string & inputString, CellType cellType);
-    void clearLines () const;
-    void deleteTable () const;
-    void deleteDatabase () const;
-
-private:
     void createDatabase();
     void createTable();
     static void cleanName(std::string & alnum_string);
     [[nodiscard]] std::size_t checkLineLength(std::string const & content) const;
     std::vector <std::size_t> surplusColumnLengths(std::vector <Cell> const & contentVector);
+
+public:
+    FileHandler(std::string const & database, std::string const & table, std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType);
+    explicit FileHandler (Table const & table);
+
+    void createLine (std::vector <Cell> const & content);                         // Appends a line
+    [[nodiscard]] std::vector <Cell> readLine (std::size_t index) const;                                     //
+    void updateLine (std::size_t index, std::vector <Cell> const & content);              // Writes a line
+    void deleteLine (std::size_t index);                                   // Removes a line
+
+    void clearLines () const;
+    void deleteTable () const;
+    void deleteDatabase () const;
 };
 
 std::size_t calcLineLength(std::vector <std::size_t> const & colLength);

@@ -11,6 +11,14 @@ FileHandler::FileHandler (std::string const & database, std::string const & tabl
     columnType(colType)
     { createTable(); }
 
+FileHandler::FileHandler (Table const & table) :
+    FileHandler (
+            table.database,
+            table.name,
+            table.getMetaColLength(table.getMeta()),
+            table.getMetaDataType (table.getMeta())) {}
+
+
 void FileHandler::createDatabase() {
     try {
         cleanName(database);
@@ -171,28 +179,7 @@ std::vector <std::size_t> FileHandler::surplusColumnLengths(std::vector <Cell> c
     }
     return lengths;
 }
-Cell FileHandler::writeToCell (std::string & inputString, CellType cellType){
-    Cell targetCell;
-    cutTailingSpaces(inputString);
-    switch (cellType) {
-        case CellType::UNARY:
-            return Cell();
-        case CellType::BINARY:
-            return bool  (std::stoi (inputString));
-        case CellType::SHORT:
-            return short (std::stoi (inputString));
-        case CellType::LONG:
-            return long  (std::stoi (inputString));
-        case CellType::TEXT:
-            return inputString;
-        default:
-            LOG (FATAL) << "Wrong data type given!";
-    }
-}
 
-void FileHandler::cutTailingSpaces(std::string & content) {
-    while (content.back() == ' ')   content.pop_back();
-}
 //shall iterate over all columns of one table and return a maximum line length for the fileHandler
 std::size_t calcLineLength(std::vector <std::size_t> const & colLength) {
     std::size_t lineLength = 0;

@@ -3,6 +3,9 @@
 
 #include "../../DBMS/DBMS.h"
 #include "../../DBMS/Table/Table.h"
+static Table wtest;
+
+
 #include "../generated/ServerDBMS.capnp.h"
 
 #include <capnp/message.h>

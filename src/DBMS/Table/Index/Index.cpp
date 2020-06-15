@@ -103,7 +103,7 @@ void Index::load (std::string const & path) {
             std::vector <std::string> tokens = sv::splitTokens (line, '\t');
             if (tokens.empty()) continue;
             std::pair <Cell, std::vector <std::size_t>> row;
-            row.first = FileHandler::writeToCell (tokens.front(), dataType);
+            row.first = writeToCell (tokens.front(), dataType);
             bool isFirst = true;
             for (auto const & val : tokens) {
                 if (isFirst) isFirst = false;
