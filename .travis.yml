@@ -24,7 +24,6 @@ before_install:
 
 script:
   - cmake -H. -Bbuild
-  - cat build/CMakeFiles/CMakeOutput.log
   - cat build/CMakeFiles/CMakeError.log
   - cmake --build build --target Test && mkdir tmp && ./build/Test
   - cmake --build build --target Database
