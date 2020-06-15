@@ -8,7 +8,7 @@ addons:
     packages:
       - cmake
       - libgoogle-glog-dev
-      - libc++-dev
+#      - libc++-dev
       - capnproto
       - libpthread-stubs0-dev
 
