@@ -3,6 +3,7 @@
 
 #include "../../../config.h"
 #include "../../../Util/Tokens.h"
+#include "../../../Util/legacy.h"
 #include "Indices/interface.h"
 #include "Indices/indices.h"
 
