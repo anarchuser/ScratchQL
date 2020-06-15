@@ -8,7 +8,6 @@ addons:
     packages:
       - cmake
       - libgoogle-glog-dev
-#      - capnproto
 #      - libc++-dev
 
 env:
@@ -24,6 +23,5 @@ before_install:
 
 script:
   - cmake -H. -Bbuild
-  - cat build/CMakeFiles/CMakeError.log
   - cmake --build build --target Test && mkdir tmp && ./build/Test
   - cmake --build build --target Database
