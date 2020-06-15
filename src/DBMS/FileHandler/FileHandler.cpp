@@ -26,8 +26,8 @@ void FileHandler::createDatabase() {
     catch(std::invalid_argument & error) {
         THROW(error);
     }
-    std::experimental::filesystem::create_directory(db_root);
-    std::experimental::filesystem::create_directory(db_root + database, db_root);
+    std::filesystem::create_directory(db_root);
+    std::filesystem::create_directory(db_root + database, db_root);
 }
 
 void FileHandler::createTable() {
@@ -38,7 +38,7 @@ void FileHandler::createTable() {
     catch(std::invalid_argument & error) {
         THROW(error);
     }
-    std::experimental::filesystem::create_directory(db_root + database + '/' + name, db_root);
+    std::filesystem::create_directory(db_root + database + '/' + name, db_root);
     LOG(INFO) << "successfully created table at " << path << std::endl;
 }
 
@@ -113,11 +113,11 @@ void FileHandler::deleteLine (std::size_t index) {
 }
 
 void FileHandler::deleteTable() const {
-    std::experimental::filesystem::remove_all(db_root + '/' + database + '/' + name);
+    std::filesystem::remove_all(db_root + '/' + database + '/' + name);
 }
 
 void FileHandler::deleteDatabase() const {
-    std::experimental::filesystem::remove_all(db_root + '/' + database);
+    std::filesystem::remove_all(db_root + '/' + database);
 }
 
 void FileHandler::clearLines () const {
@@ -132,8 +132,8 @@ void FileHandler::clearLines () const {
     }
     file.close();
     newfile.close();
-    std::experimental::filesystem::remove(path);
-    std::experimental::filesystem::rename(db_root + database + '/' + name + "/table_tmp.tsv", path);
+    std::filesystem::remove(path);
+    std::filesystem::rename(db_root + database + '/' + name + "/table_tmp.tsv", path);
 }
 
 void FileHandler::cleanName(std::string & alnum_string){
