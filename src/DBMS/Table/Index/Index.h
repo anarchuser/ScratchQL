@@ -3,12 +3,12 @@
 
 #include "../../../config.h"
 #include "../../../Util/Tokens.h"
+#include "../../../Util/filesystem.h"
 #include "Indices/interface.h"
 #include "Indices/indices.h"
 
 #include <memory>
 #include <fstream>
-#include <filesystem>
 
 class Index final {
 private:
