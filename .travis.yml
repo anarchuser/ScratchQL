@@ -17,11 +17,7 @@ git:
   depth: 3
 
 before_install:
-  - sudo add-apt-repository -y ppa:jonathonf/gcc-9.0 && sudo apt-get -q update && sudo apt-get -y install gcc-9
-#  - gcc-9 -v && sudo rm /usr/bin/gcc && sudo mv /usr/bin/gcc-9 /usr/bin/gcc && gcc -v
-#  - g++-9 -v && sudo rm /usr/bin/g++ && sudo mv /usr/bin/g++-9 /usr/bin/g++ && g++ -v
-  - sudo find /usr -name "g++*"
-  - g++-9 --version
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test && sudo apt-get -q update && sudo apt -y install g++-9 gcc-9 && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
   - curl -O https://capnproto.org/capnproto-c++-0.8.0.tar.gz && tar zxf capnproto-c++-0.8.0.tar.gz && cd capnproto-c++-0.8.0 && ./configure && make -j6 check && sudo make install && cd ../
   - wd="$PWD" && cd .. && git clone https://github.com/catchorg/Catch2.git && cd Catch2 && cmake -Bbuild -H. -DBUILD_TESTING=OFF && sudo cmake --build build/ --target install && cd $wd
 
