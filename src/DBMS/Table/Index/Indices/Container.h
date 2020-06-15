@@ -2,7 +2,7 @@
 #define DATABASE_CONTAINER_H
 
 namespace idx {
-#if __cplusplus >= 201703L
+#if __cplusplus >= 202000L
 template <typename T>
 concept Streamable = requires (std::ostream & os, T const & t) { os << t; };
 
