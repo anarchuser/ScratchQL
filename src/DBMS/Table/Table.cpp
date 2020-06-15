@@ -1,7 +1,8 @@
 #include "Table.h"
 
 Table::Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename):
-    tablefile{FileHandler(dbname, tablename, getMetaColLength(meta), getMetaDataType(meta))}
+    database {dbname},
+    name {tablename}
 {
     for (auto const & column : meta) {
         if (!column.name.empty()) {
@@ -16,20 +17,6 @@ Table::Table (std::vector <Meta> const & meta, std::string const & dbname, std::
     }
 }
 
-Table::~Table () {
-    if (diskMode) delete file;
-}
-
-void Table::initDiskMode (std::string database, std::string table) {
-    database = std::move (database);
-    name = std::move (table);
-    diskMode = true;
-}
-
-void Table::deleteTable () {
-    tablefile.deleteTable();
-}
-
 void Table::removePadding () {
     LOG (INFO) << "Removing Padding of Table...";
     LOG_ASSERT (row_count <= table.at (header [0]).size());
@@ -42,7 +29,6 @@ void Table::removePadding () {
         }
     }
     LOG_ASSERT (row_count == table.at (header [0]).size());
-    tablefile.clearLines();
     LOG (INFO) << "Removed Padding of Table.";
 }
 
@@ -60,10 +46,9 @@ void Table::createRow (std::vector <Cell> const & row) {
     }
     row_count++;
 
-    tablefile.createLine(row);
     LOG (INFO) << "Created Row in Table.";
 }
-void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row, bool updateFileHandler) {
+void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
     LOG (INFO) << "Updating Row in Table...";
 
     if (row.size() != col_count) {
@@ -78,9 +63,6 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row, bo
         matrix [col_index] [row_index] = & table [header [col_index]] [row_index];
     }
 
-    if (updateFileHandler) {
-        tablefile.updateLine(row_index, row);
-    }
     LOG (INFO) << "Updated Row in Table.";
 }
 std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) const {
@@ -95,31 +77,6 @@ std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) co
     LOG (INFO) << "Read Row from Table.";
 
     return row_map;
-}
-std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) {
-    readRowAsVector (row_index);
-    auto * const ref = this;
-    return ref->readRow (row_index);
-}
-
-//reads from file and updates table in memory (mind non-const)
-std::vector <Cell> Table::readRowAsVector (std::size_t row_index) {
-    LOG (INFO) << "Reading Row as Vector from Table...";
-
-    if (row_index >= table.at (header [0]).size()) {
-        THROW (std::range_error ("Index for readRow out of bounds"));
-    }
-
-    std::vector <Cell> row = tablefile.readLine(row_index);
-    std::stringstream tmp_line;
-    updateRow(row_index, row, false);
-
-// once Flags (like "changed) are implemented, this can be used instead of storage access
-//   for (auto const & key : header) {
-//       row.push_back (table.at (key) [row_index]);
-//   }
-   LOG (INFO) << "Read Row as Vector from Table.";
-   return row;
 }
 
 // reads data from table in memory
@@ -148,7 +105,6 @@ void Table::deleteRow (std::size_t row_index) {
         toNull (table [key] [row_index]);
     }
     row_count--;
-    tablefile.deleteLine(row_index);
 
     LOG (INFO) << "Deleted Row from Table.";
 }
@@ -203,17 +159,17 @@ std::vector <Meta> Table::getMetaAsVector() const {
     for (const auto & col : header) meta_v.push_back (meta.at (col));
     return meta_v;
 }
-std::vector <std::size_t> Table::getMetaColLength(std::vector <Meta> const & meta){
+std::vector <std::size_t> Table::getMetaColLength (std::unordered_map <std::string, Meta const> const & meta) const {
     std::vector <std::size_t> columnLengths;
-    for (auto const & counter : meta){
-        columnLengths.push_back(counter.columnLength);
+    for (auto const & element : meta){
+        columnLengths.push_back(element.second.columnLength);
     }
     return columnLengths;
 }
-std::vector <CellType> Table::getMetaDataType(std::vector <Meta> const & meta){
+std::vector <CellType> Table::getMetaDataType (std::unordered_map <std::string, Meta const> const & meta) const {
     std::vector <CellType> columnTypes;
-    for (auto const & counter : meta){
-        columnTypes.push_back(counter.dataType);
+    for (auto const & element : meta){
+        columnTypes.push_back(element.second.dataType);
     }
     return columnTypes;
 }

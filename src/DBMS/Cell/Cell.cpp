@@ -59,4 +59,27 @@ Cell & toNull (Cell & cell) {
     return cell = Cell();
 }
 
+Cell writeToCell (std::string & inputString, CellType cellType){
+    cutTailingSpaces(inputString);
+    switch (cellType) {
+        case CellType::UNARY:
+            return Cell();
+        case CellType::BINARY:
+            return bool  (std::stoi (inputString));
+        case CellType::SHORT:
+            return short (std::stoi (inputString));
+        case CellType::LONG:
+            return long  (std::stoi (inputString));
+        case CellType::TEXT:
+            return inputString;
+        default:
+            LOG (FATAL) << "Wrong data type given!";
+    }
+}
+
+std::string & cutTailingSpaces (std::string & content) {
+    while (content.back() == ' ') content.pop_back();
+    return content;
+}
+
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

@@ -93,7 +93,7 @@ SCENARIO ("I can create a table, modify and print it") {
                 CHECK (!tc1);
             }
         }
-        t1.deleteTable();
+//        FileHandler (t1).deleteTable();
     }
 }
 

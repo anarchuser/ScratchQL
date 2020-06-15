@@ -33,10 +33,11 @@ template <class A, class B>
 bool operator != (std::variant <A, B> first, std::variant <A, B> second) {
     return  first.index() != second.index() || !(first == second);}
 
-
-
 Cell & toNull (Cell & cell);
 const int CellLength[]= {0, 1, 6, 11}; //Defines number of reserved characters for each CellType
+
+Cell writeToCell (std::string & inputString, CellType cellType);
+std::string & cutTailingSpaces (std::string & content);
 
 #endif //DATABASE_CELL_H
 
