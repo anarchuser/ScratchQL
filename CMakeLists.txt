@@ -9,7 +9,8 @@ set(CAPNP_LIBS "-lcapnp -lcapnp-rpc -lkj -lkj-async")
 set(CMAKE_REQUIRED_LIBRARIES "${CAPNP_LIBS} -lglog -pthread")
 set(CMAKE_CXX_FLAGS "-fconcepts")
 
-set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
+set(GEN_PROTO_FILES src/Server/generated/ServerDBMS.capnp.*)
+#set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
 add_custom_command(OUTPUT ${GEN_PROTO_FILES}
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
