@@ -13,14 +13,11 @@ set(GEN_PROTO_FILES src/Server/generated/ServerDBMS.capnp.*)
 add_custom_command(OUTPUT ${GEN_PROTO_FILES}
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
-        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/src/Server/ServerDBMS.capnp)
+        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/src/Server/ServerDBMS.capnp
+        VERBATIM)
 
-#file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
-#add_executable(Database src/main.cpp ${SRCS})
-#target_sources(Database PRIVATE ${GEN_PROTO_FILES})
-add_executable(Database)
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
-target_sources(Database PRIVATE src/main.cpp ${SRCS})
+add_executable(Database src/main.cpp ${GE_PROTO_FILES} ${SRCS})
 
 install()
 
@@ -39,8 +36,7 @@ target_link_libraries(Database kj-async)
 find_package(Catch2)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
-    add_executable(Test ${TEST_SRCS} ${SRCS})
-    target_sources(Test PRIVATE ${GEN_PROTO_FILES})
+    add_executable(Test ${GEN_PROTO_FILES} ${TEST_SRCS} ${SRCS})
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
