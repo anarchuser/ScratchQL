@@ -15,6 +15,8 @@ add_custom_command(OUTPUT ${GEN_PROTO_FILES}
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
         MAIN_DEPENDENCY "src/Server/ServerDBMS.capnp")
+add_custom_target(CapnProto
+        SOURCES ${GEN_PROTO_FILES})
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
@@ -38,8 +40,8 @@ find_package(Catch2)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
     add_executable(Test ${TEST_SRCS} ${SRCS})
-#    target_sources(Test PRIVATE ${GEN_PROTO_FILES})
-    target_compile_definitions(Test PRIVATE ${GEN_PROTO_FILES})
+    target_sources(Test PRIVATE ${GEN_PROTO_FILES})
+    add_dependencies(Test CapnProto)
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
