@@ -11,17 +11,14 @@ set(CMAKE_CXX_FLAGS "-fconcepts")
 
 set(GEN_PROTO_FILES src/Server/generated/ServerDBMS.capnp.*)
 #set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
-add_custom_target(CapnProto
-        DEPENDS src/Server/ServerDBMS.capnp
-        SOURCES ${GEN_PROTO_FILES})
-add_custom_command(TARGET CapnProto PRE_BUILD
+add_custom_command(OUTPUT ${GEN_PROTO_FILES}
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
-        BYPRODUCTS ${GEN_PROTO_FILES})
+        SOURCES ${PROJECT_SOURCE_DIR}/src/Server/)
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
-#target_sources(Database PRIVATE ${GEN_PROTO_FILES})
+target_sources(Database PRIVATE ${GEN_PROTO_FILES})
 
 install()
 
@@ -40,11 +37,9 @@ target_link_libraries(Database kj-async)
 find_package(Catch2)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
-    add_executable(Test)
-#    add_executable(Test ${TEST_SRCS} ${SRCS})
-#    target_sources(Test PRIVATE ${GEN_PROTO_FILES})
-    add_dependencies(Test CapnProto)
-    target_sources(Test PRIVATE ${TEST_SRCS} ${SRCS} ${GEN_PROTO_FILES})
+    add_executable(Test ${TEST_SRCS} ${SRCS})
+    target_sources(Test PRIVATE ${GEN_PROTO_FILES})
+#    add_dependencies(Test CapnProto)
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
