@@ -20,7 +20,7 @@ add_custom_command(OUTPUT ${GEN_PROTO_FILES}
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
 #add_dependencies(Database CapnProto)
-#target_sources(Database PRIVATE src/Server/generated/ServerDBMS.capnp.h)
+target_sources(Database PRIVATE src/Server/generated/ServerDBMS.capnp.h)
 
 install()
 
@@ -41,7 +41,7 @@ IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
     add_executable(Test ${TEST_SRCS} ${SRCS})
 #    add_dependencies(Test CapnProto)
-#    target_sources(Test PRIVATE src/Server/generated/ServerDBMS.capnp.h)
+    target_sources(Test PRIVATE src/Server/generated/ServerDBMS.capnp.h)
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
