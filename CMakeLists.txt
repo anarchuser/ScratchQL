@@ -11,12 +11,13 @@ set(CMAKE_CXX_FLAGS "-fconcepts")
 
 set(GEN_PROTO_FILES src/Server/generated/ServerDBMS.capnp.*)
 #set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
-add_custom_command(OUTPUT ${GEN_PROTO_FILES}
+add_custom_target(CapnProto
+        DEPENDS src/Server/ServerDBMS.capnp
+        SOURCES ${GEN_PROTO_FILES})
+add_custom_command(TARGET CapnProto PRE_BUILD
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
-        MAIN_DEPENDENCY "src/Server/ServerDBMS.capnp")
-add_custom_target(CapnProto
-        SOURCES ${GEN_PROTO_FILES})
+        BYPRODUCTS ${GEN_PROTO_FILES})
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
