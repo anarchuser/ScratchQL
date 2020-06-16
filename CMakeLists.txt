@@ -14,7 +14,7 @@ set(GEN_PROTO_FILES src/Server/generated/ServerDBMS.capnp.*)
 add_custom_command(OUTPUT ${GEN_PROTO_FILES}
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
-        SOURCES ${PROJECT_SOURCE_DIR}/src/Server/)
+        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/src/Server/ServerDBMS.capnp)
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
