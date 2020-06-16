@@ -21,11 +21,15 @@ before_install:
   - wd="$PWD" && cd .. && git clone https://github.com/catchorg/Catch2.git && cd Catch2 && cmake -Bbuild -H. -DBUILD_TESTING=OFF && sudo cmake --build build/ --target install && cd $wd
 
 script:
+  - ls src/Server/generated
   - bash setup/build build
-  - cmake --build build --target Test && mkdir tmp && ./build/Test
-  - cmake --build build --target Database
   - ls src/Server/generated
   - ls build/CMakeFiles/Test.dir/src/Server/
-  - ls build/CMakeFiles/Test.dir/src/Server/generated
   - ls build/CMakeFiles/Database.dir/src/Server/
-  - ls build/CMakeFiles/Database.dir/src/Server/generated
+  - bash setup/build build
+  - ls build/CMakeFiles/Test.dir/src/Server/
+  - ls build/CMakeFiles/Database.dir/src/Server/
+  - cmake --build build --target Test && mkdir tmp && ./build/Test
+  - ls build/CMakeFiles/Test.dir/src/Server/
+  - cmake --build build --target Database
+  - ls build/CMakeFiles/Database.dir/src/Server/
