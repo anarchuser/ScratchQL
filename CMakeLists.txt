@@ -40,9 +40,11 @@ target_link_libraries(Database kj-async)
 find_package(Catch2)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
-    add_executable(Test ${TEST_SRCS} ${SRCS})
-    target_sources(Test PRIVATE ${GEN_PROTO_FILES})
+    add_executable(Test)
+#    add_executable(Test ${TEST_SRCS} ${SRCS})
+#    target_sources(Test PRIVATE ${GEN_PROTO_FILES})
     add_dependencies(Test CapnProto)
+    target_sources(Test PRIVATE ${TEST_SRCS} ${SRCS} ${GEN_PROTO_FILES})
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
