@@ -10,16 +10,16 @@ set(CMAKE_REQUIRED_LIBRARIES "${CAPNP_LIBS} -lglog -pthread")
 set(CMAKE_CXX_FLAGS "-fconcepts")
 
 set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
-add_custom_target(CapnProto
+add_custom_command(OUTPUT ${GEN_PROTO_FILES}
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
-        SOURCES "src/Server/ServerDBMS.capnp"
+        MAIN_DEPENDENCY "src/Server/ServerDBMS.capnp"
 )
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
 add_executable(Database src/main.cpp ${SRCS})
-add_dependencies(Database CapnProto)
-target_sources(Database PRIVATE src/Server/generated/ServerDBMS.capnp.h)
+#add_dependencies(Database CapnProto)
+#target_sources(Database PRIVATE src/Server/generated/ServerDBMS.capnp.h)
 
 install()
 
@@ -39,8 +39,8 @@ find_package(Catch2)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
     add_executable(Test ${TEST_SRCS} ${SRCS})
-    add_dependencies(Test CapnProto)
-    target_sources(Test PRIVATE src/Server/generated/ServerDBMS.capnp.h)
+#    add_dependencies(Test CapnProto)
+#    target_sources(Test PRIVATE src/Server/generated/ServerDBMS.capnp.h)
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
