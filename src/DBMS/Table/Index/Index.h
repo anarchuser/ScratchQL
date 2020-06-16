@@ -7,8 +7,8 @@
 #include "Indices/indices.h"
 
 #include <memory>
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 
 class Index final {
 private:

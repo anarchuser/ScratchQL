@@ -2,10 +2,14 @@
 #define DATABASE_CONTAINER_H
 
 namespace idx {
+#if __cplusplus >= 202000L
 template <typename T>
 concept Streamable = requires (std::ostream & os, T const & t) { os << t; };
 
 template <Streamable U, typename V>
+#else
+template <typename U, typename V>
+#endif
 struct Container {
 private:
     std::size_t small_kids = 0;

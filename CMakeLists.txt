@@ -5,26 +5,25 @@ project(Database)
 set(CMAKE_CXX_COMPILER g++)
 set(CMAKE_CXX_STANDARD 20)
 
-set(CMAKE_REQUIRED_LIBRARIES "-lglog -lcapnp -lcapnp-rpc -lkj -lkj-async -pthread")
+set(CAPNP_LIBS "-lcapnp -lcapnp-rpc -lkj -lkj-async")
+set(CMAKE_REQUIRED_LIBRARIES "${CAPNP_LIBS} -lglog -pthread")
 set(CMAKE_CXX_FLAGS "-fconcepts")
 
-set(GEN_PROTO_FILES "src/Server/generated/ServerDBMS.capnp.c++ src/Server/generated/ServerDBMS.capnp.h")
-add_custom_target(CapnProto
+set(GEN_PROTO_FILES src/Server/generated/ServerDBMS.capnp.*)
+add_custom_command(OUTPUT ${GEN_PROTO_FILES}
         COMMAND bash -c "./gen_proto"
         WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}/src/Server/"
-        SOURCES "src/Server/ServerDBMS.capnp"
-)
+        MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/src/Server/ServerDBMS.capnp
+        VERBATIM)
 
 file(GLOB_RECURSE SRCS ${PROJECT_SOURCE_DIR}/src/*/*.c*)
-add_executable(Database src/main.cpp ${SRCS})
-add_dependencies(Database CapnProto)
+add_executable(Database src/main.cpp ${GE_PROTO_FILES} ${SRCS})
 
 install()
 
+find_package(Threads REQUIRED)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
-target_link_libraries(Database "/usr/include/threads.h")
-#find_package(Threads REQUIRED)
-#target_link_libraries(Database Threads::Threads)
+target_link_libraries(Database Threads::Threads)
 
 target_link_libraries(Database glog)
 
@@ -37,8 +36,7 @@ target_link_libraries(Database kj-async)
 find_package(Catch2)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
-    add_executable(Test ${TEST_SRCS} ${SRCS})
-    add_dependencies(Test CapnProto)
+    add_executable(Test ${GEN_PROTO_FILES} ${TEST_SRCS} ${SRCS})
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
@@ -47,11 +45,9 @@ IF (Catch2_FOUND)
     include(Catch)
     catch_discover_tests(Test)
 
-    #target_link_libraries(Test Threads::Threads)
-
     target_link_libraries(Test glog)
 
-    target_link_libraries(Test "/usr/include/threads.h")
+    target_link_libraries(Test Threads::Threads)
 
     target_link_libraries(Test CapnProto::capnp)
     target_link_libraries(Test CapnProto::capnp-rpc)
