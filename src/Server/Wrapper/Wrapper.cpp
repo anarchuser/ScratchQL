@@ -31,16 +31,16 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> 
     kj::Own <capnp::MallocMessageBuilder> tableBuilder = kj::heap <capnp::MallocMessageBuilder>();
     RPCServer::Table::Builder builder = tableBuilder->initRoot <::RPCServer::Table>();
 
-    auto metaBuilder = builder.initMeta (table->getColumnCount());
-    auto meta = table->getMetaAsVector();
+    auto metaBuilder = builder.initMeta (table->columnCount ());
+    std::vector <Meta> meta = table->getMeta();
     std::size_t idx = 0;
     for (auto const & col : meta) {
         metaBuilder.setWithCaveats (idx++, wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader());
     }
 
-    auto contentBuilder = builder.initContent (table->getRowCount());
-    for (std::size_t r = 0; r < table->getRowCount (); r++) {
-        auto rowBuilder = contentBuilder [r].initData (table->getColumnCount());
+    auto contentBuilder = builder.initContent (table->rowCount ());
+    for (std::size_t r = 0; r < table->rowCount (); r++) {
+        auto rowBuilder = contentBuilder [r].initData (table->columnCount ());
         std::size_t c = 0;
         for (auto const & cell : table->readRowAsVector (r)) {
             auto cellBuilder = wrapCell (cell);

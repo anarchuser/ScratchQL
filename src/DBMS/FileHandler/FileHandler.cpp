@@ -15,29 +15,19 @@ FileHandler::FileHandler (Table const & table) :
     FileHandler (
             table.database,
             table.name,
-            table.getMetaColLength(table.getMeta()),
-            table.getMetaDataType (table.getMeta())) {}
+            table.getColumnLengths(),
+            table.getDataTypes()) {}
 
 
 void FileHandler::createDatabase() {
-    try {
-        cleanName(database);
-    }
-    catch(std::invalid_argument & error) {
-        THROW(error);
-    }
+    sv::checkName (database);
     std::filesystem::create_directory(db_root);
     std::filesystem::create_directory(db_root + database, db_root);
 }
 
 void FileHandler::createTable() {
     createDatabase();
-    try {
-        cleanName(name);
-    }
-    catch(std::invalid_argument & error) {
-        THROW(error);
-    }
+    sv::checkName (name);
     std::filesystem::create_directory(db_root + database + '/' + name, db_root);
     LOG(INFO) << "successfully created table at " << path << std::endl;
 }
@@ -132,17 +122,6 @@ void FileHandler::clearLines () const {
     newfile.close();
     std::filesystem::remove(path);
     std::filesystem::rename(db_root + database + '/' + name + "/table_tmp.tsv", path);
-}
-
-void FileHandler::cleanName(std::string & alnum_string){
-    if (alnum_string.empty()){
-        THROW (std::invalid_argument("String cannot be empty"));
-    }
-    for (auto const & letter : alnum_string){
-        if (!std::isalnum(letter)){
-            THROW (std::invalid_argument("String contains non-alphanumeric characters"));
-        }
-    }
 }
 
 std::size_t FileHandler::checkLineLength(std::string const & content) const {

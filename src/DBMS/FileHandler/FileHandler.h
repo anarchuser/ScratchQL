@@ -5,6 +5,7 @@
 #include "../Cell/Cell.h"
 #include "../Table/Table.h"
 #include "../Table/Meta/Meta.h"
+#include "../../Util/Tokens.h"
 
 #include <cstdio>
 #include <cctype>
@@ -28,7 +29,6 @@ private:
 
     void createDatabase();
     void createTable();
-    static void cleanName(std::string & alnum_string);
     [[nodiscard]] std::size_t checkLineLength(std::string const & content) const;
     std::vector <std::size_t> surplusColumnLengths(std::vector <Cell> const & contentVector);
     std::string fit (Cell const & cell, std::size_t length);
