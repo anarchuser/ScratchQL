@@ -12,3 +12,6 @@ cd "capnproto-c++-$VERSION" || exit 1
 make -j6 check
 sudo make install
 cd ../
+export DATABASE_DIR="/var/db/scratchql"
+sudo mkdir $DATABASE_DIR
+sudo chown -R $eval$(whoami):$eval$(whoami) $DATABASE_DIR

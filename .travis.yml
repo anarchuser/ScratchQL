@@ -24,4 +24,4 @@ script:
   - bash src/Server/gen_proto
   - bash setup/build build
   - cmake --build build --target Database
-  - cmake --build build --target Test && mkdir tmp && ./build/Test
+  - cmake --build build --target Test && mkdir -p tmp/indices -p ./build/Test
