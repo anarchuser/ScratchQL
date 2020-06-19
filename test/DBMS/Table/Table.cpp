@@ -1,5 +1,6 @@
 #include "../../main.h"
 #include "../../../src/DBMS/Table/Table.h"
+#include "../../../src/DBMS/FileHandler/FileHandler.h"
 
 SCENARIO ("I can create a table, modify and print it") {
     GIVEN ("Some test data") {
@@ -44,13 +45,13 @@ SCENARIO ("I can create a table, modify and print it") {
                     CHECK (t2.readRowAsVector (i) == rows [i]);
                 }
             }
-//            THEN ("I can successfully read lines") {
-//                for (int i = 0; i < t1.getRowCount(); i++) {
-//                    CHECK_NOTHROW (t1.readRow (i));
-//                    CHECK_NOTHROW (t1.readRowAsVector (i));
-//                    CHECK (t1.readRowAsVector (i) == rows [i]);
-//                }
-//            }
+            THEN ("I can successfully read lines") {
+                for (int i = 0; i < t1.rowCount(); i++) {
+                    CHECK_NOTHROW (t1.readRow (i));
+                    CHECK_NOTHROW (t1.readRowAsVector (i));
+                    CHECK (t1.readRowAsVector (i) == rows [i]);
+                }
+            }
 
             THEN ("Printing gives something meaningful") {
                 std::stringstream ss;
@@ -67,7 +68,6 @@ SCENARIO ("I can create a table, modify and print it") {
 
                 CHECK (& (ss << t1) == & ss);
                 CHECK (ss.str() == ts.str());
-
             }
 
             THEN ("I can successfully modify lines") {
@@ -93,7 +93,6 @@ SCENARIO ("I can create a table, modify and print it") {
                 CHECK (!tc1);
             }
         }
-//        FileHandler (t1).deleteTable();
     }
 }
 

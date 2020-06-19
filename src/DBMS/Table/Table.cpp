@@ -41,7 +41,7 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
 
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]] [row_index] = row [col_index];
-        matrix [col_index] [row_index] = & table [header [col_index]] [row_index];
+        matrix [row_index] [col_index] = & table [header [col_index]] [row_index];
     }
 
     LOG (INFO) << "Updated Row in Table.";
@@ -49,10 +49,9 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
 std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) const {
     LOG (INFO) << "Reading Row from Table...";
 
-    std::vector <Cell> row_list = readRowAsVector (row_index);
     std::unordered_map <std::string, Cell> row_map;
-    for (std::size_t idx = 0; idx < header.size(); idx++) {
-        row_map.insert ({header [idx], row_list [idx]});
+    for (auto const & key : header) {
+        row_map.insert ({key, table.at (key) [row_index]});
     }
 
     LOG (INFO) << "Read Row from Table.";
@@ -64,14 +63,15 @@ std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) co
 std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const{
     LOG (INFO) << "Reading Row as Vector from Table...";
 
-    if (row_index >= table.at (header [0]).size()) {
+    if (row_index >= matrix.size()) {
         THROW (std::range_error ("Index for readRow out of bounds"));
     }
-    std::vector <Cell> row;
 
-   for (auto const & key : header) {
-       row.push_back (table.at (key) [row_index]);
-   }
+    std::vector <Cell> row;
+    for (auto const & key : header) {
+        row.emplace_back (table.at (key) [row_index]);
+    }
+
     LOG (INFO) << "Read Row as Vector from Table.";
     return row;
 }
@@ -90,19 +90,20 @@ void Table::deleteRow (std::size_t row_index) {
     LOG (INFO) << "Deleted Row from Table.";
 }
 
-bool Table::isRowEmpty(std::size_t row_index) const {
+bool Table::isRowEmpty (std::size_t row_index) const {
     LOG (INFO) << "Checking if Row in Table is empty...";
 
     if (row_index >= table.at (header [0]).size()) {
         THROW (std::range_error ("Index for isRowEmpty out of bounds"));
     }
 
-    for (const auto & key : header) {
-        if (!isCellEmpty (key, row_index)) return false;
-    }
+    for (const auto & key : header) if (!isCellEmpty (key, row_index)) return false;
+    return true;
+}
+bool Table::isRowEmpty (std::vector <Cell> const & row) {
+    LOG (INFO) << "Checking if Row is empty...";
 
-    LOG (INFO) << "Checked Row from Table for emptiness.";
-
+    for (auto const & cell : row) if (!cell) return false;
     return true;
 }
 
@@ -112,17 +113,10 @@ bool Table::isCellEmpty (std::string const & key, std::size_t row_index) const {
     if (row_index >= table.at (header [0]).size()) {
         THROW (std::range_error ("Index for isCellEmpty out of bounds"));
     }
-    bool isEmpty = !table.at (key) [row_index];
-
-    LOG (INFO) << "Checked Cell for emptiness.";
-
-    return isEmpty;
+    return !table.at (key) [row_index];
 }
 
-std::vector <Cell> & Table::operator [] (std::string const & key) {
-    return table.at (key);
-}
-const std::vector <Cell> & Table::operator [] (std::string const & key) const {
+std::vector <Cell> Table::operator [] (std::string const & key) const {
     return table.at (key);
 }
 std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index) {

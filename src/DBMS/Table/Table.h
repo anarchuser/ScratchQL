@@ -47,11 +47,10 @@ public:
     void deleteRow (std::size_t row_index);
 
     bool isRowEmpty (std::size_t row_index) const;
-    bool isRowEmpty (std::vector <Cell> const & row) const;
+    static bool isRowEmpty (std::vector <Cell> const & row);
     bool isCellEmpty (std::string const & key, std::size_t row_index) const;
 
-    std::vector <Cell>       & operator [] (std::string const & key);
-    std::vector <Cell> const & operator [] (std::string const & key) const;
+    std::vector <Cell> operator [] (std::string const & key) const;
 
     /** Returns row with index `row_index` as unordered hash map
      *
