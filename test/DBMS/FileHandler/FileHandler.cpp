@@ -118,8 +118,7 @@ SCENARIO ("I create, modify and delete databases") {
 
                     auto deleted_strings = fh->readLine (idx - 1);
                     for (auto const & deleted : deleted_strings){
-                        CHECK(deleted == Cell(""));
-                        std::cout << +deleted << "\t== " << +Cell ("") << '?' << std::endl;
+                        CHECK(deleted == Cell(std::string()));
                     }
                 }
             }
