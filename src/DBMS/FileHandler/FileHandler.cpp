@@ -43,21 +43,19 @@ void FileHandler::createTable() {
 }
 
 void FileHandler::createLine (std::vector <Cell> const & content) {
-    std::vector <std::size_t> extralength = surplusColumnLengths(content);
     std::ofstream out;
     try {
         out = std::ofstream (path, std::ios::app);
     }
     catch(std::exception & e){
-        std::cerr << e.what() << std::endl;
+        THROW (e);
     }
     if (!out.is_open ()) {
         THROW (std::ios_base::failure ("Could not open file"));
     }
     std::size_t cellCount = 0;
     for (Cell const & cell : content) {
-        out << cell << std::string(extralength[cellCount], ' ') << '\t';
-        cellCount++;
+        out << fit (cell, columnLength [cellCount++]) << '\t';
     }
     out << std::endl;
     out.close();
@@ -180,6 +178,13 @@ std::vector <std::size_t> FileHandler::surplusColumnLengths(std::vector <Cell> c
     return lengths;
 }
 
+std::string FileHandler::fit (Cell const & cell, std::size_t length) {
+    std::string output = (-cell).substr (0, length);
+    long diff = length - output.size();
+    if (diff > 0) output += std::string (diff, ' ');
+    return output;
+}
+
 //shall iterate over all columns of one table and return a maximum line length for the fileHandler
 std::size_t calcLineLength(std::vector <std::size_t> const & colLength) {
     std::size_t lineLength = 0;
@@ -188,4 +193,5 @@ std::size_t calcLineLength(std::vector <std::size_t> const & colLength) {
     }
     return lineLength;
 }
+
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

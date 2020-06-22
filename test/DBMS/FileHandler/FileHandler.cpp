@@ -1,8 +1,9 @@
 #include "../../main.h"
 #include "../../../src/DBMS/FileHandler/FileHandler.h"
 
-#include <unordered_map>
+#include <algorithm>
 #include <memory>
+#include <unordered_map>
 
 SCENARIO ("I create, modify and delete databases") {
     GIVEN ("Database and Table names") {
@@ -59,139 +60,96 @@ SCENARIO ("I create, modify and delete databases") {
             }
         }
     }
-//    GIVEN ("A database filled with some strings") {
-//        std::string testdb = "testdb";
-//        std::string testtable = "testtable";
-//        std::vector <std::size_t> colLengths = {15, 15, 10, 6, 5};
-//        std::vector <CellType> cellTypes (colLengths.size(), CellType::TEXT);
-//
-//        std::vector <std::vector <Cell>> test_strings {
-//                {"Hello, world!", "1234567890fghij", "I'm a test", "abcde", "vwxyz"},
-//                {"whatever", "fjsefesefesfesf", "qwerty", "[]'[#/;{;][#[", "()"},
-//                {"monday", "tuesday", "wednesday", "thursday", "friday"},
-//                {"bbbb", "ccc", "dd", "e", ""},
-//        };
-//
-//        std::unique_ptr <FileHandler> fh;
-//        REQUIRE_NOTHROW(fh = std::make_unique <FileHandler> (testdb, testtable, colLengths, cellTypes));
-//
-//        WHEN ("I add lines to the table") {
-//            for (auto const & strings : test_strings) {
-//                CHECK_NOTHROW (fh->createLine (strings));
-//            }
-//            THEN("The lines get appended to the table file") {
-//                // TODO: Check if they actually get appended (size check should suffice)
-//            }
-//            THEN ("I can read the lines from the file") {
-//                std::size_t idx = 0;
-//                for (auto const & strings : test_strings) {
-////                    CHECK (fh->readLine (idx++) == strings);
-//                    std::size_t stridx = 0;
-//                    for (auto const & cell : fh->readLine (idx++)) {
-//                        CHECK (cell == strings [stridx++]);
-//                        std::cout << +cell << "\t== " << +strings [stridx-1] << std::endl;
+    GIVEN ("A database filled with some strings") {
+        std::string testdb = "testdb";
+        std::string testtable = "testtable";
+        std::vector <std::size_t> colLengths = {15, 15, 10, 6, 5};
+        std::vector <CellType> cellTypes (colLengths.size(), CellType::TEXT);
+
+        std::vector <std::vector <Cell>> test_strings {
+                {"Hello, world!", "1234567890fghij", "I'm a test", "abcde", "vwxyz"},
+                {"whatever", "fjsefesefesfesf", "qwerty", "[]'[#/;{;][#[", "()"},
+                {"monday", "tuesday", "wednesday", "thursday", "friday"},
+                {"bbbb", "ccc", "dd", "e", ""},
+        };
+
+        std::unique_ptr <FileHandler> fh;
+        REQUIRE_NOTHROW(fh = std::make_unique <FileHandler> (testdb, testtable, colLengths, cellTypes));
+
+        WHEN ("I add lines to the table") {
+            for (auto const & strings : test_strings) {
+                CHECK_NOTHROW (fh->createLine (strings));
+            }
+            THEN("The lines get appended to the table file") {
+                // TODO: Check if they actually get appended (size check should suffice)
+            }
+            for (auto & list : test_strings) {
+                std::transform (list.cbegin(), list.cend(), colLengths.cbegin(),
+                                list.begin(), [](Cell const & str, std::size_t size) -> Cell {
+                    return (-str).substr (0, size);
+                });
+            }
+            THEN ("I can read the lines from the file") {
+                std::size_t idx = 0;
+                for (auto const & strings : test_strings) {
+                    std::size_t stridx = 0;
+                    for (auto const & cell : fh->readLine (idx++)) {
+                        CHECK (cell == strings [stridx++]);
+                    }
+                }
+            }
+            WHEN ("I update the lines") {
+                std::size_t idx = test_strings.size();
+                for (auto const & strings : test_strings) {
+                    CHECK_NOTHROW (fh->updateLine (--idx, strings));
+                    THEN ("Reading them results in the updated version") {
+                        std::size_t stridx = 0;
+                        for (auto const & cell : fh->readLine (idx++)) {
+                            CHECK (cell == strings [stridx++]);
+                        }
+                    }
+                }
+            }
+            THEN ("I can 'delete' the lines") {
+                std::size_t idx = test_strings.size();
+                while (idx --> 0) {
+                    CHECK (fh->readLine (idx - 1).size());
+                    fh->deleteLine (idx - 1);
+
+                    auto deleted_strings = fh->readLine (idx - 1);
+                    for (auto const & deleted : deleted_strings){
+                        CHECK(deleted == Cell(""));
+                    }
+                }
+            }
+        }
+
+        // TODO: Add proper mechanism to check if line index is valid
+
+//            WHEN ("I use clearLines()"){
+//                std::string tmpline;
+//                std::size_t counter_before = 0, counter_after = 0;
+//                THEN ("Empty lines are removed"){
+//                    while (getline (testfile, tmpline)) counter_before++;
+//                    testfile.close();
+//                    CHECK_NOTHROW (fh-> deleteLine(2));
+//                    CHECK_NOTHROW (fh-> clearLines());
+//                    testfile.open(fh->path, std::ios::in);
+//                    while (getline (testfile, tmpline)){
+//                        CHECK (tmpline.length() == fh->lineLength);
+//                        counter_after++;
 //                    }
+//                    testfile.close();
+//                    CHECK (counter_before > counter_after);
+//                    CHECK (counter_after > 1);
 //                }
 //            }
-//            WHEN ("I update the lines") {
-//                std::size_t idx = test_strings.size();
-//                for (auto const & strings : test_strings) {
-//                    CHECK_NOTHROW (fh->updateLine (--idx, strings));
-//                    THEN ("Reading them results in the updated version") {
-//                        CHECK (fh->readLine (--idx) == strings);
-//                    }
-//                }
-//            }
-//            THEN ("I can 'delete' the lines") {
-//                std::size_t idx = test_strings.size();
-//                while (idx --> 0) {
-//                    CHECK (fh->readLine (idx - 1).size());
-//                    fh->deleteLine (idx - 1);
-//
-//                    auto deleted_strings = fh->readLine (idx - 1);
-//                    for (auto const & deleted : deleted_strings){
-//                        CHECK(deleted == Cell(""));
-//                    }
-//                }
-//            }
-//        }
-//
-//        //This Test assumes readLine on an invalid index returns nothing, which is not true (yet, May 18th 2020)
-////        WHEN ("I try to delete one line with invalid index") {
-////            std::size_t del_invalid_index = 100;
-////            std::vector <Cell> old_string;
-////            THEN("No changes are made to the line") {
-////                std::vector <Cell> del_string = fh->readLine(del_invalid_index);
-////                old_string = del_string;
-////                CHECK(del_string.empty());
-////                fh->deleteLine(del_invalid_index);
-////                del_string = fh->readLine(del_invalid_index);
-////                CHECK(del_string == old_string);
-////            }
-////        }
-////
-////        SECTION("I update lines of a file"){
-////            fh->createLine(test_strings);
-////            WHEN ("I update one line with valid index"){
-////                std::size_t replace_index = 0;
-////                std::size_t strlength;
-////                std::vector <Cell> target_string = {"Hello, world!", "1234567890fghij",
-////                            "I'm a test", "abcde", "vwxyz"};
-////                THEN("It's characters are replaced with a new string"){
-////                    std::vector <Cell> old_string = fh->readLine(replace_index);
-////                    CHECK(!old_string.empty());
-//////                    CHECK_NOTHROW(strlength = calcLineLength(old_string));
-////                    fh->updateLine(replace_index, target_string);
-////                    std::vector <Cell> new_string = fh->readLine(replace_index);
-////                    CHECK (new_string == target_string);
-////                }
-////            }
-////            WHEN ("I try to replace one line with invalid index"){
-////                std::size_t invalid_num = 100;
-////                std::string old_string;
-////                std::string new_string = "Goodbye, World - Sayonara";
-////                THEN("No changes are made to the line"){
-////                    std::vector <Cell> replaceable_string(fh->readLine(invalid_num));
-////                    std::cerr << replaceable_string << std::endl;
-////                    REQUIRE(replaceable_string.empty());
-////                    old_string = replaceable_string;
-////                    fh->updateLine(invalid_num, new_string);
-////                    std::string current_line;
-////                    std::vector <Cell> newfile {};
-////                    while (getline (testfile, current_line)){
-////                        fh->cutTailingSpaces(current_line);
-////                        newfile.push_back(current_line);
-////                    }
-////                    CHECK(test_strings == newfile);
-////                    replaceable_string = fh->readLine(invalid_num);
-////                    CHECK(replaceable_string == old_string);
-////                    testfile.close();
-////                }
-////            }
-////            WHEN ("I use clearLines()"){
-////                std::string tmpline;
-////                std::size_t counter_before = 0, counter_after = 0;
-////                THEN ("Empty lines are removed"){
-////                    while (getline (testfile, tmpline)) counter_before++;
-////                    testfile.close();
-////                    CHECK_NOTHROW (fh-> deleteLine(2));
-////                    CHECK_NOTHROW (fh-> clearLines());
-////                    testfile.open(fh->path, std::ios::in);
-////                    while (getline (testfile, tmpline)){
-////                        CHECK (tmpline.length() == fh->lineLength);
-////                        counter_after++;
-////                    }
-////                    testfile.close();
-////                    CHECK (counter_before > counter_after);
-////                    CHECK (counter_after > 1);
-////                }
-////            }
-//
-//        CHECK_NOTHROW (fh->deleteTable());
-//        CHECK_NOTHROW (fh->deleteTable());
-//        CHECK_NOTHROW (fh->deleteDatabase());
-//        CHECK_NOTHROW (fh->deleteDatabase());
-//    }
+
+        CHECK_NOTHROW (fh->deleteTable());
+        CHECK_NOTHROW (fh->deleteTable());
+        CHECK_NOTHROW (fh->deleteDatabase());
+        CHECK_NOTHROW (fh->deleteDatabase());
+    }
 }
 
 
