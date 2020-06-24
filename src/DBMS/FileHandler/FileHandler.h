@@ -31,6 +31,7 @@ private:
     static void cleanName(std::string & alnum_string);
     [[nodiscard]] std::size_t checkLineLength(std::string const & content) const;
     std::vector <std::size_t> surplusColumnLengths(std::vector <Cell> const & contentVector);
+    std::string fit (Cell const & cell, std::size_t length);
 
 public:
     FileHandler(std::string const & database, std::string const & table, std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType);
