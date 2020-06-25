@@ -10,17 +10,17 @@ SCENARIO ("I can create a table, modify and print it") {
         CHECK_THROWS_AS (Table (std::vector <Meta> ({}, {}), testdbname, testtablename), std::invalid_argument);
 
         std::vector <Meta> columns = {
-                {"ID", SHORT, PRIMARY, true, false},
-                {"Name", TEXT, NORMAL, false, false, 20},
-                {"Birthday", TEXT, "Events", true, true, 10},
+                {"ID",       SHORT, PRIMARY,  true,  false,   },
+                {"Name",     TEXT,  NORMAL,   false, false, 20},
+                {"Birthday", TEXT,  "Events", true,  true,  10},
         };
         REQUIRE_NOTHROW (Table (columns, testdbname, testtablename));
         Table t1 (columns, testdbname, testtablename);
 
         std::vector <std::vector <Cell>> rows {
-                { short(1), std::string("John"), std::string("2020-02-02") },
-                { short(2), std::string("Peter"), std::string("1929-03-20") },
-                { short(3), std::string("Emily"), std::string("1978-10-31") },
+                { short(1), std::string("John"),   std::string("2020-02-02") },
+                { short(2), std::string("Peter"),  std::string("1929-03-20") },
+                { short(3), std::string("Emily"),  std::string("1978-10-31") },
                 { short(4), std::string("Emily2"), std::string("1979-10-31") },
         };
 
@@ -35,6 +35,34 @@ SCENARIO ("I can create a table, modify and print it") {
 
             THEN ("The lines get added successfully") {
                 CHECK (t1.rowCount () == rows.size());
+//                for (auto const & row : rows) {
+//                    for (auto const & cell : row) {
+//                        std::cout << +cell << " \t";
+//                    }
+//                    std::cout << " |" << std::endl;
+//                }
+//                std::cout << std::endl;
+//
+//                for (auto const & row : t1.getContent()) {
+//                    for (auto const * cell : row) {
+//                        std::cout << "p: " << cell                  << "\t|" << std::endl;
+//                        std::cout << "i: " << cell->index()         << "\t|" << std::endl;
+//                        if (cell->index() <= CellType::TEXT) {
+//                            std::cout << "-: " << " '" << - * cell << "'\t|" << std::endl;
+//                            std::cout << "+: " << + * cell          << "\t|" << std::endl;
+//                        }
+//
+//                        std::cout << std::endl;
+//                    }
+//                    std::cout << std::endl;
+//                }
+//                for (auto const & row : t1.getContent()) {
+//                    for (auto const * cell : row) {
+//                        CHECK (cell->index() <= CellType::TEXT);
+////                        std::cout << (cell->index() <= CellType::TEXT) << '\t';
+//                    }
+////                    std::cout << std::endl;
+//                }
             }
 
             THEN ("I can successfully read lines") {
@@ -85,6 +113,7 @@ SCENARIO ("I can create a table, modify and print it") {
                     CHECK (t1.rowCount () == row_counter--);
                     CHECK_NOTHROW (t1.deleteRow (row_counter));
                 }
+
                 Table const tc1 (t1);
                 CHECK (! t1.rowCount ());
                 CHECK (!t1);

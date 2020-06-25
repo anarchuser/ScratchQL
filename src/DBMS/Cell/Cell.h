@@ -39,6 +39,9 @@ const int CellLength[]= {0, 1, 6, 11}; //Defines number of reserved characters f
 Cell writeToCell (std::string & inputString, CellType cellType);
 std::string & cutTailingSpaces (std::string & content);
 
+bool isValid (Cell const & cell);
+bool isValid (Cell const * cell);
+
 #endif //DATABASE_CELL_H
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

@@ -25,7 +25,14 @@ void Table::createRow (std::vector <Cell> const & row) {
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]].push_back (row [col_index]);
         matrix.back().push_back (& table [header [col_index]].back());
+
+        if (matrix.back().back()->index() > CellType::TEXT)
+            LOG (WARNING) << "(1.1) The given cell has an invalid index of " << matrix.back().back()->index();
     }
+
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+        LOG (WARNING) << "(1.2) The given cell has an invalid index of " << cell->index();
 
     LOG (INFO) << "Created Row in Table.";
 }
@@ -39,20 +46,36 @@ void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
         THROW (std::range_error ("Index for updateRow out of bounds"));
     }
 
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(2.1) The given cell has an invalid index of " << cell->index();
+
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         table [header [col_index]] [row_index] = row [col_index];
         matrix [row_index] [col_index] = & table [header [col_index]] [row_index];
     }
+
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(2.2) The given cell has an invalid index of " << cell->index();
 
     LOG (INFO) << "Updated Row in Table.";
 }
 std::unordered_map <std::string, Cell> Table::readRow (std::size_t row_index) const {
     LOG (INFO) << "Reading Row from Table...";
 
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(3.1) The given cell has an invalid index of " << cell->index();
+
     std::unordered_map <std::string, Cell> row_map;
     for (auto const & key : header) {
         row_map.insert ({key, table.at (key) [row_index]});
     }
+
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(3.2) The given cell has an invalid index of " << cell->index();
 
     LOG (INFO) << "Read Row from Table.";
 
@@ -67,10 +90,18 @@ std::vector <Cell> Table::readRowAsVector (std::size_t row_index) const{
         THROW (std::range_error ("Index for readRow out of bounds"));
     }
 
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(3.3) The given cell has an invalid index of " << cell->index();
+
     std::vector <Cell> row;
     for (auto const & key : header) {
         row.emplace_back (table.at (key) [row_index]);
     }
+
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(3.4) The given cell has an invalid index of " << cell->index();
 
     LOG (INFO) << "Read Row as Vector from Table.";
     return row;
@@ -82,10 +113,18 @@ void Table::deleteRow (std::size_t row_index) {
         THROW (std::range_error ("Index for deleteRow out of bounds"));
     }
 
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(4.1) The given cell has an invalid index of " << cell->index();
+
     matrix.erase (matrix.begin() + row_index);
     for (auto const & key : header) {
         table [key].erase (table [key].begin() + row_index);
     }
+
+//    ASSERT_MATRIX_VALIDITY;
+    for (auto const & row : matrix) for (auto const & cell : row) if (cell->index() > CellType::TEXT)
+                LOG (WARNING) << "(4.2) The given cell has an invalid index of " << cell->index();
 
     LOG (INFO) << "Deleted Row from Table.";
 }
