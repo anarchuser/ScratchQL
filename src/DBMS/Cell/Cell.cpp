@@ -82,4 +82,14 @@ std::string & cutTailingSpaces (std::string & content) {
     return content;
 }
 
+bool isValid (Cell const & cell) {
+    if (cell.index() <= CellType::TEXT) return true;
+    LOG (WARNING) << "The given cell is in an invalid state (idx: " << cell.index() << ")!";
+    return false;
+}
+bool isValid (Cell const * cell) {
+    if (cell) return isValid (* cell);
+    THROW (std::logic_error ("Expected pointer to cell, got null pointer"));
+}
+
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

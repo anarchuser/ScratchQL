@@ -5,7 +5,9 @@
 #include "../Cell/Cell.h"
 #include "Index/Index.h"
 #include "Meta/Meta.h"
+#include "../../Util/Tokens.h"
 
+#include <algorithm>
 #include <functional>
 #include <unordered_map>
 #include <variant>
@@ -17,12 +19,8 @@
 class Table {
 private:
     std::vector <std::string> header;
-    std::unordered_map <std::string, Meta const> meta;
+    std::vector <Meta> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
-    std::vector <std::vector <Cell const *>> matrix;
-
-    std::size_t row_count = 0;
-    std::size_t col_count = 0;
 
 public:
     std::string const database;
@@ -31,9 +29,7 @@ public:
     /// Creates a new Table where each element in `header` equals the name of one column
     explicit Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename);
 
-    // TODO: REMOVE
-    Table() = default;
-
+    /// Append row
     void createRow (std::vector <Cell> const & row);
 
     /// Replace row with index `row_index` with `row`
@@ -45,13 +41,14 @@ public:
     /// Read row with index `row_index` as list of cells
     std::vector <Cell> readRowAsVector (std::size_t row_index) const;
 
+    /// Remove row from table
     void deleteRow (std::size_t row_index);
 
     bool isRowEmpty (std::size_t row_index) const;
+    static bool isRowEmpty (std::vector <Cell> const & row);
     bool isCellEmpty (std::string const & key, std::size_t row_index) const;
 
-    std::vector <Cell>       & operator [] (std::string const & key);
-    std::vector <Cell> const & operator [] (std::string const & key) const;
+    std::vector <Cell> operator [] (std::string const & key) const;
 
     /** Returns row with index `row_index` as unordered hash map
      *
@@ -60,23 +57,15 @@ public:
      * Never use table [row][col]!!! */
     std::unordered_map <std::string, Cell> operator [] (std::size_t row_index);
 
-    /// Removes any row where each element is NULL
-    void removePadding() ;
-
     std::vector <std::string> const & getHeader() const;
 
-    std::unordered_map <std::string, Meta const> const & getMeta() const;
-    std::vector <Meta> getMetaAsVector() const;
-    std::vector <std::size_t> getMetaColLength (std::unordered_map <std::string, Meta const> const & meta) const;
-    std::vector <CellType> getMetaDataType (std::unordered_map <std::string, Meta const> const & meta) const;
+    std::vector <Meta> const & getMeta() const;
+    std::vector <std::size_t> getColumnLengths() const;
+    std::vector <CellType> getDataTypes() const;
 
-    /// Returns a reference of the current table. Do not use concurrently.
-    std::vector <std::vector <Cell const *>> const & getContent() const;
-    std::size_t getRowCount() const;
-    std::size_t getColumnCount() const;
+    std::size_t rowCount() const;
+    std::size_t columnCount() const;
 
-    /// Returns true if table is empty. Removes empty rows.
-    bool operator ! ();
     /// Returns true if table is empty
     bool operator ! () const;
 };
