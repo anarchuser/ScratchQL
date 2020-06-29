@@ -35,34 +35,6 @@ SCENARIO ("I can create a table, modify and print it") {
 
             THEN ("The lines get added successfully") {
                 CHECK (t1.rowCount () == rows.size());
-//                for (auto const & row : rows) {
-//                    for (auto const & cell : row) {
-//                        std::cout << +cell << " \t";
-//                    }
-//                    std::cout << " |" << std::endl;
-//                }
-//                std::cout << std::endl;
-//
-//                for (auto const & row : t1.getContent()) {
-//                    for (auto const * cell : row) {
-//                        std::cout << "p: " << cell                  << "\t|" << std::endl;
-//                        std::cout << "i: " << cell->index()         << "\t|" << std::endl;
-//                        if (cell->index() <= CellType::TEXT) {
-//                            std::cout << "-: " << " '" << - * cell << "'\t|" << std::endl;
-//                            std::cout << "+: " << + * cell          << "\t|" << std::endl;
-//                        }
-//
-//                        std::cout << std::endl;
-//                    }
-//                    std::cout << std::endl;
-//                }
-//                for (auto const & row : t1.getContent()) {
-//                    for (auto const * cell : row) {
-//                        CHECK (cell->index() <= CellType::TEXT);
-////                        std::cout << (cell->index() <= CellType::TEXT) << '\t';
-//                    }
-////                    std::cout << std::endl;
-//                }
             }
 
             THEN ("I can successfully read lines") {

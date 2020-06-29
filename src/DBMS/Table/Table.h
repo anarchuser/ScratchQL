@@ -22,7 +22,6 @@ private:
     std::vector <std::string> header;
     std::vector <Meta> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
-    std::vector <std::vector <Cell const *>> matrix;
 
 public:
     std::string const database;
@@ -65,8 +64,6 @@ public:
     std::vector <std::size_t> getColumnLengths() const;
     std::vector <CellType> getDataTypes() const;
 
-    /// Returns a reference of the current table. Do not use concurrently.
-    std::vector <std::vector <Cell const *>> const & getContent() const;
     std::size_t rowCount() const;
     std::size_t columnCount() const;
 
