@@ -122,19 +122,19 @@ TEST_CASE ("I can encode and decode Tables") {
     Table table = kj::cp (* initTable);
     kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrapTable (kj::mv (initTable));
     RPCServer::Table::Reader encodedTable = tableBuilder->getRoot <RPCServer::Table>();
-//    kj::Own <Table> decodedTable = unwrapTable (encodedTable);
+    kj::Own <Table> decodedTable = unwrapTable (encodedTable);
 
-//    SECTION ("The original and processed table are both equal") {
-//        CHECK (table.getHeader()      == decodedTable->getHeader());
-//        CHECK (table.getColumnCount() == decodedTable->getColumnCount());
-//        CHECK (table.getRowCount()    == decodedTable->getRowCount());
-//
-//        for (std::size_t row = 0; row < table.getRowCount(); row++) {
-//            for (auto const & col : table.getHeader()) {
-//                CHECK (table [col][row] == (* decodedTable) [col][row]);
-//            }
-//        }
-//    }
+    SECTION ("The original and processed table are both equal") {
+        CHECK (table.getHeader()      == decodedTable->getHeader());
+        CHECK (table.columnCount() == decodedTable->columnCount());
+        CHECK (table.rowCount()    == decodedTable->rowCount());
+
+        for (std::size_t row = 0; row < table.rowCount(); row++) {
+            for (auto const & col : table.getHeader()) {
+                CHECK (table [col][row] == (* decodedTable) [col][row]);
+            }
+        }
+    }
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
