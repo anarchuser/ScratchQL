@@ -26,7 +26,7 @@ interface RPCServer {
         }
 
         struct Cell {
-            data :union {
+            union {
                 unary @0 :Void;
                 binary @1 :Bool;
                 short @2 :UInt32;
