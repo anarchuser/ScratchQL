@@ -9,16 +9,9 @@ interface RPCServer {
             name @0 :Text;
             dataType @1 :UInt32;
             keyType @2 :UInt32;
-            reference @3 :Reference;
+            reference @3 :Maybe(Text);
             index @4 :Bool;
             nullable @5 :Bool;
-        }
-
-        struct Reference {
-            data :union {
-                unary @0 :Void;
-                table @1 :Text;
-            }
         }
 
         struct Row {
