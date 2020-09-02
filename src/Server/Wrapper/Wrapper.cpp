@@ -59,10 +59,10 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Meta const & meta) {
     builder.setIndex (meta.index);
     builder.setNullable (meta.nullable);
 
-    auto dataBuilder = builder.initReference().initData();
+    auto dataBuilder = builder.initReference();
     meta.reference.index() ?
-        dataBuilder.setTable (std::get <std::string> (meta.reference)) :
-        dataBuilder.setUnary();
+        dataBuilder.setValue(std::get <std::string> (meta.reference)) :
+        dataBuilder.setEmpty();
 
     return metaBuilder;
 }
@@ -75,8 +75,8 @@ Meta Wrapper::unwrap (RPCServer::Table::Meta::Reader const & reader) {
     meta.index    = reader.getIndex();
     meta.nullable = reader.getNullable();
 
-    auto ref = reader.getReference ().getData();
-    if (ref.isTable()) meta.reference = Key::Reference (ref.getTable());
+    auto ref = reader.getReference ();
+    if (ref.hasValue()) meta.reference = Key::Reference (ref.getValue());
 
     return std::move (meta);
 }
