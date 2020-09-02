@@ -6,15 +6,15 @@ Response Wrapper::unwrap (::RPCServer::Maybe<::RPCServer::Table>::Reader const &
 }
 
 kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Response response) {
+    kj::Own <capnp::MallocMessageBuilder> responseBuilder = kj::heap <capnp::MallocMessageBuilder>();
+
     if (!response) {
-        kj::Own <capnp::MallocMessageBuilder> responseBuilder = kj::heap <capnp::MallocMessageBuilder> ();
         responseBuilder->initRoot <RPCServer::Maybe <::RPCServer::Table>> ().setEmpty ();
         return responseBuilder;
     }
-    auto const & table = response.value();
-    kj::Own <capnp::MallocMessageBuilder> tableBuilder = kj::heap <capnp::MallocMessageBuilder>();
-    RPCServer::Table::Builder builder = tableBuilder->initRoot <::RPCServer::Table>();
 
+    RPCServer::Table::Builder builder = responseBuilder->initRoot <::RPCServer::Table>();
+    auto const & table = response.value();
     auto metaBuilder = builder.initMeta (table->columnCount ());
     std::vector <Meta> meta = table->getMeta();
     std::size_t idx = 0;
@@ -33,7 +33,7 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Response response) {
         }
     }
 
-    return tableBuilder;
+    return responseBuilder;
 }
 
 kj::Own <Table> Wrapper::unwrap (::RPCServer::Table::Reader const & reader) {
@@ -130,6 +130,6 @@ Cell Wrapper::unwrap (RPCServer::Table::Cell::Reader const & cell) {
         default:
             LOG (FATAL) << "Cell Unwrapper went insane: " << (short) cell.which() << " not in range [0, 5)";
     }
-};
+}
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
