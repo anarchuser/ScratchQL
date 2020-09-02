@@ -8,7 +8,6 @@
 #include <capnp/message.h>
 
 namespace Wrapper {
-
     kj::Own <capnp::MallocMessageBuilder> wrapResponse (Response response);
     Response unwrapResponse (::RPCServer::Response::Reader const & reader);
 
@@ -20,19 +19,6 @@ namespace Wrapper {
 
     kj::Own <capnp::MallocMessageBuilder> wrapCell (Cell const & cell);
     Cell unwrapCell (RPCServer::Table::Cell::Reader const & cell);
-
-    inline RPCServer::Table::Cell::Reader _wrapCell (Cell const & cell) {
-        return wrapCell (cell)->getRoot <RPCServer::Table::Cell>();
-    }
-
-    namespace {
-        template <class Builder, class V>
-        void duplicateList (Builder & builder, V const & vector) {
-            std::size_t index = 0;
-            for (auto const & element : vector) builder.set (index++, element);
-        }
-
-    } // private Wrapper
 } // Wrapper
 
 #endif //DATABASE_WRAPPER_H
