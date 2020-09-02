@@ -21,8 +21,8 @@ class DatabaseImpl final : public RPCServer::Server {
 public:
     kj::Promise <void> sendQuery (SendQueryContext context) override {
         std::cout << "Server: 'Received Query: " << context.getParams ().getQuery() << "'" << std::endl;
-        kj::Own <capnp::MallocMessageBuilder> responseBuilder = std::move (Wrapper::wrapResponse (evalQuery (context.getParams().getQuery())));
-        context.getResults().setResponse (responseBuilder->template getRoot <RPCServer::Response>().asReader());
+        kj::Own <capnp::MallocMessageBuilder> responseBuilder = std::move (Wrapper::wrap(evalQuery (context.getParams().getQuery())));
+        context.getResults().setResponse (responseBuilder->template getRoot <RPCServer::Maybe<RPCServer::Table>>().asReader());
         return kj::READY_NOW;
     }
 

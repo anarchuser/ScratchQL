@@ -7,13 +7,9 @@
 
 #include <memory>
 #include <kj/async.h>
-#include <variant>
+#include <optional>
 
-using Response = std::variant <std::monostate, kj::Own <Table const>>;
-enum ResponseType {
-    VOID,
-    TABLE
-};
+typedef std::optional <kj::Own <Table const>> Response;
 std::ostream & operator << (std::ostream & os, Response const & response);
 
 struct DBMS {
