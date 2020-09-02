@@ -8,17 +8,19 @@
 #include <capnp/message.h>
 
 namespace Wrapper {
-    kj::Own <capnp::MallocMessageBuilder> wrapResponse (Response response);
-    Response unwrapResponse (::RPCServer::Response::Reader const & reader);
+    Response unwrap (::RPCServer::Maybe<::RPCServer::Table>::Reader const & reader);
 
-    kj::Own <capnp::MallocMessageBuilder> wrapTable (kj::Own <Table const> const & table);
-    kj::Own <Table> unwrapTable (::RPCServer::Table::Reader const & reader);
+    // Table
+    kj::Own <capnp::MallocMessageBuilder> wrap (Response response);
+    kj::Own <Table> unwrap (::RPCServer::Table::Reader const & reader);
 
-    kj::Own <capnp::MallocMessageBuilder> wrapMeta (Meta const & meta);
-    Meta unwrapMeta (RPCServer::Table::Meta::Reader const & reader);
+    // Meta
+    kj::Own <capnp::MallocMessageBuilder> wrap (Meta const & meta);
+    Meta unwrap (RPCServer::Table::Meta::Reader const & reader);
 
-    kj::Own <capnp::MallocMessageBuilder> wrapCell (Cell const & cell);
-    Cell unwrapCell (RPCServer::Table::Cell::Reader const & cell);
+    // Cell
+    kj::Own <capnp::MallocMessageBuilder> wrap (Cell const & cell);
+    Cell unwrap (RPCServer::Table::Cell::Reader const & cell);
 } // Wrapper
 
 #endif //DATABASE_WRAPPER_H

@@ -26,8 +26,8 @@ TEST_CASE ("I can encode and decode Cells") {
     std::vector <Cell> decodedCells;
 
     for (auto const & cell : cells) {
-        encodedCells.push_back (wrapCell (cell));
-        decodedCells.push_back (unwrapCell (encodedCells.back()->getRoot <RPCServer::Table::Cell>()));
+        encodedCells.push_back (wrap (cell));
+        decodedCells.push_back (unwrap (encodedCells.back()->getRoot <RPCServer::Table::Cell>()));
         CHECK (cell == decodedCells.back());
     }
 
@@ -55,13 +55,13 @@ TEST_CASE ("I can encode and decode Cells") {
                 LOG (FATAL) << "Test Cell Wrapper went insane: " << cell.index() << " not in range [0, 5)";
         }
 
-        kj::Own <capnp::MallocMessageBuilder> cellBuilder = wrapCell (cell);
+        kj::Own <capnp::MallocMessageBuilder> cellBuilder = wrap (cell);
         LOG_ASSERT (cellBuilder.get());
 
         RPCServer::Table::Cell::Reader data = cellBuilder->getRoot <RPCServer::Table::Cell>().asReader();
         RPCServer::Table::Cell::Reader reader = builder.asReader();
 
-        CHECK (cell == unwrapCell (builder.asReader()));
+        CHECK (cell == unwrap (builder.asReader()));
         CHECK (reader.which() == data.which());
         CHECK (reader.which() == cell.index());
 
@@ -96,9 +96,9 @@ TEST_CASE ("I can encode and decode Meta information") {
     for (auto const & col : header) {
         std::stringstream raw, proc;
         CHECK (raw  << col);
-        CHECK (proc << unwrapMeta (wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader()));
+        CHECK (proc << unwrap (wrap (col)->getRoot <RPCServer::Table::Meta>().asReader()));
         CHECK (raw.str() == proc.str());
-        CHECK (col == unwrapMeta (wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader()));
+        CHECK (col == unwrap (wrap (col)->getRoot <RPCServer::Table::Meta>().asReader()));
     }
 }
 
@@ -119,9 +119,9 @@ TEST_CASE ("I can encode and decode Tables") {
     for (auto const & row : content) initTable->createRow (row);
 
     Table table = kj::cp (* initTable);
-    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrapTable (kj::mv (initTable));
+    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrap (kj::mv (initTable));
     RPCServer::Table::Reader encodedTable = tableBuilder->getRoot <RPCServer::Table>();
-    kj::Own <Table> decodedTable = unwrapTable (encodedTable);
+    kj::Own <Table> decodedTable = unwrap (encodedTable);
 
     SECTION ("The original and processed table are both equal") {
         CHECK (table.getHeader()      == decodedTable->getHeader());

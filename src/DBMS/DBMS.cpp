@@ -49,15 +49,8 @@ Response DBMS::evalUserQuery (kj::Own <Query> const & query) {
 }
 
 std::ostream & operator << (std::ostream & os, Response const & response) {
-    switch (response.index()) {
-        case ResponseType::VOID:
-            break;
-        case ResponseType::TABLE:
-            os << * std::get <kj::Own <Table const>> (response);
-            break;
-        default:
-            LOG (FATAL) << "Response has gone insane";
-    }
+    if (response)
+        os << * response.value();
     return os;
 }
 

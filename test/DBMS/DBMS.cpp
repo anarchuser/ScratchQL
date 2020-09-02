@@ -24,33 +24,31 @@ SCENARIO ("Issuing a query returns a valid Table") {
     }
 
     GIVEN ("Some queries with return type") {
-        std::vector <std::pair <std::string, ResponseType>> queries {
-                {"create (TestDatabase)", VOID},
-                {"", VOID},
-                {"", VOID},
-                {"", VOID},
-                {"", VOID},
-                {"", VOID},
-                {"", VOID},
-                {"", VOID},
-                {"", VOID},
+        std::vector <std::pair <std::string, bool>> queries {
+                {"create (TestDatabase)", false},
+                {"", false},
+                {"", false},
+                {"", false},
+                {"", false},
+                {"", false},
+                {"", false},
+                {"", false},
+                {"", false},
         };
         Response response;
         for (auto const & query : queries) {
             WHEN ("I evaluate a query with supposed return type " << ((query.second) ? "TABLE" : "NULL")) {
                 //CHECK_NOTHROW (response = DBMS::evalQuery (query.first));
-                switch (query.second) {
-                    case ResponseType::VOID:
-                        THEN ("I get a NULL response") {
-//                            CHECK (!response.index ());
-                        }
-                        break;
-                    case ResponseType::TABLE:
-                        THEN ("I get a valid Table as response") {
-                            CHECK (!! * std::get <kj::Own <Table const>> (response));
-                        }
-                    default:
-                        LOG (FATAL) << "ResponseType has gone insane";
+                if (query.second) {
+                    THEN ("I get a valid Table as response") {
+                        REQUIRE (!!response);
+                        CHECK (!! * response.value());
+                    }
+                }
+                else {
+                    THEN ("I get a NULL response") {
+//                            CHECK (!response);
+                    }
                 }
             }
         }

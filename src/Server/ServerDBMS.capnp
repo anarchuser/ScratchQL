@@ -37,13 +37,13 @@ interface RPCServer {
         }
     }
 
-    struct Response {
-        data :union {
-            void @0 :Void;
-            table @1 :Table;
+    struct Maybe(T) {
+        union {
+            empty @0 :Void;
+            value @1 :T;
         }
     }
 
-    sendQuery @0 (query :Text) -> (response :Response);
+    sendQuery @0 (query :Text) -> (response :Maybe(Table));
     connect @1 () -> ();
 }

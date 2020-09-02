@@ -45,7 +45,7 @@ Response Client::sendQuery (std::string const & query) {
     request.setQuery (query);
 
     // Send the request and wait for the result
-    return Wrapper::unwrapResponse (request.send().wait (waitScope).getResponse());
+    return Wrapper::unwrap (request.send().wait (waitScope).getResponse());
 }
 
 void Client::startInterface (std::function <void (Response)> const & action) {
