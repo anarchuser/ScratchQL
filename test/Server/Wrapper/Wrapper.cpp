@@ -34,23 +34,22 @@ TEST_CASE ("I can encode and decode Cells") {
     for (auto const & cell : cells) {
         capnp::MallocMessageBuilder builderBuilder;
         RPCServer::Table::Cell::Builder builder = builderBuilder.initRoot <::RPCServer::Table::Cell>();
-        RPCServer::Table::Cell::Data::Builder builderData = builder.getData();
 
         switch (cell.index ()) {
             case UNARY:
-                builderData.setUnary();
+                builder.setUnary();
                 break;
             case BINARY:
-                builderData.setBinary (std::get <bool> (cell));
+                builder.setBinary (std::get <bool> (cell));
                 break;
             case SHORT:
-                builderData.setShort (std::get <short> (cell));
+                builder.setShort (std::get <short> (cell));
                 break;
             case LONG:
-                builderData.setLong (std::get <long> (cell));
+                builder.setLong (std::get <long> (cell));
                 break;
             case TEXT:
-                builderData.setText (std::get <std::string> (cell));
+                builder.setText (std::get <std::string> (cell));
                 break;
             default:
                 LOG (FATAL) << "Test Cell Wrapper went insane: " << cell.index() << " not in range [0, 5)";
@@ -59,26 +58,26 @@ TEST_CASE ("I can encode and decode Cells") {
         kj::Own <capnp::MallocMessageBuilder> cellBuilder = wrapCell (cell);
         LOG_ASSERT (cellBuilder.get());
 
-        RPCServer::Table::Cell::Data::Reader data = cellBuilder->getRoot <RPCServer::Table::Cell>().asReader().getData();
-        RPCServer::Table::Cell::Data::Reader reader = builderData.asReader();
+        RPCServer::Table::Cell::Reader data = cellBuilder->getRoot <RPCServer::Table::Cell>().asReader();
+        RPCServer::Table::Cell::Reader reader = builder.asReader();
 
         CHECK (cell == unwrapCell (builder.asReader()));
         CHECK (reader.which() == data.which());
         CHECK (reader.which() == cell.index());
 
         switch (data.which()) {
-            case RPCServer::Table::Cell::Data::UNARY:
+            case RPCServer::Table::Cell::UNARY:
                 break;
-            case RPCServer::Table::Cell::Data::BINARY:
+            case RPCServer::Table::Cell::BINARY:
                 CHECK (std::get <bool> (cell) == data.getBinary());
                 break;
-            case RPCServer::Table::Cell::Data::SHORT:
+            case RPCServer::Table::Cell::SHORT:
                 CHECK (std::get <short> (cell) == data.getShort());
                 break;
-            case RPCServer::Table::Cell::Data::LONG:
+            case RPCServer::Table::Cell::LONG:
                 CHECK (std::get <long> (cell) == data.getLong());
                 break;
-            case RPCServer::Table::Cell::Data::TEXT:
+            case RPCServer::Table::Cell::TEXT:
                 CHECK (std::get <std::string> (cell) == std::string (data.getText()));
                 break;
             default:

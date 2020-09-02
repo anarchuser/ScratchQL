@@ -55,7 +55,8 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapTable (kj::Own <Table const> 
 kj::Own <Table> Wrapper::unwrapTable (::RPCServer::Table::Reader const & reader) {
     std::vector <Meta> metae;
     for (auto const & meta : reader.getMeta ()) metae.push_back (unwrapMeta (meta));
-    kj::Own <Table> table = kj::heap <Table> (metae, std::string(""), std::string(""));             //TODO: Serialise Database- and Tablename
+    kj::Own <Table> table = kj::heap <Table> (metae, std::string(""), std::string(""));
+    //TODO: Serialise Database- and Tablename
 
     for (auto const & row : reader.getContent ()) {
         std::vector <Cell> newRow;
@@ -99,54 +100,51 @@ Meta Wrapper::unwrapMeta (RPCServer::Table::Meta::Reader const & reader) {
 kj::Own <capnp::MallocMessageBuilder> Wrapper::wrapCell (Cell const & cell) {
     kj::Own <capnp::MallocMessageBuilder> cellBuilder = kj::heap <capnp::MallocMessageBuilder> ();
     RPCServer::Table::Cell::Builder builder = cellBuilder->initRoot <::RPCServer::Table::Cell>();
-    RPCServer::Table::Cell::Data::Builder builderData = builder.initData();
 
     switch (cell.index ()) {
         case UNARY:
             LOG (INFO) << "Set Cell to Unary";
-            builderData.setUnary();
+            builder.setUnary();
             break;
         case BINARY:
             LOG (INFO) << "Set Cell to Binary: " << std::get <bool> (cell);
-            builderData.setBinary (std::get <bool> (cell));
+            builder.setBinary (std::get <bool> (cell));
             break;
         case SHORT:
             LOG (INFO) << "Set Cell to Short: " << std::get <short> (cell);
-            builderData.setShort (std::get <short> (cell));
+            builder.setShort (std::get <short> (cell));
             break;
         case LONG:
             LOG (INFO) << "Set Cell to Long: " << std::get <long> (cell);
-            builderData.setLong (std::get <long> (cell));
+            builder.setLong (std::get <long> (cell));
             break;
         case TEXT:
             LOG (INFO) << "Set Cell to Text: " << std::get <std::string> (cell);
-            builderData.setText (std::get <std::string> (cell));
+            builder.setText (std::get <std::string> (cell));
             break;
         default:
             LOG (FATAL) << "Cell Wrapper went insane: " << cell.index() << " not in range [0, 5)";
     }
-    LOG_ASSERT (cell.index() == builderData.asReader().which());
-    LOG_ASSERT (cell.index() == cellBuilder->getRoot <RPCServer::Table::Cell>().getData().which());
+    LOG_ASSERT (cell.index() == builder.asReader().which());
+    LOG_ASSERT (cell.index() == cellBuilder->getRoot <RPCServer::Table::Cell>().which());
 
     return cellBuilder;
 }
 
 Cell Wrapper::unwrapCell (RPCServer::Table::Cell::Reader const & cell) {
-    RPCServer::Table::Cell::Data::Reader data = cell.getData();
-
-    switch (data.which()) {
-        case RPCServer::Table::Cell::Data::UNARY:
+    switch (cell.which()) {
+        case RPCServer::Table::Cell::UNARY:
             return Cell();
-        case RPCServer::Table::Cell::Data::BINARY:
-            return Cell (data.getBinary());
-        case RPCServer::Table::Cell::Data::SHORT:
-            return Cell ((short) data.getShort());
-        case RPCServer::Table::Cell::Data::LONG:
-            return Cell ((long) data.getLong());
-        case RPCServer::Table::Cell::Data::TEXT:
-            return Cell (data.getText());
+        case RPCServer::Table::Cell::BINARY:
+            return Cell (cell.getBinary());
+        case RPCServer::Table::Cell::SHORT:
+            return Cell ((short) cell.getShort());
+        case RPCServer::Table::Cell::LONG:
+            return Cell ((long) cell.getLong());
+        case RPCServer::Table::Cell::TEXT:
+            return Cell (cell.getText());
         default:
-            LOG (FATAL) << "Cell Unwrapper went insane: " << (short) data.which() << " not in range [0, 5)";
+            LOG (FATAL) << "Cell Unwrapper went insane: " << (short) cell.which() << " not in range [0, 5)";
     }
 };
 
