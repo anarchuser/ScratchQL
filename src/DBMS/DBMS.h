@@ -2,7 +2,9 @@
 #define DATABASE_DBMS_H
 
 #include "Table/Table.h"
-#include "../Language/Query/Query.h"
+#include "../Language/Target/Target.h"
+#include "../Language/Target/Table.h"
+#include "../Language/Target/Row.h"
 #include "../Language/Parser/Parser.h"
 
 #include <memory>
@@ -15,9 +17,11 @@ std::ostream & operator << (std::ostream & os, Response const & response);
 struct DBMS {
     DBMS() = delete;
 
-    static Response evalQuery (std::string const & rawQuery);
-    static Response evalTableQuery (kj::Own <Query> const & query);
-    static Response evalUserQuery (kj::Own <Query> const & query);
+    static void  create (Target const & target);
+    static Table select (Target const &  target);
+    static void  modify (qy::Row const & target, std::vector <Cell> const & data);
+    static void  insert (qy::Table const & target, std::vector <Cell> const & data);
+    static void  remove (Target const & target);
 };
 
 

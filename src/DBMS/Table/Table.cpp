@@ -1,8 +1,9 @@
 #include "Table.h"
 
-Table::Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename):
-    database {dbname},
-    name {tablename}
+
+Table::Table (std::vector <Meta> const & meta, std::string dbname, std::string tablename):
+    database {std::move(dbname)},
+    name {std::move(tablename)}
 {
     if (meta.empty()) THROW (std::invalid_argument ("Expected some columns; found none!"));
     for (auto const & column : meta) {
