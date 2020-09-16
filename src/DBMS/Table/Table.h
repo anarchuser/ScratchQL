@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+#include <utility>
+
 
 #include <iostream>
 
@@ -27,7 +29,7 @@ public:
     std::string const name;
 
     /// Creates a new Table where each element in `header` equals the name of one column
-    explicit Table (std::vector <Meta> const & meta, std::string const & dbname, std::string const & tablename);
+    explicit Table (std::vector <Meta> const & meta, std::string dbname, std::string tablename);
 
     /// Append row
     void createRow (std::vector <Cell> const & row);

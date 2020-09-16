@@ -30,13 +30,53 @@ interface RPCServer {
         }
     }
 
-    struct Maybe(T) {
+    struct Target {
         union {
-            empty @0 :Void;
-            value @1 :T;
+            database @0 :Database;
+            table @1 :Table;
+            column @2 :Column;
+            row @3 :Row;
+        }
+
+        struct Database {
+            name @0 :Text;
+        }
+        struct Table {
+            name @0 :Text;
+            parent @1 :Database;
+        }
+        struct Column {
+            name @0 :Text;
+            parent @1 :Table;
+        }
+        struct Row {
+            parent @0 :Table;
+            columns @1 :List(Column);
+            specs @2 :List(Specification);
+
+            struct Specification {
+                column @0 :Column;
+                union {
+                    equals @1 :RPCServer.Table.Cell;
+                    unequals @2 :RPCServer.Table.Cell;
+                    smaller @3 :RPCServer.Table.Cell;
+                    bigger @4 :RPCServer.Table.Cell;
+                }
+            }
         }
     }
 
-    sendQuery @0 (query :Text) -> (response :Maybe(Table));
-    connect @1 () -> ();
+    struct Maybe(T) {
+        union {
+            nothing @0 :Void;
+            value @1 :T;
+       }
+    }
+
+    connect @0 () -> ();
+    create @1 (target :Target) -> ();
+    select @2 (target :Target) -> (data :Table);
+    modify @3 (target :Target.Row, data :List(Table.Cell)) -> ();
+    insert @4 (target :Target.Table, data :List(Table.Cell)) -> ();
+    remove @5 (target :Target) -> ();
 }

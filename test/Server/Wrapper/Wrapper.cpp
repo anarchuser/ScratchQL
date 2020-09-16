@@ -119,12 +119,12 @@ TEST_CASE ("I can encode and decode Tables") {
     for (auto const & row : content) initTable->createRow (row);
 
     Table table = kj::cp (* initTable);
-    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrap (kj::mv (initTable));
+    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrap (* initTable);
     RPCServer::Table::Reader encodedTable = tableBuilder->getRoot <RPCServer::Table>();
     kj::Own <Table> decodedTable = unwrap (encodedTable);
 
     SECTION ("The original and processed table are both equal") {
-        CHECK (table.getHeader()      == decodedTable->getHeader());
+        CHECK (table.getHeader()   == decodedTable->getHeader());
         CHECK (table.columnCount() == decodedTable->columnCount());
         CHECK (table.rowCount()    == decodedTable->rowCount());
 

@@ -8,17 +8,17 @@
     try { expr; }                                                   \
     catch (std::exception & e) {                                    \
         auto __stop__ = std::chrono::high_resolution_clock::now();  \
-        LOG (INFO) << "The executed Command took " <<               \
+        LOG (INFO) << "The query took " <<                          \
         std::chrono::duration_cast <std::chrono::microseconds>      \
                 (__stop__ - __start__).count() <<                   \
-                " microseconds";                                    \
+                " microseconds to execute";                         \
         throw;                                                      \
     }                                                               \
     auto __stop__ = std::chrono::high_resolution_clock::now();      \
-    LOG (INFO) << "The executed Command took " <<                   \
+    LOG (INFO) << "The query took " <<                              \
     std::chrono::duration_cast <std::chrono::microseconds>          \
             (__stop__ - __start__).count() <<                       \
-    " microseconds";} true
+    " microseconds to execute";} true
 
 
 #define TIME(expr) [] () -> std::chrono::microseconds {             \
@@ -26,10 +26,10 @@
     try { expr; }                                                   \
     catch (std::exception & e) {                                    \
         auto __stop__ = std::chrono::high_resolution_clock::now();  \
-        LOG (INFO) << "The executed Command took " <<               \
+        LOG (INFO) << "The query took " <<                          \
         std::chrono::duration_cast <std::chrono::microseconds>      \
                 (__stop__ - __start__).count() <<                   \
-                " microseconds";                                    \
+                " microseconds to execute";                         \
         throw;                                                      \
     }                                                               \
     auto __stop__ = std::chrono::high_resolution_clock::now();      \

@@ -1,7 +1,7 @@
 #ifndef DATABASE_PARSER_H
 #define DATABASE_PARSER_H
 
-#include "../Query/Query.h"
+#include "../Target/Target.h"
 #include "ParseTree/ParseTree.h"
 
 #include <kj/async.h>
@@ -19,7 +19,7 @@
 struct Parser {
     Parser() = delete;
 
-    static kj::Own <Query> parseQuery (std::string const & rawQuery);
+    static Target parseQuery (std::string const & rawQuery);
     static inline void validateQuery (std::string const & text);
     static inline void validateChar (char c);
     static inline bool isWordChar (char c);
@@ -27,10 +27,9 @@ struct Parser {
     static std::string enrich (std::string const & text);
     static kj::Own <ParseTree> tokeniseQuery (std::string const & query);
     static void readToken (std::string::const_iterator * source, std::string::const_iterator end, ParseTree * tree);
-    static kj::Own <Query> buildQuery (kj::Own <ParseTree> const & pt);
+    static Target buildQuery (kj::Own <ParseTree> const & pt);
     static inline short lookUpEnum (std::string const & str, std::vector <std::string> const & enums);
-    static void fillInSpecs (ParseTree const * pt, Database::Target::Table::Specification & specs);
-    static void fillInSpecs (ParseTree const * pt, Database::Target::User::Specification & specs);
+    static void fillInSpecs (ParseTree const * tree);
     static void fillPairLists (ParseTree const * pt, std::vector <std::pair <std::string, Cell>> & list);
     static Cell tokenToCell (std::string const & token);
     static inline Cell strToNum (std::string const & token);

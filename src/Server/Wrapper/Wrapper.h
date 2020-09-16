@@ -3,15 +3,14 @@
 
 #include "../../DBMS/DBMS.h"
 #include "../../DBMS/Table/Table.h"
+#include "../../Language/Target/Target.h"
 #include "../generated/ServerDBMS.capnp.h"
 
 #include <capnp/message.h>
 
 namespace Wrapper {
-    Response unwrap (::RPCServer::Maybe<::RPCServer::Table>::Reader const & reader);
-
     // Table
-    kj::Own <capnp::MallocMessageBuilder> wrap (Response response);
+    kj::Own <capnp::MallocMessageBuilder> wrap (Table const & table);
     kj::Own <Table> unwrap (::RPCServer::Table::Reader const & reader);
 
     // Meta
@@ -21,6 +20,38 @@ namespace Wrapper {
     // Cell
     kj::Own <capnp::MallocMessageBuilder> wrap (Cell const & cell);
     Cell unwrap (RPCServer::Table::Cell::Reader const & cell);
+
+    // Target
+    kj::Own <capnp::MallocMessageBuilder> wrap (Target const & target);
+    Target unwrap (::RPCServer::Target::Reader const & reader);
+
+    qy::Database      unwrap (::RPCServer::Target::Database::Reader           const & reader);
+    qy::Table         unwrap (::RPCServer::Target::Table::Reader              const & reader);
+    qy::Column        unwrap (::RPCServer::Target::Column::Reader             const & reader);
+    qy::Row           unwrap (::RPCServer::Target::Row::Reader                const & reader);
+    qy::Specification unwrap (::RPCServer::Target::Row::Specification::Reader const & reader);
+    std::vector <qy::Column> unwrap (capnp::List <::RPCServer::Target::Column>::Reader const & reader);
+    std::vector <qy::Specification> unwrap (capnp::List <::RPCServer::Target::Row::Specification>::Reader const & reader);
+    std::vector <Cell> unwrap (capnp::List <::RPCServer::Table::Cell>::Reader const & reader);
+
+    struct TargetVisitor {
+        explicit TargetVisitor (RPCServer::Target::Builder & builder);
+
+        void operator ()(qy::Database const & target);
+        void operator ()(qy::Table const & target);
+        void operator ()(qy::Column const & target);
+        void operator ()(qy::Row const & target);
+
+    private:
+        RPCServer::Target::Builder builder;
+    };
+
+    void init (RPCServer::Target::Database::Builder builder, qy::Database const & target);
+    void init (RPCServer::Target::Table::Builder builder, qy::Table const & target);
+    RPCServer::Target::Column::Reader init (RPCServer::Target::Column::Builder builder, qy::Column const & target);
+    void init (RPCServer::Target::Row::Builder builder, qy::Row const & target);
+    RPCServer::Target::Row::Specification::Reader init (RPCServer::Target::Row::Specification::Builder builder, qy::Specification const & spec);
+
 } // Wrapper
 
 #endif //DATABASE_WRAPPER_H
