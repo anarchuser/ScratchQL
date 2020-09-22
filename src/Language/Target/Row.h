@@ -4,6 +4,7 @@
 #include "Table.h"
 #include "Column.h"
 #include "Specification.h"
+#include "../../Util/Helper.h"
 
 #include <vector>
 #include <utility>
@@ -15,6 +16,9 @@ namespace qy {
         Table parent;
         std::vector <Column> columns;
         std::vector <Specification> specs;
+
+        bool operator == (Row const & other) const;
+        bool operator != (Row const & other) const;
     };
 }
 

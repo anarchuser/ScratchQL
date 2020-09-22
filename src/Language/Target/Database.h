@@ -9,6 +9,9 @@ namespace qy {
         explicit Database (std::string name);
 
         std::string name;
+
+        bool operator == (Database const & other) const;
+        bool operator != (Database const & other) const;
     };
 }
 

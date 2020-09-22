@@ -18,6 +18,9 @@ namespace qy {
         Predicate predicate_e = EQUALS;
         std::function <bool (Cell)> predicate;
 
+        bool operator == (Specification const & other) const;
+        bool operator != (Specification const & other) const;
+
     private:
         static std::function <bool (Cell)> bindPredicate (Predicate predicate, Cell const & value);
     };
