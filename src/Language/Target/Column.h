@@ -10,6 +10,8 @@ namespace qy {
         std::string name;
         Table parent;
 
+        bool operator == (Column const & other) const;
+        bool operator != (Column const & other) const;
     };
 }
 

@@ -11,6 +11,9 @@ namespace qy {
 
         std::string name;
         Database parent;
+
+        bool operator == (Table const & other) const;
+        bool operator != (Table const & other) const;
     };
 }
 
