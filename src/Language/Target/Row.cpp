@@ -13,5 +13,8 @@ bool qy::Row::operator == (Row const & other) const {
 bool qy::Row::operator != (Row const & other) const {
     return !(* this == other);
 }
+std::ostream & operator << (std::ostream & os, qy::Row const & row) {
+    return os << "R(" << row.parent << ", " << row.columns << ", " << row.specs << ")";
+}
 
 /* Copyright (C) 2020 Aaron Alef */

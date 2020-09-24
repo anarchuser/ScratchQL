@@ -14,20 +14,37 @@ bool qy::Specification::operator == (Specification const & other) const {
 bool qy::Specification::operator != (Specification const & other) const {
     return !(* this == other);
 }
+std::ostream & operator << (std::ostream & os, qy::Specification const & spec) {
+    return os << "S(" << spec.column << ", " << +spec.value << ", " << spec.predicate_e << ")";
+}
+std::ostream & operator << (std::ostream & os, qy::Predicate const & pred) {
+    switch (pred) {
+        case qy::Predicate::EQUALS:
+            return os << "P(=)";
+        case qy::Predicate::UNEQUALS:
+            return os << "P(!)";
+        case qy::Predicate::SMALLER:
+            return os << "P(<)";
+        case qy::Predicate::BIGGER:
+            return os << "P(>)";
+        default:
+            return os << "P(?)";
+    }
+}
 
 std::function <bool (Cell)> qy::Specification::bindPredicate (Predicate predicate, const Cell & value) {
-    return [value, predicate](Cell const & cell) -> bool {
-        switch (predicate) {
-            case EQUALS:
-                return cell == value;
-            case UNEQUALS:
-                return cell != value;
-            case SMALLER:
-                return cell < value;
-            case BIGGER:
-                return cell > value;
-        }
-    };
+    switch (predicate) {
+        case EQUALS:
+            return [value] (Cell const & cell) -> bool { return cell == value; };
+        case UNEQUALS:
+            return [value] (Cell const & cell) -> bool { return cell != value; };
+        case SMALLER:
+            return [value] (Cell const & cell) -> bool { return cell < value; };
+        case BIGGER:
+            return [value] (Cell const & cell) -> bool { return cell > value; };
+        default:
+            THROW (std::logic_error ("No Predicate found. Initialise manually"));
+    }
 }
 
 /* Copyright (C) 2020 Aaron Alef */

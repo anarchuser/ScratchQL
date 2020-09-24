@@ -15,6 +15,7 @@ namespace qy {
     };
 }
 
+std::ostream & operator << (std::ostream & os, qy::Column const & col);
 
 #endif //DATABASE_QUERY_COLUMN_H
 

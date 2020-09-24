@@ -11,5 +11,8 @@ bool qy::Table::operator == (Table const & other) const {
 bool qy::Table::operator != (Table const & other) const {
     return !(* this == other);
 }
+std::ostream & operator << (std::ostream & os, qy::Table const & table) {
+    return os << "T(" << "\"" << table.name << "\", " << table.parent << ")";
+}
 
 /* Copyright (C) 2020 Aaron Alef */
