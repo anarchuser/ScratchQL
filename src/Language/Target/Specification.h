@@ -8,7 +8,7 @@
 #include <utility>
 
 namespace qy {
-    enum Predicate {EQUALS, UNEQUALS, SMALLER, BIGGER};
+    enum Predicate {EQUALS, UNEQUALS, SMALLER, BIGGER, CUSTOM};
 
     struct Specification {
         Specification (Column column, Cell value, Predicate predicate);
@@ -26,6 +26,8 @@ namespace qy {
     };
 }
 
+std::ostream & operator << (std::ostream & os, qy::Specification const & spec);
+std::ostream & operator << (std::ostream & os, qy::Predicate const & pred);
 
 #endif //DATABASE_QUERY_SPECIFICATION_H
 

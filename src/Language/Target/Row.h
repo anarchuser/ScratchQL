@@ -22,6 +22,8 @@ namespace qy {
     };
 }
 
+std::ostream & operator << (std::ostream & os, qy::Row const & row);
+
 #endif //DATABASE_QUERY_ROW_H
 
 /* Copyright (C) 2020 Aaron Alef */

@@ -25,7 +25,7 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Table const & table) {
     return responseBuilder;
 }
 
-kj::Own <Table> Wrapper::unwrap (::RPCServer::Table::Reader const & reader) {
+kj::Own <Table> Wrapper::unwrap (::RPCServer::Table::Reader reader) {
     std::vector <Meta> metae;
     for (auto const & meta : reader.getMeta ()) metae.push_back (unwrap (meta));
     kj::Own <Table> table = kj::heap <Table> (metae, "", "");
@@ -56,7 +56,7 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Meta const & meta) {
     return metaBuilder;
 }
 
-Meta Wrapper::unwrap (RPCServer::Table::Meta::Reader const & reader) {
+Meta Wrapper::unwrap (RPCServer::Table::Meta::Reader reader) {
     Meta meta;
     meta.name     = reader.getName ();
     meta.dataType = (CellType) reader.getDataType();
@@ -104,7 +104,7 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Cell const & cell) {
     return cellBuilder;
 }
 
-Cell Wrapper::unwrap (RPCServer::Table::Cell::Reader const & cell) {
+Cell Wrapper::unwrap (RPCServer::Table::Cell::Reader cell) {
     switch (cell.which()) {
         case RPCServer::Table::Cell::UNARY:
             return Cell();
@@ -127,13 +127,13 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Target const & target) {
 
     std::visit (TargetVisitor {builder}, target);
 
-    LOG_ASSERT (target.index() == builder.asReader().which());
+    LOG_ASSERT (target.index() == builder.which());
     LOG_ASSERT (target.index() == targetBuilder->getRoot <RPCServer::Target>().which());
 
     return targetBuilder;
 }
 
-Target Wrapper::unwrap (::RPCServer::Target::Reader const & reader) {
+Target Wrapper::unwrap (::RPCServer::Target::Reader reader) {
     switch (reader.which()) {
         case ::RPCServer::Target::DATABASE:
             return unwrap (reader.getDatabase());
@@ -143,25 +143,27 @@ Target Wrapper::unwrap (::RPCServer::Target::Reader const & reader) {
             return unwrap (reader.getColumn());
         case ::RPCServer::Target::ROW:
             return unwrap (reader.getRow());
+        default:
+            THROW (std::logic_error ("void * abuse"));
     }
 }
 
-qy::Database Wrapper::unwrap (::RPCServer::Target::Database::Reader const & reader) {
+qy::Database Wrapper::unwrap (::RPCServer::Target::Database::Reader reader) {
     return qy::Database (reader.getName());
 }
-qy::Table Wrapper::unwrap (::RPCServer::Target::Table::Reader const & reader) {
+qy::Table Wrapper::unwrap (::RPCServer::Target::Table::Reader reader) {
     return qy::Table (unwrap (reader.getParent()), reader.getName());
 }
-qy::Column Wrapper::unwrap (::RPCServer::Target::Column::Reader const & reader) {
+qy::Column Wrapper::unwrap (::RPCServer::Target::Column::Reader reader) {
     return qy::Column (unwrap (reader.getParent()), reader.getName());
 }
-qy::Row Wrapper::unwrap (::RPCServer::Target::Row::Reader const & reader) {
+qy::Row Wrapper::unwrap (::RPCServer::Target::Row::Reader reader) {
     return qy::Row (unwrap (reader.getParent()),
                     unwrap (reader.getColumns()),
                     unwrap (reader.getSpecs()));
 }
-qy::Specification Wrapper::unwrap (::RPCServer::Target::Row::Specification::Reader const & reader) {
-    qy::Predicate pred;
+qy::Specification Wrapper::unwrap (::RPCServer::Target::Row::Specification::Reader reader) {
+    qy::Predicate pred = qy::CUSTOM;
     Cell cell;
     switch (reader.which()) {
         case RPCServer::Target::Row::Specification::EQUALS:
@@ -183,26 +185,26 @@ qy::Specification Wrapper::unwrap (::RPCServer::Target::Row::Specification::Read
     }
     return qy::Specification (unwrap (reader.getColumn()), cell, pred);
 }
-std::vector <qy::Column> Wrapper::unwrap (capnp::List <::RPCServer::Target::Column>::Reader const & reader) {
-//    std::vector <qy::Column> columns (reader.size());
-//    for (auto const & col : reader)
-//        columns.push_back (unwrap (col));
-//    return columns;
+std::vector <qy::Column> Wrapper::unwrap (capnp::List <::RPCServer::Target::Column>::Reader reader) {
+    std::vector <qy::Column> columns;
+    for (auto const & col : reader)
+        columns.push_back (unwrap (col));
+    return columns;
 }
-std::vector <qy::Specification> Wrapper::unwrap (capnp::List <::RPCServer::Target::Row::Specification>::Reader const & reader) {
-//    std::vector <qy::Specification> specs (reader.size());
-//    for (auto const & spec : reader)
-//        specs.push_back (unwrap (spec));
-//    return specs;
+std::vector <qy::Specification> Wrapper::unwrap (capnp::List <::RPCServer::Target::Row::Specification>::Reader reader) {
+    std::vector <qy::Specification> specs;
+    for (auto const & spec : reader)
+        specs.push_back (unwrap (spec));
+    return specs;
 }
-std::vector <Cell> Wrapper::unwrap (capnp::List <::RPCServer::Table::Cell>::Reader const & reader) {
-//    std::vector <Cell> cells (reader.size());
-//    for (auto const & cell : reader)
-//        cells.push_back (unwrap (cell));
-//    return cells;
+std::vector <Cell> Wrapper::unwrap (capnp::List <::RPCServer::Table::Cell>::Reader reader) {
+    std::vector <Cell> cells;
+    for (auto const & cell : reader)
+        cells.push_back (unwrap (cell));
+    return cells;
 }
 
-Wrapper::TargetVisitor::TargetVisitor (RPCServer::Target::Builder & builder) : builder {builder} {}
+Wrapper::TargetVisitor::TargetVisitor (RPCServer::Target::Builder builder) : builder {builder} {}
 
 void Wrapper::TargetVisitor::operator ()(qy::Database const & target) {
     init (builder.initDatabase(), target);
@@ -235,20 +237,23 @@ void Wrapper::init (RPCServer::Target::Row::Builder builder, qy::Row const & tar
     auto colBuilder = builder.initColumns (target.columns.size());
     std::size_t idx = 0;
     for (auto const & col : target.columns) {
-        auto tmpBuilder = kj::heap <capnp::MallocMessageBuilder>()->initRoot<RPCServer::Target::Column>();
+        auto msg = kj::heap <capnp::MallocMessageBuilder>();
+        auto tmpBuilder = msg->initRoot<RPCServer::Target::Column>();
         colBuilder.setWithCaveats (idx++, init (tmpBuilder, col));
     }
 
     auto specBuilder = builder.initSpecs (target.specs.size());
     idx = 0;
     for (auto const & spec : target.specs) {
-        auto tmpBuilder = kj::heap <capnp::MallocMessageBuilder>()->initRoot<RPCServer::Target::Row::Specification>();
+        auto msg = kj::heap <capnp::MallocMessageBuilder>();
+        auto tmpBuilder = msg->initRoot<RPCServer::Target::Row::Specification>();
         specBuilder.setWithCaveats (idx++, init (tmpBuilder, spec));
     }
 }
 RPCServer::Target::Row::Specification::Reader Wrapper::init (RPCServer::Target::Row::Specification::Builder builder, qy::Specification const & spec) {
     init (builder.initColumn(), spec.column);
-    auto value = wrap (spec.value)->initRoot <::RPCServer::Table::Cell>().asReader();
+    auto msg = wrap (spec.value);
+    auto value = msg->getRoot <::RPCServer::Table::Cell>().asReader();
     switch (spec.predicate_e) {
         case qy::Predicate::EQUALS:
             builder.setEquals (value);

@@ -11,5 +11,8 @@ bool qy::Column::operator == (Column const & other) const {
 bool qy::Column::operator != (Column const & other) const {
     return !(* this == other);
 }
+std::ostream & operator << (std::ostream & os, qy::Column const & col) {
+    return os << "C(" << "\"" << col.name << "\", " << col.parent << ")";
+}
 
 /* Copyright (C) 2020 Aaron Alef */

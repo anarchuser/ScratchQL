@@ -17,6 +17,7 @@ namespace qy {
     };
 }
 
+std::ostream & operator << (std::ostream & os, qy::Table const & table);
 
 #endif //DATABASE_QUERY_TABLE_H
 

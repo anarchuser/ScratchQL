@@ -1,10 +1,7 @@
 #include <capnp/message.h>
 #include "../../main.h"
 #include "../../../src/Server/Wrapper/Wrapper.h"
-
-#include "../../../src/Server/generated/ServerDBMS.capnp.h"
-#include "../../../src/DBMS/Table/Table.h"
-#include "../../../src/DBMS/Table/Meta/Meta.h"
+#include "../../../src/Language/Target/Target.h"
 
 using namespace Wrapper;
 
@@ -133,6 +130,84 @@ TEST_CASE ("I can encode and decode Tables") {
                 CHECK (table [col][row] == (* decodedTable) [col][row]);
             }
         }
+    }
+}
+
+TEST_CASE ("I can encode and decode Queries") {
+    qy::Database db ("db");
+    qy::Table table (db, "table");
+    qy::Column col1 (table, "col1");
+    qy::Column col2 (table, "col2");
+    qy::Specification spec1 (col1, Cell(15l), qy::Predicate::BIGGER);
+    qy::Specification spec2 (col2, Cell("hello"), qy::Predicate::UNEQUALS);
+    qy::Row row (table, std::vector <qy::Column> {col1, col2}, std::vector <qy::Specification> {spec1, spec2});
+
+    SECTION ("Databases serialisation") {
+        Target original = Target (db);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+
+        Target decoded = Wrapper::unwrap (encoded);
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 0);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Database> (decoded);
+        CHECK (got == db);
+    }
+    SECTION ("Table serialisation") {
+        Target original = Target (table);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 1);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Table> (decoded);
+        CHECK (got == table);
+    }
+    SECTION ("Column1 serialisation") {
+        Target original = Target (col1);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 2);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Column> (decoded);
+        CHECK (got== col1);
+    }
+    SECTION ("Column2 serialisation") {
+        Target original = Target (col2);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 2);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Column> (decoded);
+        CHECK (got == col2);
+    }
+    SECTION ("Row serialisation") {
+        Target original = Target (row);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+        std::vector <qy::Specification> specs = Wrapper::unwrap (encoded.getRow().getSpecs());
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 3);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Row> (decoded);
+        CHECK (got == row);
+        CHECK (row.specs == specs);
     }
 }
 
