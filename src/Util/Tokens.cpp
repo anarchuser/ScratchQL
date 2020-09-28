@@ -18,6 +18,9 @@ std::vector <std::string> sv::splitTokens (std::string line, char delimiter) {
 }
 
 std::string const & sv::checkName (std::string const & name) {
+    if (name == META_DIR) {
+
+    }
     if (name.empty()) {
         THROW (std::invalid_argument ("Name expected, got an empty string!"));
     }

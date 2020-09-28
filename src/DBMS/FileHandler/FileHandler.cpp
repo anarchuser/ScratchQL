@@ -1,15 +1,16 @@
 #include "FileHandler.h"
 
-FileHandler::FileHandler (std::string const & database, std::string const & table,
-        std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType) :
-    db_root{DATABASE_DIR},
+#include <utility>
+
+FileHandler::FileHandler (std::string const & database, std::string table,
+        std::vector <std::size_t> const & columnLen, std::vector <CellType> colType) :
+    db_root{DB_DIR},
     database{database},
-    name{table},
+    name{std::move(table)},
     path{db_root + database + '/' + name + "/table.tsv"},       //purely for transition path coexists with the other three directory paths
     lineLength{calcLineLength(columnLen)},
     columnLength(columnLen),
-    columnType(colType)
-    { createTable(); }
+    columnType(std::move(colType)) {}
 
 FileHandler::FileHandler (Table const & table) :
     FileHandler (
@@ -17,20 +18,6 @@ FileHandler::FileHandler (Table const & table) :
             table.name,
             table.getColumnLengths(),
             table.getDataTypes()) {}
-
-
-void FileHandler::createDatabase() {
-    sv::checkName (database);
-    std::filesystem::create_directory(db_root);
-    std::filesystem::create_directory(db_root + database, db_root);
-}
-
-void FileHandler::createTable() {
-    createDatabase();
-    sv::checkName (name);
-    std::filesystem::create_directory(db_root + database + '/' + name, db_root);
-    LOG(INFO) << "successfully created table at " << path << std::endl;
-}
 
 void FileHandler::createLine (std::vector <Cell> const & content) {
     std::ofstream out;
@@ -172,5 +159,64 @@ std::size_t calcLineLength(std::vector <std::size_t> const & colLength) {
     }
     return lineLength;
 }
+
+void FileHandler::create (qy::Database const & db) {
+    std::cout << "Create database: " << db.path << std::endl;
+
+    sv::checkName (db.name);
+    std::filesystem::create_directory (DB_DIR);
+    std::filesystem::create_directory (db.path, DB_DIR);
+
+    LOG_ASSERT (std::filesystem::exists (db.path));
+}
+void FileHandler::create (qy::Table const & table) {
+    std::cout << "Create table:    " << table.path << std::endl;
+
+    create (table.parent);
+    sv::checkName (table.name);
+    std::filesystem::create_directory (table.path / META_DIR, DB_DIR);
+    std::filesystem::create_directory (table.path / INDEX_DIR, DB_DIR);
+
+    LOG_ASSERT (std::filesystem::exists (table.path / META_DIR));
+    LOG_ASSERT (std::filesystem::exists (table.path / INDEX_DIR));
+}
+void FileHandler::create (qy::Column const & column) {
+    std::cout << "Create column:   " << column << std::endl;
+
+    std::filesystem::create_directory (column.parent.path / META_DIR / column.name, DB_DIR);
+}
+void FileHandler::create (qy::Row const & row) {
+    std::cout << "Create row:      " << row << std::endl;
+}
+
+void FileHandler::remove (qy::Database const & db) {
+    std::cout << "Remove database: " << db.path << std::endl;
+
+    std::filesystem::remove_all (db.path);
+
+    LOG_ASSERT (! std::filesystem::exists (db.path));
+}
+void FileHandler::remove (qy::Table const & table) {
+    std::cout << "Remove table:    " << table.path << std::endl;
+
+    std::filesystem::remove_all (table.path);
+
+    LOG_ASSERT (! std::filesystem::exists (table.path));
+}
+void FileHandler::remove (qy::Column const & column) {
+    std::cout << "Remove column:   " << column << std::endl;
+
+    LOG_ASSERT (!std::filesystem::exists (column.parent.path / META_DIR / column.name));
+    LOG_ASSERT (!std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
+}
+void FileHandler::remove (qy::Row const & row) {
+    std::cout << "Remove row:      " << row << std::endl;
+
+}
+
+//std::cout << "Create database: " << db.path << std::endl;
+//std::cout << "Create table:    " << table.path << std::endl;
+//std::cout << "Create column:   " << column << std::endl;
+//std::cout << "Create row:      " << row << std::endl;
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */
