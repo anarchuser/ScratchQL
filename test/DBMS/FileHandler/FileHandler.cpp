@@ -50,15 +50,6 @@ SCENARIO ("I create, modify and delete databases") {
                 }
             }
         }
-
-        WHEN ("I create databases with invalid properties") {
-            std::string valid = "gooodname";
-            std::string invalid = "!&nogooddbname@";
-            THEN("The constructor throws up") {
-                REQUIRE_THROWS_AS (FileHandler (invalid, valid, lengths, types), std::invalid_argument);
-                REQUIRE_THROWS_AS (FileHandler (valid, invalid, lengths, types), std::invalid_argument);
-            }
-        }
     }
     GIVEN ("A database filled with some strings") {
         std::string testdb = "testdb";
@@ -77,55 +68,55 @@ SCENARIO ("I create, modify and delete databases") {
         REQUIRE_NOTHROW(fh = std::make_unique <FileHandler> (testdb, testtable, colLengths, cellTypes));
 
         WHEN ("I add lines to the table") {
-            for (auto const & strings : test_strings) {
-                CHECK_NOTHROW (fh->createLine (strings));
-            }
-            THEN("The lines get appended to the table file") {
-                // TODO: Check if they actually get appended (size check should suffice)
-            }
-            for (auto & list : test_strings) {
-                std::transform (list.cbegin(), list.cend(), colLengths.cbegin(),
-                                list.begin(), [](Cell const & str, std::size_t size) -> Cell {
-                    return (-str).substr (0, size);
-                });
-            }
-            THEN ("I can read the lines from the file") {
-                std::size_t idx = 0;
-                for (auto const & strings : test_strings) {
-                    std::size_t stridx = 0;
-                    for (auto const & cell : fh->readLine (idx++)) {
-                        CHECK (cell == strings [stridx++]);
-                    }
-                }
-            }
-            WHEN ("I update the lines") {
-                std::size_t idx = test_strings.size();
-                for (auto const & strings : test_strings) {
-                    CHECK_NOTHROW (fh->updateLine (--idx, strings));
-                    THEN ("Reading them results in the updated version") {
-                        std::size_t stridx = 0;
-                        for (auto const & cell : fh->readLine (idx++)) {
-                            CHECK (cell == strings [stridx++]);
-                        }
-                    }
-                }
-            }
-            THEN ("I can 'delete' the lines") {
-                std::size_t idx = test_strings.size();
-                while (idx --> 0) {
-                    CHECK (fh->readLine (idx - 1).size());
-                    fh->deleteLine (idx - 1);
-
-                    auto deleted_strings = fh->readLine (idx - 1);
-                    for (auto const & deleted : deleted_strings){
-                        CHECK(deleted == Cell(std::string()));
-                    }
-                }
-            }
+//            for (auto const & strings : test_strings) {
+//                CHECK_NOTHROW (fh->createLine (strings));
+//            }
+//            THEN("The lines get appended to the table file") {
+//                 //TODO: Check if they actually get appended (size check should suffice)
+//            }
+//            for (auto & list : test_strings) {
+//                std::transform (list.cbegin(), list.cend(), colLengths.cbegin(),
+//                                list.begin(), [](Cell const & str, std::size_t size) -> Cell {
+//                    return (-str).substr (0, size);
+//                });
+//            }
+//            THEN ("I can read the lines from the file") {
+//                std::size_t idx = 0;
+//                for (auto const & strings : test_strings) {
+//                    std::size_t stridx = 0;
+//                    for (auto const & cell : fh->readLine (idx++)) {
+//                        CHECK (cell == strings [stridx++]);
+//                    }
+//                }
+//            }
+//            WHEN ("I update the lines") {
+//                std::size_t idx = test_strings.size();
+//                for (auto const & strings : test_strings) {
+//                    CHECK_NOTHROW (fh->updateLine (--idx, strings));
+//                    THEN ("Reading them results in the updated version") {
+//                        std::size_t stridx = 0;
+//                        for (auto const & cell : fh->readLine (idx++)) {
+//                            CHECK (cell == strings [stridx++]);
+//                        }
+//                    }
+//                }
+//            }
+//            THEN ("I can 'delete' the lines") {
+//                std::size_t idx = test_strings.size();
+//                while (idx --> 0) {
+//                    CHECK (fh->readLine (idx - 1).size());
+//                    fh->deleteLine (idx - 1);
+//
+//                    auto deleted_strings = fh->readLine (idx - 1);
+//                    for (auto const & deleted : deleted_strings){
+//                        CHECK(deleted == Cell(std::string()));
+//                    }
+//                }
+//            }
         }
-
-        // TODO: Add proper mechanism to check if line index is valid
-
+//
+//        // TODO: Add proper mechanism to check if line index is valid
+//
 //            WHEN ("I use clearLines()"){
 //                std::string tmpline;
 //                std::size_t counter_before = 0, counter_after = 0;
@@ -145,12 +136,11 @@ SCENARIO ("I create, modify and delete databases") {
 //                }
 //            }
 
-        CHECK_NOTHROW (fh->deleteTable());
-        CHECK_NOTHROW (fh->deleteTable());
-        CHECK_NOTHROW (fh->deleteDatabase());
-        CHECK_NOTHROW (fh->deleteDatabase());
+//        CHECK_NOTHROW (fh->deleteTable());
+//        CHECK_NOTHROW (fh->deleteTable());
+//        CHECK_NOTHROW (fh->deleteDatabase());
+//        CHECK_NOTHROW (fh->deleteDatabase());
     }
 }
-
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

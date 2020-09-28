@@ -17,9 +17,6 @@ bool operator != (std::vector <T> const & one, std::vector <T> const & two) {
     return !(one == two);
 }
 
-//std::ostream & operator << (std::ostream & os, char const * string) {
-//    return os << std::string (string);
-//}
 template <class T>
 std::ostream & operator << (std::ostream & os, std::vector <T> list) {
     os << '[';

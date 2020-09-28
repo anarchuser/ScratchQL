@@ -1,6 +1,26 @@
 #include "DBMS.h"
 
+std::ostream & operator << (std::ostream & os, Response const & response) {
+    if (response)
+        os << * response.value ();
+    return os;
+}
+
 void  DBMS::create (Target const & target) {
+    switch (target.index()) {
+        case qy::Target::DATABASE:
+            FileHandler::create (std::get <qy::Database> (target));
+            break;
+        case qy::Target::TABLE:
+            FileHandler::create (std::get <qy::Table> (target));
+            break;
+        case qy::Target::COLUMN:
+            FileHandler::create (std::get <qy::Column> (target));
+            break;
+        case qy::Target::ROW:
+            FileHandler::create (std::get <qy::Row> (target));
+            break;
+    }
 }
 Table DBMS::select (Target const & target) {
     std::vector <Meta> const header {
@@ -24,12 +44,20 @@ void  DBMS::modify (qy::Row const & target, std::vector <Cell> const & data) {
 void  DBMS::insert (qy::Table const & target, std::vector <Cell> const & data) {
 }
 void  DBMS::remove (Target const & target) {
-}
-
-std::ostream & operator << (std::ostream & os, Response const & response) {
-    if (response)
-        os << * response.value();
-    return os;
+    switch (target.index()) {
+        case qy::Target::DATABASE:
+            FileHandler::remove (std::get <qy::Database> (target));
+            break;
+        case qy::Target::TABLE:
+            FileHandler::remove (std::get <qy::Table> (target));
+            break;
+        case qy::Target::COLUMN:
+            FileHandler::remove (std::get <qy::Column> (target));
+            break;
+        case qy::Target::ROW:
+            FileHandler::remove (std::get <qy::Row> (target));
+            break;
+    }
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

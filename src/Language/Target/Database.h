@@ -1,17 +1,20 @@
 #ifndef DATABASE_QUERY_DATABASE_H
 #define DATABASE_QUERY_DATABASE_H
 
-//#include "../../Util/Helper.h"
+#include "../../config.h"
 
 #include <iostream>
 #include <string>
 #include <utility>
+#include <filesystem>
 
 namespace qy {
     struct Database {
         explicit Database (std::string name);
 
         std::string name;
+
+        std::filesystem::path path;
 
         bool operator == (Database const & other) const;
         bool operator != (Database const & other) const;

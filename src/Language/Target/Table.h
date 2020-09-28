@@ -4,13 +4,17 @@
 #include "Database.h"
 
 #include <utility>
+#include <filesystem>
 
 namespace qy {
     struct Table {
         Table (Database parent, std::string name);
+        Table (std::string parent, std::string name);
 
         std::string name;
         Database parent;
+
+        std::filesystem::path path;
 
         bool operator == (Table const & other) const;
         bool operator != (Table const & other) const;

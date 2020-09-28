@@ -1,8 +1,14 @@
 #include "Table.h"
 
+#include <utility>
+
 qy::Table::Table (Database parent, std::string name) :
         name {std::move(name)},
-        parent {std::move(parent)} {}
+        parent {std::move(parent)},
+        path {this->parent.path/this->name} {}
+
+qy::Table::Table (std::string parent, std::string name) :
+        Table (qy::Database (std::move (parent)), name) {}
 
 bool qy::Table::operator == (Table const & other) const {
     return  other.name   == name &&
