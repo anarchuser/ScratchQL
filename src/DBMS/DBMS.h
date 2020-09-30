@@ -23,8 +23,8 @@ struct DBMS {
 
     static void  create (Target const & target);
     static Table select (Target const &  target);
-    static void  modify (qy::Row const & target, std::vector <Cell> const & data);
-    static void  insert (qy::Table const & target, std::vector <Cell> const & data);
+    static void  modify (qy::Row const & target);
+    static void  insert (qy::Row const & target);
     static void  remove (Target const & target);
 };
 

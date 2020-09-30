@@ -3,12 +3,15 @@
 
 #include "Table.h"
 
+#include <optional>
+
 namespace qy {
     struct Column {
-        Column (Table parent, std::string name);
+        Column (Table parent, std::string name, std::optional <Meta> meta = std::nullopt);
 
         std::string name;
         Table parent;
+        std::optional <Meta> meta;
 
         bool operator == (Column const & other) const;
         bool operator != (Column const & other) const;

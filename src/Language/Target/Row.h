@@ -11,10 +11,11 @@
 
 namespace qy {
     struct Row {
-        Row (Table parent, std::vector <Column> columns, std::vector <Specification> specs);
+        Row (Table parent, std::vector <Column> columns, std::vector <Cell> data, std::vector <Specification> specs);
 
         Table parent;
         std::vector <Column> columns;
+        std::vector <Cell> data;
         std::vector <Specification> specs;
 
         bool operator == (Row const & other) const;

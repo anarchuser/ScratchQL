@@ -11,7 +11,7 @@
 
 SCENARIO("I can create indices for large amounts of data") {
     SECTION ("Constructor and Destructor work") {
-        delete new Index (CellType::LONG, false);
+        CHECK_NOTHROW (delete new Index (CellType::LONG, false));
     }
 
     auto rand_str = [] () -> std::string {

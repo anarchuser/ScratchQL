@@ -33,12 +33,14 @@ std::string const STR = std::string();
 
 std::string const META_DIR (".meta");
 std::string const INDEX_DIR (".index");
-std::filesystem::path const DB_DIR ("/var/db/scratchql");
-std::filesystem::path const PROJECT_ROOT = []() -> std::filesystem::path {
-    char * envvar = std::getenv ("SCRATCHQL_ROOT");
+std::filesystem::path const DEFAULT_DB_DIR ("/var/db/scratchql/");
+std::filesystem::path const DB_DIR = []() -> std::filesystem::path {
+    char * envvar = std::getenv ("SCRATCHQL_DB");
     if (envvar) return envvar;
-    throw (std::logic_error ("Couldn't find env var 'SCRATCHQL_ROOT'. Please set it to this project's folder."));
+    std::cout << "Env var 'SCRATCHQL_DB' not set; setting database location to " << DEFAULT_DB_DIR << std::endl;
+    return DEFAULT_DB_DIR;
 }();
+std::filesystem::path const PROJECT_ROOT = DB_DIR / ".." / "..";
 
 enum KeyType {
     NORMAL,
@@ -47,7 +49,6 @@ enum KeyType {
 };
 
 std::string const VALID_QUERY_CHARS (" <>!=+-*/{}[]().,:;@#\"");
-
 
 
 #endif //DATABASE_CONFIG_H

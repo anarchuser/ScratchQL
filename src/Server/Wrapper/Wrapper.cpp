@@ -152,14 +152,27 @@ qy::Database Wrapper::unwrap (::RPCServer::Target::Database::Reader reader) {
     return qy::Database (reader.getName());
 }
 qy::Table Wrapper::unwrap (::RPCServer::Target::Table::Reader reader) {
-    return qy::Table (unwrap (reader.getParent()), reader.getName());
+    std::optional <std::vector <Meta>> metae;
+    if (reader.getMetae().isNothing()) {
+        metae = std::nullopt;
+    } else {
+        metae = std::vector <Meta>();
+        for (auto const & meta : reader.getMetae().getValue())
+            metae.value().push_back (unwrap (meta));
+    }
+    return qy::Table (unwrap (reader.getParent()), reader.getName(), metae);
 }
 qy::Column Wrapper::unwrap (::RPCServer::Target::Column::Reader reader) {
-    return qy::Column (unwrap (reader.getParent()), reader.getName());
+    std::optional <Meta> meta {
+        (reader.getMeta().isNothing()) ?
+                std::nullopt :
+                std::make_optional <Meta> (unwrap (reader.getMeta().getValue()))};
+    return qy::Column (unwrap (reader.getParent()), reader.getName(), meta);
 }
 qy::Row Wrapper::unwrap (::RPCServer::Target::Row::Reader reader) {
     return qy::Row (unwrap (reader.getParent()),
                     unwrap (reader.getColumns()),
+                    unwrap (reader.getData()),
                     unwrap (reader.getSpecs()));
 }
 qy::Specification Wrapper::unwrap (::RPCServer::Target::Row::Specification::Reader reader) {

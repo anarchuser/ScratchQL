@@ -39,9 +39,9 @@ Table DBMS::select (Target const & target) {
     for (auto const & row : content) table.createRow (row);
     return table;
 }
-void  DBMS::modify (qy::Row const & target, std::vector <Cell> const & data) {
+void  DBMS::modify (qy::Row const & target) {
 }
-void  DBMS::insert (qy::Table const & target, std::vector <Cell> const & data) {
+void  DBMS::insert (qy::Row const & target) {
 }
 void  DBMS::remove (Target const & target) {
     switch (target.index()) {
