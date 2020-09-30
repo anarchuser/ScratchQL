@@ -2,17 +2,20 @@
 #define DATABASE_QUERY_TABLE_H
 
 #include "Database.h"
+#include "../../DBMS/Table/Meta/Meta.h"
 
 #include <utility>
 #include <filesystem>
+#include <optional>
 
 namespace qy {
     struct Table {
-        Table (Database parent, std::string name);
-        Table (std::string parent, std::string name);
+        Table (Database parent, std::string name, std::optional <std::vector <Meta>> meta = std::nullopt);
+        Table (std::string parent, std::string name, std::optional <std::vector <Meta>> meta = std::nullopt);
 
         std::string name;
         Database parent;
+        std::optional <std::vector <Meta>> metae;
 
         std::filesystem::path path;
 

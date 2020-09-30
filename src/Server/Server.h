@@ -47,19 +47,18 @@ public:
     kj::Promise <void> modify (ModifyContext context) override {
         log ("Modify request", context);
         qy::Row row = Wrapper::unwrap (context.getParams().getTarget());
-        std::vector <Cell> data = Wrapper::unwrap (context.getParams().getData());
+        std::vector <Cell> data = Wrapper::unwrap (context.getParams().getTarget().getData());
 
-        LOG_TIME (DBMS::modify (row, data));
+        LOG_TIME (DBMS::modify (row));
 
         return kj::READY_NOW;
     }
 
     kj::Promise <void> insert (InsertContext context) override {
         log ("Insert request", context);
-        qy::Table table = Wrapper::unwrap (context.getParams().getTarget());
-        std::vector <Cell> data = Wrapper::unwrap (context.getParams().getData());
+        qy::Row row = Wrapper::unwrap (context.getParams().getTarget());
 
-        LOG_TIME (DBMS::insert (table, data));
+        LOG_TIME (DBMS::insert (row));
 
         return kj::READY_NOW;
     }

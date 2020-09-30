@@ -134,13 +134,15 @@ TEST_CASE ("I can encode and decode Tables") {
 }
 
 TEST_CASE ("I can encode and decode Queries") {
+    std::vector <Cell> data {Cell (151), Cell ("hello")};
+
     qy::Database db ("db");
     qy::Table table (db, "table");
     qy::Column col1 (table, "col1");
     qy::Column col2 (table, "col2");
-    qy::Specification spec1 (col1, Cell(15l), qy::Predicate::BIGGER);
-    qy::Specification spec2 (col2, Cell("hello"), qy::Predicate::UNEQUALS);
-    qy::Row row (table, std::vector <qy::Column> {col1, col2}, std::vector <qy::Specification> {spec1, spec2});
+    qy::Specification spec1 (col1, data [0], qy::Predicate::BIGGER);
+    qy::Specification spec2 (col2, data [1], qy::Predicate::UNEQUALS);
+    qy::Row row (table, std::vector <qy::Column> {col1, col2}, data, std::vector <qy::Specification> {spec1, spec2});
 
     SECTION ("Databases serialisation") {
         Target original = Target (db);

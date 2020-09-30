@@ -1,8 +1,9 @@
 #include "Column.h"
 
-qy::Column::Column (Table parent, std::string name) :
-        name {std::move(name)},
-        parent {std::move(parent)} {}
+qy::Column::Column (Table parent, std::string name, std::optional <Meta> meta) :
+        name {std::move (name)},
+        parent {std::move (parent)},
+        meta {std::move (meta)} {}
 
 bool qy::Column::operator == (Column const & other) const {
     return  other.name   == name &&

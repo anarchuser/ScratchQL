@@ -174,6 +174,7 @@ void FileHandler::create (qy::Table const & table) {
 
     create (table.parent);
     sv::checkName (table.name);
+    std::filesystem::create_directory (table.path, DB_DIR);
     std::filesystem::create_directory (table.path / META_DIR, DB_DIR);
     std::filesystem::create_directory (table.path / INDEX_DIR, DB_DIR);
 
@@ -183,10 +184,18 @@ void FileHandler::create (qy::Table const & table) {
 void FileHandler::create (qy::Column const & column) {
     std::cout << "Create column:   " << column << std::endl;
 
-    std::filesystem::create_directory (column.parent.path / META_DIR / column.name, DB_DIR);
+    create (column.parent);
+    sv::checkName (column.name);
+
+//    LOG_ASSERT (std::filesystem::exists (column.parent.path / META_DIR / column.name));
+//    LOG_ASSERT (std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
 }
 void FileHandler::create (qy::Row const & row) {
     std::cout << "Create row:      " << row << std::endl;
+
+    create (row.parent);
+    for (auto const & col : row.columns)
+        create (col);
 }
 
 void FileHandler::remove (qy::Database const & db) {

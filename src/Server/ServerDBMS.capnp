@@ -44,15 +44,18 @@ interface RPCServer {
         struct Table {
             name @0 :Text;
             parent @1 :Database;
+            metae @2 :Maybe(List(RPCServer.Table.Meta));
         }
         struct Column {
             name @0 :Text;
             parent @1 :Table;
+            meta @2 :Maybe(RPCServer.Table.Meta);
         }
         struct Row {
             parent @0 :Table;
             columns @1 :List(Column);
-            specs @2 :List(Specification);
+            data @2 :List(RPCServer.Table.Cell);
+            specs @3 :List(Specification);
 
             struct Specification {
                 column @0 :Column;
@@ -76,7 +79,7 @@ interface RPCServer {
     connect @0 () -> ();
     create @1 (target :Target) -> ();
     select @2 (target :Target) -> (data :Table);
-    modify @3 (target :Target.Row, data :List(Table.Cell)) -> ();
-    insert @4 (target :Target.Table, data :List(Table.Cell)) -> ();
+    modify @3 (target :Target.Row) -> ();
+    insert @4 (target :Target.Row) -> ();
     remove @5 (target :Target) -> ();
 }

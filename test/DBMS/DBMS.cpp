@@ -7,16 +7,17 @@ namespace fs = std::filesystem;
 SCENARIO ("Issuing queries works") {
     for (auto const & db : fs::directory_iterator (DB_DIR))
         fs::remove_all (db);
+    REQUIRE (fs::is_empty (DB_DIR));
+
+    qy::Database db ("TestDB");
+    qy::Table table (db, "TestTable");
+    qy::Column col1 (table, "TestCol1");
+    qy::Column col2 (table, "TestCol2");
+    qy::Specification spec1 (col1, Cell("value"), qy::Predicate::EQUALS);
+    qy::Specification spec2 (col2, Cell(128), qy::Predicate::SMALLER);
+    qy::Row row (table, vector {col1, col2}, std::vector {Cell("cell"), Cell(234)}, vector {spec1, spec2});
 
     GIVEN ("Different Create queries") {
-        qy::Database db ("TestDB");
-        qy::Table table (db, "TestTable");
-        qy::Column col1 (table, "TestCol1");
-        qy::Column col2 (table, "TestCol2");
-        qy::Specification spec1 (col1, Cell("value"), qy::Predicate::EQUALS);
-        qy::Specification spec2 (col2, Cell(128), qy::Predicate::SMALLER);
-        qy::Row row (table, vector {col1, col2}, vector {spec1, spec2});
-
         WHEN ("I create a database") {
             REQUIRE (!fs::exists (db.path));
 
@@ -37,7 +38,10 @@ SCENARIO ("Issuing queries works") {
             THEN ("the Table gets created") {
                 CHECK (fs::exists (table.path));
                 CHECK (fs::is_directory (table.path));
-                CHECK (fs::is_empty (table.path));
+                CHECK (fs::exists (table.path / META_DIR));
+                CHECK (fs::is_directory (table.path / META_DIR));
+                CHECK (fs::exists (table.path / INDEX_DIR));
+                CHECK (fs::is_directory (table.path / INDEX_DIR));
             }
         }
         WHEN ("I create columns") {
@@ -55,14 +59,6 @@ SCENARIO ("Issuing queries works") {
         }
     }
     GIVEN ("Different Select queries") {
-        qy::Database db ("TestDB");
-        qy::Table table (db, "TestTable");
-        qy::Column col1 (table, "TestCol1");
-        qy::Column col2 (table, "TestCol2");
-        qy::Specification spec1 (col1, Cell("value"), qy::Predicate::EQUALS);
-        qy::Specification spec2 (col2, Cell(128), qy::Predicate::SMALLER);
-        qy::Row row (table, vector {col1, col2}, vector {spec1, spec2});
-
         WHEN ("I create a database") {
             THEN ("The corresponding folder gets created") {
                 // TODO: check if folder was created
@@ -83,14 +79,6 @@ SCENARIO ("Issuing queries works") {
         }
     }
     GIVEN ("Different Modify queries") {
-        qy::Database db ("TestDB");
-        qy::Table table (db, "TestTable");
-        qy::Column col1 (table, "TestCol1");
-        qy::Column col2 (table, "TestCol2");
-        qy::Specification spec1 (col1, Cell("value"), qy::Predicate::EQUALS);
-        qy::Specification spec2 (col2, Cell(128), qy::Predicate::SMALLER);
-        qy::Row row (table, vector {col1, col2}, vector {spec1, spec2});
-
         WHEN ("I create a database") {
             THEN ("The corresponding folder gets created") {
                 // TODO: check if folder was created
@@ -111,14 +99,6 @@ SCENARIO ("Issuing queries works") {
         }
     }
     GIVEN ("Different Insert queries") {
-        qy::Database db ("TestDB");
-        qy::Table table (db, "TestTable");
-        qy::Column col1 (table, "TestCol1");
-        qy::Column col2 (table, "TestCol2");
-        qy::Specification spec1 (col1, Cell("value"), qy::Predicate::EQUALS);
-        qy::Specification spec2 (col2, Cell(128), qy::Predicate::SMALLER);
-        qy::Row row (table, vector {col1, col2}, vector {spec1, spec2});
-
         WHEN ("I create a database") {
             THEN ("The corresponding folder gets created") {
                 // TODO: check if folder was created
@@ -139,14 +119,6 @@ SCENARIO ("Issuing queries works") {
         }
     }
     GIVEN ("Different Remove queries") {
-        qy::Database db ("TestDB");
-        qy::Table table (db, "TestTable");
-        qy::Column col1 (table, "TestCol1");
-        qy::Column col2 (table, "TestCol2");
-        qy::Specification spec1 (col1, Cell("value"), qy::Predicate::EQUALS);
-        qy::Specification spec2 (col2, Cell(128), qy::Predicate::SMALLER);
-        qy::Row row (table, vector {col1, col2}, vector {spec1, spec2});
-
         WHEN ("I remove a database") {
             CHECK_NOTHROW (DBMS::remove (db));
             CHECK_NOTHROW (DBMS::remove (db));
@@ -170,6 +142,10 @@ SCENARIO ("Issuing queries works") {
             }
         }
     }
+
+    for (auto const & folder : fs::directory_iterator (DB_DIR))
+        fs::remove_all (folder);
+    REQUIRE (fs::is_empty (DB_DIR));
 }
 
 
