@@ -161,7 +161,7 @@ std::size_t calcLineLength(std::vector <std::size_t> const & colLength) {
 }
 
 void FileHandler::create (qy::Database const & db) {
-    std::cout << "Create database: " << db.path << std::endl;
+    LOG (INFO) << "Create database: " << db.path;
 
     sv::checkName (db.name);
     std::filesystem::create_directory (DB_DIR);
@@ -170,7 +170,7 @@ void FileHandler::create (qy::Database const & db) {
     LOG_ASSERT (std::filesystem::exists (db.path));
 }
 void FileHandler::create (qy::Table const & table) {
-    std::cout << "Create table:    " << table.path << std::endl;
+    LOG (INFO) << "Create table:    " << table.path;
 
     create (table.parent);
     sv::checkName (table.name);
@@ -182,7 +182,7 @@ void FileHandler::create (qy::Table const & table) {
     LOG_ASSERT (std::filesystem::exists (table.path / INDEX_DIR));
 }
 void FileHandler::create (qy::Column const & column) {
-    std::cout << "Create column:   " << column << std::endl;
+    LOG (INFO) << "Create column:   " << column;
 
     create (column.parent);
     sv::checkName (column.name);
@@ -191,7 +191,7 @@ void FileHandler::create (qy::Column const & column) {
 //    LOG_ASSERT (std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
 }
 void FileHandler::create (qy::Row const & row) {
-    std::cout << "Create row:      " << row << std::endl;
+    LOG (INFO) << "Create row:      " << row;
 
     create (row.parent);
     for (auto const & col : row.columns)
@@ -199,33 +199,33 @@ void FileHandler::create (qy::Row const & row) {
 }
 
 void FileHandler::remove (qy::Database const & db) {
-    std::cout << "Remove database: " << db.path << std::endl;
+    LOG (INFO) << "Remove database: " << db.path;
 
     std::filesystem::remove_all (db.path);
 
     LOG_ASSERT (! std::filesystem::exists (db.path));
 }
 void FileHandler::remove (qy::Table const & table) {
-    std::cout << "Remove table:    " << table.path << std::endl;
+    LOG (INFO) << "Remove table:    " << table.path;
 
     std::filesystem::remove_all (table.path);
 
     LOG_ASSERT (! std::filesystem::exists (table.path));
 }
 void FileHandler::remove (qy::Column const & column) {
-    std::cout << "Remove column:   " << column << std::endl;
+    LOG (INFO) << "Remove column:   " << column;
 
     LOG_ASSERT (!std::filesystem::exists (column.parent.path / META_DIR / column.name));
     LOG_ASSERT (!std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
 }
 void FileHandler::remove (qy::Row const & row) {
-    std::cout << "Remove row:      " << row << std::endl;
+    LOG (INFO) << "Remove row:      " << row;
 
 }
 
-//std::cout << "Create database: " << db.path << std::endl;
-//std::cout << "Create table:    " << table.path << std::endl;
-//std::cout << "Create column:   " << column << std::endl;
-//std::cout << "Create row:      " << row << std::endl;
+//LOG (INFO) << "Create database: " << db.path;
+//LOG (INFO) << "Create table:    " << table.path;
+//LOG (INFO) << "Create column:   " << column;
+//LOG (INFO) << "Create row:      " << row;
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

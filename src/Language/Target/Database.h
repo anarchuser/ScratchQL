@@ -12,9 +12,9 @@ namespace qy {
     struct Database {
         explicit Database (std::string name);
 
-        std::string name;
+        std::string const name;
 
-        std::filesystem::path path;
+        std::filesystem::path const path;
 
         bool operator == (Database const & other) const;
         bool operator != (Database const & other) const;

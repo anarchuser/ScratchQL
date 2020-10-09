@@ -152,6 +152,7 @@ TEST_CASE ("I can encode and decode Queries") {
         Target decoded = Wrapper::unwrap (encoded);
         CHECK (decoded.index() == original.index());
         CHECK (decoded.index() == 0);
+        CHECK (+ decoded == + original);
         CHECK (decoded == original);
 
         auto got = std::get <qy::Database> (decoded);
@@ -165,6 +166,7 @@ TEST_CASE ("I can encode and decode Queries") {
 
         CHECK (decoded.index() == original.index());
         CHECK (decoded.index() == 1);
+        CHECK (+ decoded == + original);
         CHECK (decoded == original);
 
         auto got = std::get <qy::Table> (decoded);
@@ -178,10 +180,11 @@ TEST_CASE ("I can encode and decode Queries") {
 
         CHECK (decoded.index() == original.index());
         CHECK (decoded.index() == 2);
+        CHECK (+ decoded == + original);
         CHECK (decoded == original);
 
         auto got = std::get <qy::Column> (decoded);
-        CHECK (got== col1);
+        CHECK (got == col1);
     }
     SECTION ("Column2 serialisation") {
         Target original = Target (col2);
@@ -191,6 +194,7 @@ TEST_CASE ("I can encode and decode Queries") {
 
         CHECK (decoded.index() == original.index());
         CHECK (decoded.index() == 2);
+        CHECK (+ decoded == + original);
         CHECK (decoded == original);
 
         auto got = std::get <qy::Column> (decoded);
@@ -205,6 +209,7 @@ TEST_CASE ("I can encode and decode Queries") {
 
         CHECK (decoded.index() == original.index());
         CHECK (decoded.index() == 3);
+        CHECK (+ decoded == + original);
         CHECK (decoded == original);
 
         auto got = std::get <qy::Row> (decoded);

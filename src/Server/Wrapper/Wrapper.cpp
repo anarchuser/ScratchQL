@@ -238,6 +238,17 @@ void Wrapper::init (RPCServer::Target::Database::Builder builder, qy::Database c
 void Wrapper::init (RPCServer::Target::Table::Builder builder, qy::Table const & target) {
     builder.setName (target.name);
     init (builder.initParent(), target.parent);
+    if (!target.metae.has_value()) {
+        builder.initMetae ().setNothing ();
+    } else {
+        auto metaBuilder = builder.initMetae().initValue (target.metae->size());
+        std::size_t idx = 0;
+        for (auto const & meta : target.metae.value()) {
+            auto msg = wrap (meta);
+            metaBuilder.setWithCaveats (idx++, msg->getRoot <RPCServer::Table::Meta>());
+        }
+    }
+
 }
 RPCServer::Target::Column::Reader Wrapper::init (RPCServer::Target::Column::Builder builder, qy::Column const & target) {
     builder.setName (target.name);
@@ -253,6 +264,14 @@ void Wrapper::init (RPCServer::Target::Row::Builder builder, qy::Row const & tar
         auto msg = kj::heap <capnp::MallocMessageBuilder>();
         auto tmpBuilder = msg->initRoot<RPCServer::Target::Column>();
         colBuilder.setWithCaveats (idx++, init (tmpBuilder, col));
+    }
+
+    auto dataBuilder = builder.initData (target.data.size());
+    idx = 0;
+    for (auto const & data : target.data) {
+        auto msg = wrap (data);
+        auto tmpBuilder = msg->getRoot<RPCServer::Table::Cell>();
+        dataBuilder.setWithCaveats (idx++, tmpBuilder);
     }
 
     auto specBuilder = builder.initSpecs (target.specs.size());

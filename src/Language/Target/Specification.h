@@ -13,10 +13,10 @@ namespace qy {
     struct Specification {
         Specification (Column column, Cell value, Predicate predicate);
 
-        Column column;
-        Cell value;
-        Predicate predicate_e = EQUALS;
-        std::function <bool (Cell)> predicate;
+        Column const column;
+        Cell const value;
+        Predicate const predicate_e = EQUALS;
+        std::function <bool (Cell)> const predicate;
 
         bool operator == (Specification const & other) const;
         bool operator != (Specification const & other) const;

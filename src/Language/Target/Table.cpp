@@ -15,14 +15,15 @@ qy::Table::Table (std::string parent, std::string name, std::optional <std::vect
                 std::move (meta)) {}
 
 bool qy::Table::operator == (Table const & other) const {
-    return  other.name   == name &&
-            other.parent == parent;
+    return  other.path   == path   &&
+            other.parent == parent &&
+            other.metae  == metae;
 }
 bool qy::Table::operator != (Table const & other) const {
     return !(* this == other);
 }
 std::ostream & operator << (std::ostream & os, qy::Table const & table) {
-    return os << "T(" << "\"" << table.name << "\", " << table.parent << ")";
+    return os << "T(" << "\"" << table.name << "\", M(" << table.metae << "), " << table.parent << ")";
 }
 
 /* Copyright (C) 2020 Aaron Alef */

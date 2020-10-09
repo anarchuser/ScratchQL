@@ -1,24 +1,15 @@
 #ifndef DATABASE_HELPER_H
 #define DATABASE_HELPER_H
 
+#include "../DBMS/Cell/Cell.h"
+
 #include <iostream>
 #include <vector>
+#include <optional>
+#include <sstream>
 
 template <class T>
-bool operator == (std::vector <T> const & one, std::vector <T> const & two) {
-    if (one.size() != two.size()) return false;
-    for (std::size_t idx = 0; idx < one.size(); idx++) {
-        if (one [idx] != two [idx]) return false;
-    }
-    return true;
-}
-template <class T>
-bool operator != (std::vector <T> const & one, std::vector <T> const & two) {
-    return !(one == two);
-}
-
-template <class T>
-std::ostream & operator << (std::ostream & os, std::vector <T> list) {
+std::ostream & operator << (std::ostream & os, std::vector <T> const & list) {
     os << '[';
     bool first = true;
     for (auto const & element : list) {
@@ -27,6 +18,17 @@ std::ostream & operator << (std::ostream & os, std::vector <T> list) {
         first = false;
     }
     return os << ']';
+}
+template <class T>
+std::ostream & operator << (std::ostream & os, std::optional <T> maybe) {
+    return maybe.has_value() ? os << * maybe : os << "nothing";
+}
+
+template <class T>
+std::string operator + (T obj) {
+    std::stringstream ss;
+    ss << obj;
+    return ss.str();
 }
 
 #endif //DATABASE_HELPER_H
