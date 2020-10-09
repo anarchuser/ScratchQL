@@ -20,7 +20,7 @@ enum CellType {
 
 bool operator ! (Cell const & cell);
 std::ostream & operator << (std::ostream & os, Cell const & cell);
-std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell);
+std::ostream & operator << (std::ostream & os, std::vector <Cell> const & cells);
 
 std::string operator + (Cell const & cell);
 std::string operator - (Cell const & cell);

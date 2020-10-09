@@ -5,7 +5,7 @@ qy::Database::Database (std::string name) :
         path {DB_DIR/this->name} {}
 
 bool qy::Database::operator == (Database const & other) const {
-    return other.name == name;
+    return  other.path == path;
 }
 bool qy::Database::operator != (Database const & other) const {
     return !(* this == other);

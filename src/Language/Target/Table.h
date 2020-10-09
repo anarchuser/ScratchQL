@@ -13,11 +13,11 @@ namespace qy {
         Table (Database parent, std::string name, std::optional <std::vector <Meta>> meta = std::nullopt);
         Table (std::string parent, std::string name, std::optional <std::vector <Meta>> meta = std::nullopt);
 
-        std::string name;
-        Database parent;
-        std::optional <std::vector <Meta>> metae;
+        std::string const name;
+        Database const parent;
+        std::optional <std::vector <Meta>> const metae;
 
-        std::filesystem::path path;
+        std::filesystem::path const path;
 
         bool operator == (Table const & other) const;
         bool operator != (Table const & other) const;

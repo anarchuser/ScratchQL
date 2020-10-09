@@ -49,11 +49,15 @@ std::string operator + (Cell const & cell) {
     return ss.str();
 }
 
-std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell) {
-    for (auto const & key:cell){
-        os << key << '\t';
+std::ostream & operator << (std::ostream & os, std::vector <Cell> const & cells) {
+    os << '[';
+    bool first = true;
+    for (auto const & cell : cells) {
+        if (!first) os << ", ";
+        os << +cell;
+        first = false;
     }
-    return os;
+    return os << ']';
 }
 Cell & toNull (Cell & cell) {
     return cell = Cell();
