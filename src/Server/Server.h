@@ -72,14 +72,6 @@ public:
         return kj::READY_NOW;
     }
 
-
-    kj::Promise <void> sendQuery (auto context){
-        std::cout << "Server: 'Received Query: " << context.getParams ().getQuery() << "'" << std::endl;
-        kj::Own <capnp::MallocMessageBuilder> responseBuilder = std::move (Wrapper::wrap(evalQuery (context.getParams().getQuery())));
-        context.getResults().setResponse (responseBuilder->template getRoot <RPCServer::Maybe<RPCServer::Table>>().asReader());
-        return kj::READY_NOW;
-    }
-
 private:
     void log (std::string msg) {
         LOG (INFO) << "Server @" << this << ": '" << msg << "'";

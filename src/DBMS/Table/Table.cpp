@@ -16,6 +16,9 @@ Table::Table (std::vector <Meta> const & meta, std::string dbname, std::string t
     }
 }
 
+Table::Table (qy::Table const & table):
+    Table (* table.metae, table.parent.name, table.name) {}
+
 void Table::createRow (std::vector <Cell> const & row) {
     LOG (INFO) << "Creating Row in Table...";
 

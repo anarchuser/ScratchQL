@@ -40,8 +40,6 @@ void FileHandler::createLine (std::vector <Cell> const & content) {
 
 std::vector <Cell> FileHandler::readLine (std::size_t index) const {
     std::vector <std::string> contentStringVector;
-    std::vector <Cell> content;
-
     std::ifstream in (path, std::ios::in);
     if (!in.is_open ()) THROW (std::ios_base::failure (STR+
     "Could not open file " + path));
@@ -55,6 +53,7 @@ std::vector <Cell> FileHandler::readLine (std::size_t index) const {
         contentStringVector.emplace_back(std::string(tmp_line));
         in.read(waste, 1);
     }
+    std::vector <Cell> content (contentStringVector.size());
     in.close();
     std::size_t counter = 0;
     for (std::string element : contentStringVector){
@@ -222,10 +221,5 @@ void FileHandler::remove (qy::Row const & row) {
     LOG (INFO) << "Remove row:      " << row;
 
 }
-
-//LOG (INFO) << "Create database: " << db.path;
-//LOG (INFO) << "Create table:    " << table.path;
-//LOG (INFO) << "Create column:   " << column;
-//LOG (INFO) << "Create row:      " << row;
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

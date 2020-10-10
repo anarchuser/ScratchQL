@@ -6,6 +6,7 @@
 #include "Index/Index.h"
 #include "Meta/Meta.h"
 #include "../../Util/Tokens.h"
+#include "../../Language/Target/Target.h"
 
 #include <algorithm>
 #include <functional>
@@ -13,8 +14,6 @@
 #include <variant>
 #include <vector>
 #include <utility>
-
-
 #include <iostream>
 
 /// In-memory representation of one table; contains column names and cell data
@@ -29,7 +28,8 @@ public:
     std::string const name;
 
     /// Creates a new Table where each element in `header` equals the name of one column
-    explicit Table (std::vector <Meta> const & meta, std::string dbname, std::string tablename);
+    Table (std::vector <Meta> const & meta, std::string dbname, std::string tablename);
+    explicit Table (qy::Table const & table);
 
     /// Append row
     void createRow (std::vector <Cell> const & row);

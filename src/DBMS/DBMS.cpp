@@ -18,7 +18,7 @@ void  DBMS::create (Target const & target) {
             FileHandler::create (std::get <qy::Column> (target));
             break;
         case qy::Target::ROW:
-            FileHandler::create (std::get <qy::Row> (target));
+            insert (std::get <qy::Row> (target));
             break;
     }
 }
@@ -55,7 +55,8 @@ void  DBMS::remove (Target const & target) {
             FileHandler::remove (std::get <qy::Column> (target));
             break;
         case qy::Target::ROW:
-            FileHandler::remove (std::get <qy::Row> (target));
+            qy::Row const & row = std::get <qy::Row> (target);
+            Table (row.parent).createRow (row.data);
             break;
     }
 }
