@@ -34,9 +34,10 @@ target_link_libraries(Database kj)
 target_link_libraries(Database kj-async)
 
 find_package(Catch2)
+find_library(Catch2 /usr/include/catch2/catch.hpp)
 IF (Catch2_FOUND)
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
-    add_executable(Test ${GEN_PROTO_FILES} ${TEST_SRCS} ${SRCS})
+    add_executable(Test ${GEN_PROTO_FILES} ${TEST_SRCS}  ${SRCS})
 
     add_compile_definitions(Test ERRORS_AS_WARNINGS)
 
