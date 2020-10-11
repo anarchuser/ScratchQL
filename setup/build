@@ -20,7 +20,7 @@ then cat LICENSE | less
 exit
 fi
 
-cmake -H. -B$build_dir
+cmake -H. -B$build_dir -DCMAKE_TOOLCHAIN_FILE=/opt/vcpkg/scripts/buildsystems/vcpkg.cmake
 cmake --build $build_dir --target Database
 result=$?
 

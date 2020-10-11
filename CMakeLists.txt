@@ -33,25 +33,26 @@ target_link_libraries(Database CapnProto::capnp-rpc)
 target_link_libraries(Database kj)
 target_link_libraries(Database kj-async)
 
-find_package(Catch2)
+find_package(Catch2 CONFIG)
 IF (Catch2_FOUND)
+    find_package(Catch2 CONFIG REQUIRED)
+
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
-    add_executable(Test ${GEN_PROTO_FILES} ${TEST_SRCS} ${SRCS})
+    add_executable(Test ${GEN_PROTO_FILES} ${TEST_SRCS}  ${SRCS})
 
-    add_compile_definitions(Test ERRORS_AS_WARNINGS)
+    add_compile_definitions(Test PRIVATE ERRORS_AS_WARNINGS)
 
-    target_link_libraries(Test Catch2::Catch2)
+    target_link_libraries(Test PRIVATE Catch2::Catch2)
     include(CTest)
     include(Catch)
     catch_discover_tests(Test)
 
-    target_link_libraries(Test glog)
+    target_link_libraries(Test PRIVATE glog)
 
-    target_link_libraries(Test Threads::Threads)
+    target_link_libraries(Test PRIVATE Threads::Threads)
 
-    target_link_libraries(Test CapnProto::capnp)
-    target_link_libraries(Test CapnProto::capnp-rpc)
-    target_link_libraries(Test kj)
-    target_link_libraries(Test kj-async)
+    target_link_libraries(Test PRIVATE CapnProto::capnp)
+    target_link_libraries(Test PRIVATE CapnProto::capnp-rpc)
+    target_link_libraries(Test PRIVATE kj)
+    target_link_libraries(Test PRIVATE kj-async)
 ENDIF()
-
