@@ -9,16 +9,9 @@ interface RPCServer {
             name @0 :Text;
             dataType @1 :UInt32;
             keyType @2 :UInt32;
-            reference @3 :Reference;
+            reference @3 :Maybe(Text);
             index @4 :Bool;
             nullable @5 :Bool;
-        }
-
-        struct Reference {
-            data :union {
-                unary @0 :Void;
-                table @1 :Text;
-            }
         }
 
         struct Row {
@@ -26,7 +19,7 @@ interface RPCServer {
         }
 
         struct Cell {
-            data :union {
+            union {
                 unary @0 :Void;
                 binary @1 :Bool;
                 short @2 :UInt32;
@@ -37,13 +30,56 @@ interface RPCServer {
         }
     }
 
-    struct Response {
-        data :union {
-            void @0 :Void;
+    struct Target {
+        union {
+            database @0 :Database;
             table @1 :Table;
+            column @2 :Column;
+            row @3 :Row;
+        }
+
+        struct Database {
+            name @0 :Text;
+        }
+        struct Table {
+            name @0 :Text;
+            parent @1 :Database;
+            metae @2 :Maybe(List(RPCServer.Table.Meta));
+        }
+        struct Column {
+            name @0 :Text;
+            parent @1 :Table;
+            meta @2 :Maybe(RPCServer.Table.Meta);
+        }
+        struct Row {
+            parent @0 :Table;
+            columns @1 :List(Column);
+            data @2 :List(RPCServer.Table.Cell);
+            specs @3 :List(Specification);
+
+            struct Specification {
+                column @0 :Column;
+                union {
+                    equals @1 :RPCServer.Table.Cell;
+                    unequals @2 :RPCServer.Table.Cell;
+                    smaller @3 :RPCServer.Table.Cell;
+                    bigger @4 :RPCServer.Table.Cell;
+                }
+            }
         }
     }
 
-    sendQuery @0 (query :Text) -> (response :Response);
-    connect @1 () -> ();
+    struct Maybe(T) {
+        union {
+            nothing @0 :Void;
+            value @1 :T;
+       }
+    }
+
+    connect @0 () -> ();
+    create @1 (target :Target) -> ();
+    select @2 (target :Target) -> (data :Table);
+    modify @3 (target :Target.Row) -> ();
+    insert @4 (target :Target.Row) -> ();
+    remove @5 (target :Target) -> ();
 }

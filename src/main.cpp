@@ -22,12 +22,13 @@ int main (int argc, char * argv[]) {
     google::InitGoogleLogging (argv[0]);
 
     LOG (INFO) << "Start Running";
-    LOG (INFO) << PROJECT_ROOT;
+    LOG (INFO) << "Project Folder: " << PROJECT_ROOT;
+    LOG (INFO) << "DB Storage Loc: " << DB_DIR;
 
     std::string address (argc > 2 ? argv[2] : STR+ "*:" + std::to_string (PORT));
     auto execServer = [] (std::string const & address, bool never_done = false) -> kj::Own <capnp::EzRpcServer> {
         (std::cout << "Setting database up on '" << address << "'...").flush();
-        kj::Own <capnp::EzRpcServer> server = kj::heap <capnp::EzRpcServer> (kj::heap <DatabaseImpl <DBMS>> (), address);
+        kj::Own <capnp::EzRpcServer> server = kj::heap <capnp::EzRpcServer> (kj::heap <DatabaseImpl>(), address);
         server->getPort().wait (server->getWaitScope());
         std::cout << " Done" << std::endl;
 

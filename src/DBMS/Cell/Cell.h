@@ -20,7 +20,7 @@ enum CellType {
 
 bool operator ! (Cell const & cell);
 std::ostream & operator << (std::ostream & os, Cell const & cell);
-std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell);
+std::ostream & operator << (std::ostream & os, std::vector <Cell> const & cells);
 
 std::string operator + (Cell const & cell);
 std::string operator - (Cell const & cell);
@@ -32,6 +32,14 @@ bool operator == (std::variant <A, B> first, std::variant <A, B> second) {
 template <class A, class B>
 bool operator != (std::variant <A, B> first, std::variant <A, B> second) {
     return  first.index() != second.index() || !(first == second);}
+
+bool operator == (Cell const & a, Cell const & b);
+bool operator != (Cell const & a, Cell const & b);
+bool operator <  (Cell const & a, Cell const & b);
+bool operator >  (Cell const & a, Cell const & b);
+
+bool isComparable (CellType a, CellType b);
+void assertComparable (CellType a, CellType b);
 
 Cell & toNull (Cell & cell);
 const int CellLength[]= {0, 1, 6, 11}; //Defines number of reserved characters for each CellType

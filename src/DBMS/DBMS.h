@@ -1,27 +1,31 @@
 #ifndef DATABASE_DBMS_H
 #define DATABASE_DBMS_H
 
+#include "FileHandler/FileHandler.h"
 #include "Table/Table.h"
-#include "../Language/Query/Query.h"
+#include "../Language/Target/Target.h"
+#include "../Language/Target/Table.h"
+#include "../Language/Target/Row.h"
 #include "../Language/Parser/Parser.h"
+#include "../Util/Tokens.h"
+#include "../Util/Helper.h"
 
 #include <memory>
 #include <kj/async.h>
-#include <variant>
+#include <optional>
+#include <filesystem>
 
-using Response = std::variant <std::monostate, kj::Own <Table const>>;
-enum ResponseType {
-    VOID,
-    TABLE
-};
+typedef std::optional <kj::Own <Table const>> Response;
 std::ostream & operator << (std::ostream & os, Response const & response);
 
 struct DBMS {
     DBMS() = delete;
 
-    static Response evalQuery (std::string const & rawQuery);
-    static Response evalTableQuery (kj::Own <Query> const & query);
-    static Response evalUserQuery (kj::Own <Query> const & query);
+    static void  create (Target const & target);
+    static Table select (Target const &  target);
+    static void  modify (qy::Row const & target);
+    static void  insert (qy::Row const & target);
+    static void  remove (Target const & target);
 };
 
 

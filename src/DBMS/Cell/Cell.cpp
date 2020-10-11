@@ -49,11 +49,15 @@ std::string operator + (Cell const & cell) {
     return ss.str();
 }
 
-std::ostream & operator << (std::ostream & os, std::vector<Cell> const & cell) {
-    for (auto const & key:cell){
-        os << key << '\t';
+std::ostream & operator << (std::ostream & os, std::vector <Cell> const & cells) {
+    os << '[';
+    bool first = true;
+    for (auto const & cell : cells) {
+        if (!first) os << ", ";
+        os << +cell;
+        first = false;
     }
-    return os;
+    return os << ']';
 }
 Cell & toNull (Cell & cell) {
     return cell = Cell();
@@ -90,6 +94,70 @@ bool isValid (Cell const & cell) {
 bool isValid (Cell const * cell) {
     if (cell) return isValid (* cell);
     THROW (std::logic_error ("Expected pointer to cell, got null pointer"));
+}
+
+bool operator == (Cell const & a, Cell const & b) {
+    if (!isComparable((CellType) a.index(), (CellType) b.index())) return false;
+    switch (a.index ()) {
+        case UNARY:
+            return true;
+        case BINARY:
+            return std::get <bool> (a) == std::get <bool> (b);
+        case SHORT:
+        case LONG:
+            return  ((a.index() == SHORT) ? std::get <short> (a) : std::get <long> (b)) ==
+                    ((b.index() == SHORT) ? std::get <short> (b) : std::get <long> (b));
+        case TEXT:
+            return std::get <std::string> (a) == std::get <std::string> (b);
+        default:
+            LOG (FATAL) << "This can't be happening";
+    }
+}
+bool operator != (Cell const & a, Cell const & b) {
+    return !(a == b);
+}
+bool operator < (Cell const & a, Cell const & b) {
+    assertComparable ((CellType) a.index(), (CellType) b.index());
+    switch (a.index ()) {
+        case UNARY:
+            return false;
+        case BINARY:
+            return std::get <bool> (a) < std::get <bool> (b);
+        case SHORT:
+        case LONG:
+            return  ((a.index() == SHORT) ? std::get <short> (a) : std::get <long> (b)) <
+                    ((b.index() == SHORT) ? std::get <short> (b) : std::get <long> (b));
+        case TEXT:
+            return std::get <std::string> (a).size() < std::get <std::string> (b).size();
+        default:
+            LOG (FATAL) << "This can't be happening";
+    }
+}
+bool operator > (Cell const & a, Cell const & b) {
+    assertComparable ((CellType) a.index(), (CellType) b.index());
+    switch (a.index ()) {
+        case UNARY:
+            return false;
+        case BINARY:
+            return std::get <bool> (a) > std::get <bool> (b);
+        case SHORT:
+        case LONG:
+            return  ((a.index() == SHORT) ? std::get <short> (a) : std::get <long> (b)) >
+                    ((b.index() == SHORT) ? std::get <short> (b) : std::get <long> (b));
+        case TEXT:
+            return std::get <std::string> (a).size() > std::get <std::string> (b).size();
+        default:
+            LOG (FATAL) << "This can't be happening";
+    }
+}
+
+bool isComparable (CellType a, CellType b) {
+    return (a == b || ((a == SHORT && b == LONG) || (a == LONG && b == SHORT)));
+}
+void assertComparable (CellType a, CellType b) {
+    if (!isComparable (a, b))
+        THROW (std::logic_error (STR+
+                "The given types, " + std::to_string(a) + " and " + std::to_string(b) + ", aren't comparable!"));
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

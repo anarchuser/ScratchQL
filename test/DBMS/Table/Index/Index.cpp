@@ -11,7 +11,7 @@
 
 SCENARIO("I can create indices for large amounts of data") {
     SECTION ("Constructor and Destructor work") {
-        delete new Index (CellType::LONG, false);
+        CHECK_NOTHROW (delete new Index (CellType::LONG, false));
     }
 
     auto rand_str = [] () -> std::string {
@@ -35,7 +35,7 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK (index.insert ((bool) bools [i], i));
             }
             WHEN ("I store the values to file") {
-                std::string const PATH {PROJECT_ROOT + "/tmp/indices/bools.idx"};
+                auto PATH = std::filesystem::path ("tmp/indices/bools.idx");
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
                     CHECK_NOTHROW (Index (PATH).dump());
@@ -71,7 +71,7 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK (  index.insert (strings [i], i + VEC_SIZE));
             }
             WHEN ("I store the values to file") {
-                std::string const PATH {PROJECT_ROOT + "/tmp/indices/strings_normal.idx"};
+                auto PATH = std::filesystem::path ("tmp/indices/strings_normal.idx");
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
                     CHECK_NOTHROW (Index (PATH).dump());
@@ -102,7 +102,7 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK (!index.insert (strings [i], i));
             }
             WHEN ("I store the values to file") {
-                std::string const PATH {PROJECT_ROOT + "/tmp/indices/strings_unique.idx"};
+                auto PATH = std::filesystem::path ("tmp/indices/strings_unique.idx");
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
                     CHECK_NOTHROW (Index (PATH).dump());
@@ -144,7 +144,7 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK ( index.insert (shorts [i], i + VEC_SIZE));
             }
             WHEN ("I store the values to file") {
-                std::string const PATH {PROJECT_ROOT + "/tmp/indices/shorts_normal.idx"};
+                auto PATH = std::filesystem::path ("tmp/indices/shorts_normal.idx");
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
                     CHECK_NOTHROW (Index (PATH).dump());
@@ -199,7 +199,7 @@ SCENARIO("I can create indices for large amounts of data") {
                 CHECK (!index.insert (shorts [i], i));
             }
             WHEN ("I store the values to file") {
-                std::string const PATH {PROJECT_ROOT + "/tmp/indices/shorts_unique.idx"};
+                auto PATH = std::filesystem::path ("tmp/indices/shorts_unique.idx");
                 CHECK_NOTHROW (index.save (PATH));
                 THEN ("I can retrieve them again") {
                     CHECK_NOTHROW (Index (PATH).dump());

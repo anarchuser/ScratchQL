@@ -1,10 +1,7 @@
 #include <capnp/message.h>
 #include "../../main.h"
 #include "../../../src/Server/Wrapper/Wrapper.h"
-
-#include "../../../src/Server/generated/ServerDBMS.capnp.h"
-#include "../../../src/DBMS/Table/Table.h"
-#include "../../../src/DBMS/Table/Meta/Meta.h"
+#include "../../../src/Language/Target/Target.h"
 
 using namespace Wrapper;
 
@@ -26,59 +23,58 @@ TEST_CASE ("I can encode and decode Cells") {
     std::vector <Cell> decodedCells;
 
     for (auto const & cell : cells) {
-        encodedCells.push_back (wrapCell (cell));
-        decodedCells.push_back (unwrapCell (encodedCells.back()->getRoot <RPCServer::Table::Cell>()));
+        encodedCells.push_back (wrap (cell));
+        decodedCells.push_back (unwrap (encodedCells.back()->getRoot <RPCServer::Table::Cell>()));
         CHECK (cell == decodedCells.back());
     }
 
     for (auto const & cell : cells) {
         capnp::MallocMessageBuilder builderBuilder;
         RPCServer::Table::Cell::Builder builder = builderBuilder.initRoot <::RPCServer::Table::Cell>();
-        RPCServer::Table::Cell::Data::Builder builderData = builder.getData();
 
         switch (cell.index ()) {
             case UNARY:
-                builderData.setUnary();
+                builder.setUnary();
                 break;
             case BINARY:
-                builderData.setBinary (std::get <bool> (cell));
+                builder.setBinary (std::get <bool> (cell));
                 break;
             case SHORT:
-                builderData.setShort (std::get <short> (cell));
+                builder.setShort (std::get <short> (cell));
                 break;
             case LONG:
-                builderData.setLong (std::get <long> (cell));
+                builder.setLong (std::get <long> (cell));
                 break;
             case TEXT:
-                builderData.setText (std::get <std::string> (cell));
+                builder.setText (std::get <std::string> (cell));
                 break;
             default:
                 LOG (FATAL) << "Test Cell Wrapper went insane: " << cell.index() << " not in range [0, 5)";
         }
 
-        kj::Own <capnp::MallocMessageBuilder> cellBuilder = wrapCell (cell);
+        kj::Own <capnp::MallocMessageBuilder> cellBuilder = wrap (cell);
         LOG_ASSERT (cellBuilder.get());
 
-        RPCServer::Table::Cell::Data::Reader data = cellBuilder->getRoot <RPCServer::Table::Cell>().asReader().getData();
-        RPCServer::Table::Cell::Data::Reader reader = builderData.asReader();
+        RPCServer::Table::Cell::Reader data = cellBuilder->getRoot <RPCServer::Table::Cell>().asReader();
+        RPCServer::Table::Cell::Reader reader = builder.asReader();
 
-        CHECK (cell == unwrapCell (builder.asReader()));
+        CHECK (cell == unwrap (builder.asReader()));
         CHECK (reader.which() == data.which());
         CHECK (reader.which() == cell.index());
 
         switch (data.which()) {
-            case RPCServer::Table::Cell::Data::UNARY:
+            case RPCServer::Table::Cell::UNARY:
                 break;
-            case RPCServer::Table::Cell::Data::BINARY:
+            case RPCServer::Table::Cell::BINARY:
                 CHECK (std::get <bool> (cell) == data.getBinary());
                 break;
-            case RPCServer::Table::Cell::Data::SHORT:
+            case RPCServer::Table::Cell::SHORT:
                 CHECK (std::get <short> (cell) == data.getShort());
                 break;
-            case RPCServer::Table::Cell::Data::LONG:
+            case RPCServer::Table::Cell::LONG:
                 CHECK (std::get <long> (cell) == data.getLong());
                 break;
-            case RPCServer::Table::Cell::Data::TEXT:
+            case RPCServer::Table::Cell::TEXT:
                 CHECK (std::get <std::string> (cell) == std::string (data.getText()));
                 break;
             default:
@@ -97,9 +93,9 @@ TEST_CASE ("I can encode and decode Meta information") {
     for (auto const & col : header) {
         std::stringstream raw, proc;
         CHECK (raw  << col);
-        CHECK (proc << unwrapMeta (wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader()));
+        CHECK (proc << unwrap (wrap (col)->getRoot <RPCServer::Table::Meta>().asReader()));
         CHECK (raw.str() == proc.str());
-        CHECK (col == unwrapMeta (wrapMeta (col)->getRoot <RPCServer::Table::Meta>().asReader()));
+        CHECK (col == unwrap (wrap (col)->getRoot <RPCServer::Table::Meta>().asReader()));
     }
 }
 
@@ -120,12 +116,12 @@ TEST_CASE ("I can encode and decode Tables") {
     for (auto const & row : content) initTable->createRow (row);
 
     Table table = kj::cp (* initTable);
-    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrapTable (kj::mv (initTable));
+    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrap (* initTable);
     RPCServer::Table::Reader encodedTable = tableBuilder->getRoot <RPCServer::Table>();
-    kj::Own <Table> decodedTable = unwrapTable (encodedTable);
+    kj::Own <Table> decodedTable = unwrap (encodedTable);
 
     SECTION ("The original and processed table are both equal") {
-        CHECK (table.getHeader()      == decodedTable->getHeader());
+        CHECK (table.getHeader()   == decodedTable->getHeader());
         CHECK (table.columnCount() == decodedTable->columnCount());
         CHECK (table.rowCount()    == decodedTable->rowCount());
 
@@ -134,6 +130,91 @@ TEST_CASE ("I can encode and decode Tables") {
                 CHECK (table [col][row] == (* decodedTable) [col][row]);
             }
         }
+    }
+}
+
+TEST_CASE ("I can encode and decode Queries") {
+    std::vector <Cell> data {Cell (151), Cell ("hello")};
+
+    qy::Database db ("db");
+    qy::Table table (db, "table");
+    qy::Column col1 (table, "col1");
+    qy::Column col2 (table, "col2");
+    qy::Specification spec1 (col1, data [0], qy::Predicate::BIGGER);
+    qy::Specification spec2 (col2, data [1], qy::Predicate::UNEQUALS);
+    qy::Row row (table, std::vector <qy::Column> {col1, col2}, data, std::vector <qy::Specification> {spec1, spec2});
+
+    SECTION ("Databases serialisation") {
+        Target original = Target (db);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+
+        Target decoded = Wrapper::unwrap (encoded);
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 0);
+        CHECK (+ decoded == + original);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Database> (decoded);
+        CHECK (got == db);
+    }
+    SECTION ("Table serialisation") {
+        Target original = Target (table);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 1);
+        CHECK (+ decoded == + original);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Table> (decoded);
+        CHECK (got == table);
+    }
+    SECTION ("Column1 serialisation") {
+        Target original = Target (col1);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 2);
+        CHECK (+ decoded == + original);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Column> (decoded);
+        CHECK (got == col1);
+    }
+    SECTION ("Column2 serialisation") {
+        Target original = Target (col2);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 2);
+        CHECK (+ decoded == + original);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Column> (decoded);
+        CHECK (got == col2);
+    }
+    SECTION ("Row serialisation") {
+        Target original = Target (row);
+        auto message = Wrapper::wrap (original);
+        RPCServer::Target::Reader encoded = message->getRoot <RPCServer::Target>().asReader();
+        Target decoded = Wrapper::unwrap (encoded);
+        std::vector <qy::Specification> specs = Wrapper::unwrap (encoded.getRow().getSpecs());
+
+        CHECK (decoded.index() == original.index());
+        CHECK (decoded.index() == 3);
+        CHECK (+ decoded == + original);
+        CHECK (decoded == original);
+
+        auto got = std::get <qy::Row> (decoded);
+        CHECK (got == row);
+        CHECK (row.specs == specs);
     }
 }
 

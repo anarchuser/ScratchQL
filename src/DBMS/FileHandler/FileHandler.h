@@ -6,6 +6,7 @@
 #include "../Table/Table.h"
 #include "../Table/Meta/Meta.h"
 #include "../../Util/Tokens.h"
+#include "../../Language/Target/Target.h"
 
 #include <cstdio>
 #include <cctype>
@@ -27,14 +28,12 @@ private:
     std::vector <std::size_t> columnLength;
     std::vector <CellType> columnType;
 
-    void createDatabase();
-    void createTable();
     [[nodiscard]] std::size_t checkLineLength(std::string const & content) const;
     std::vector <std::size_t> surplusColumnLengths(std::vector <Cell> const & contentVector);
     std::string fit (Cell const & cell, std::size_t length);
 
 public:
-    FileHandler(std::string const & database, std::string const & table, std::vector <std::size_t> const & columnLen, std::vector <CellType> const & colType);
+    FileHandler(std::string const & database, std::string  table, std::vector <std::size_t> const & columnLen, std::vector <CellType>  colType);
     explicit FileHandler (Table const & table);
 
     void createLine (std::vector <Cell> const & content);                         // Appends a line
@@ -45,6 +44,16 @@ public:
     void clearLines () const;
     void deleteTable () const;
     void deleteDatabase () const;
+
+    static void create (qy::Database const & db);
+    static void create (qy::Table const & table);
+    static void create (qy::Column const & column);
+    static void create (qy::Row const & row);
+
+    static void remove (qy::Database const & db);
+    static void remove (qy::Table const & table);
+    static void remove (qy::Column const & column);
+    static void remove (qy::Row const & row);
 };
 
 std::size_t calcLineLength(std::vector <std::size_t> const & colLength);
