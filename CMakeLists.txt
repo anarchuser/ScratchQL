@@ -35,8 +35,6 @@ target_link_libraries(Database kj-async)
 
 find_package(Catch2 CONFIG)
 IF (Catch2_FOUND)
-    find_package(Catch2 CONFIG REQUIRED)
-
     file(GLOB_RECURSE TEST_SRCS ${PROJECT_SOURCE_DIR}/test/*.c*)
     add_executable(Test ${GEN_PROTO_FILES} ${TEST_SRCS}  ${SRCS})
 
