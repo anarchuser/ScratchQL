@@ -1,4 +1,4 @@
-# ScratchQL [![Build Status](https://travis-ci.com/anarchuser/ScratchQL.svg?branch=master)](https://travis-ci.com/anarchuser/ScratchQL)
+# ScratchQL [![Build](https://travis-ci.com/anarchuser/ScratchQL.svg?branch=master)](https://travis-ci.com/anarchuser/ScratchQL) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/anarchuser/ScratchQL/blob/master/LICENSE)
 #### A relational database management system from scratch
 ----
 ### This page is about
