@@ -21,7 +21,7 @@ public:
     explicit Index (std::string const & path);
 
     Index (Index const & other) = delete;
-    Index & operator = (Index && other);
+    Index & operator = (Index && other) noexcept;
 
     [[nodiscard]] CellType getDataType() const;
     [[nodiscard]] bool isUnique() const;

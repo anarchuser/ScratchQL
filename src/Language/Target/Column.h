@@ -7,11 +7,12 @@
 
 namespace qy {
     struct Column {
-        Column (Table parent, std::string name, std::optional <Meta> meta = std::nullopt);
+        Column (Table parent, std::string name);
+        Column (Table const & parent, Meta meta);
 
         std::string const name;
         Table const parent;
-        std::optional <Meta> const meta;
+        std::optional <Meta> const meta = std::nullopt;
 
         bool operator == (Column const & other) const;
         bool operator != (Column const & other) const;

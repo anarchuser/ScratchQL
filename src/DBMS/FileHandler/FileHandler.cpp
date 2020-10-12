@@ -171,11 +171,20 @@ void FileHandler::create (qy::Database const & db) {
 void FileHandler::create (qy::Table const & table) {
     LOG (INFO) << "Create table:    " << table.path;
 
-    create (table.parent);
+    LOG_ASSERT (table.metae);
+
     sv::checkName (table.name);
+    create (table.parent);
     std::filesystem::create_directory (table.path, DB_DIR);
     std::filesystem::create_directory (table.path / META_DIR, DB_DIR);
     std::filesystem::create_directory (table.path / INDEX_DIR, DB_DIR);
+
+    for (auto const & col : * table.metae) {
+        if (col.index) {
+            Index (col.dataType, col.keyType == KeyType::PRIMARY).
+                    save (table.path / INDEX_DIR / (STR+ col.name + ".idx"));
+        }
+    }
 
     LOG_ASSERT (std::filesystem::exists (table.path / META_DIR));
     LOG_ASSERT (std::filesystem::exists (table.path / INDEX_DIR));
@@ -183,11 +192,8 @@ void FileHandler::create (qy::Table const & table) {
 void FileHandler::create (qy::Column const & column) {
     LOG (INFO) << "Create column:   " << column;
 
-    create (column.parent);
     sv::checkName (column.name);
-
-//    LOG_ASSERT (std::filesystem::exists (column.parent.path / META_DIR / column.name));
-//    LOG_ASSERT (std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
+    create (column.parent);
 }
 void FileHandler::create (qy::Row const & row) {
     LOG (INFO) << "Create row:      " << row;

@@ -1,7 +1,7 @@
 #include "Table.h"
 
 
-Table::Table (std::vector <Meta> const & meta, std::string dbname, std::string tablename):
+Table::Table (std::vector <Meta> meta, std::string dbname, std::string tablename):
     database {std::move(dbname)},
     name {std::move(tablename)}
 {

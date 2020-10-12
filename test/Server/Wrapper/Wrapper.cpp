@@ -112,22 +112,21 @@ TEST_CASE ("I can encode and decode Tables") {
         {Cell (std::string ("Tom")), Cell (std::string ("Oiuyt")), Cell (short (10)), Cell (std::string ("Kfefefsu"))},
         {Cell (std::string ("Bob")), Cell (std::string ("Qwerty")), Cell (short (40)), Cell (std::string ("Engineer"))},
     };
-    kj::Own <Table> initTable = kj::heap <Table> (header, std::string("hi"), std::string("there"));
-    for (auto const & row : content) initTable->createRow (row);
+    kj::Own <Table> table = kj::heap <Table> (header, std::string("hi"), std::string("there"));
+    for (auto const & row : content) table->createRow (row);
 
-    Table table = kj::cp (* initTable);
-    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrap (* initTable);
+    kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrap (* table);
     RPCServer::Table::Reader encodedTable = tableBuilder->getRoot <RPCServer::Table>();
     kj::Own <Table> decodedTable = unwrap (encodedTable);
 
     SECTION ("The original and processed table are both equal") {
-        CHECK (table.getHeader()   == decodedTable->getHeader());
-        CHECK (table.columnCount() == decodedTable->columnCount());
-        CHECK (table.rowCount()    == decodedTable->rowCount());
+        CHECK (table->getHeader()   == decodedTable->getHeader());
+        CHECK (table->columnCount() == decodedTable->columnCount());
+        CHECK (table->rowCount()    == decodedTable->rowCount());
 
-        for (std::size_t row = 0; row < table.rowCount(); row++) {
-            for (auto const & col : table.getHeader()) {
-                CHECK (table [col][row] == (* decodedTable) [col][row]);
+        for (std::size_t row = 0; row < table->rowCount(); row++) {
+            for (auto const & col : table->getHeader()) {
+                CHECK ((* table) [col][row] == (* decodedTable) [col][row]);
             }
         }
     }

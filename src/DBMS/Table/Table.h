@@ -28,7 +28,7 @@ public:
     std::string const name;
 
     /// Creates a new Table where each element in `header` equals the name of one column
-    Table (std::vector <Meta> const & meta, std::string dbname, std::string tablename);
+    Table (std::vector <Meta> meta, std::string dbname, std::string tablename);
     explicit Table (qy::Table const & table);
 
     /// Append row

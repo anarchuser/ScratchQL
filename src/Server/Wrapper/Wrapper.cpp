@@ -163,11 +163,10 @@ qy::Table Wrapper::unwrap (::RPCServer::Target::Table::Reader reader) {
     return qy::Table (unwrap (reader.getParent()), reader.getName(), metae);
 }
 qy::Column Wrapper::unwrap (::RPCServer::Target::Column::Reader reader) {
-    std::optional <Meta> meta {
-        (reader.getMeta().isNothing()) ?
-                std::nullopt :
-                std::make_optional <Meta> (unwrap (reader.getMeta().getValue()))};
-    return qy::Column (unwrap (reader.getParent()), reader.getName(), meta);
+    qy::Table table = unwrap (reader.getParent());
+    return (reader.getMeta().isNothing()) ?
+            qy::Column (table, reader.getName()) :
+            qy::Column (table, unwrap (reader.getMeta().getValue()));
 }
 qy::Row Wrapper::unwrap (::RPCServer::Target::Row::Reader reader) {
     return qy::Row (unwrap (reader.getParent()),

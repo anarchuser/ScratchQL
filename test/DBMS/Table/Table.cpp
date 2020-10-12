@@ -85,13 +85,8 @@ SCENARIO ("I can create a table, modify and print it") {
                     CHECK (t1.rowCount () == row_counter--);
                     CHECK_NOTHROW (t1.deleteRow (row_counter));
                 }
-
-                Table const tc1 (t1);
                 CHECK (! t1.rowCount ());
                 CHECK (!t1);
-
-                CHECK (! tc1.rowCount ());
-                CHECK (!tc1);
             }
         }
     }

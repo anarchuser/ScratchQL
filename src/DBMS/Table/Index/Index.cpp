@@ -23,7 +23,7 @@ Index::Index (std::string const & path) {
     load (path);
 }
 
-Index & Index::operator = (Index && other) {
+Index & Index::operator = (Index && other) noexcept {
     this->index = std::move (index);
     return * this;
 }

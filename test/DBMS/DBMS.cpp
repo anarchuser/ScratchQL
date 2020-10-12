@@ -9,13 +9,19 @@ SCENARIO ("Issuing queries works") {
         fs::remove_all (db);
     REQUIRE (fs::is_empty (DB_DIR));
 
+    std::vector <Meta> metae {
+            Meta ("TestCol1", CellType::TEXT, KeyType::NORMAL, true, false),
+            Meta ("TestCol2", CellType::LONG, KeyType::PRIMARY, true, false)
+    };
     qy::Database db ("TestDB");
-    qy::Table table (db, "TestTable");
-    qy::Column col1 (table, "TestCol1");
-    qy::Column col2 (table, "TestCol2");
-    qy::Specification spec1 (col1, Cell("value"), qy::Predicate::EQUALS);
-    qy::Specification spec2 (col2, Cell(128), qy::Predicate::SMALLER);
-    qy::Row row (table, vector {col1, col2}, std::vector {Cell("cell"), Cell(234)}, vector {spec1, spec2});
+    qy::Table table (db, "TestTable", metae);
+    std::vector <qy::Column> cols {
+            qy::Column (table, Meta ("TestCol1", CellType::TEXT, KeyType::NORMAL, true, false)),
+            qy::Column (table, Meta ("TestCol2", CellType::LONG, KeyType::PRIMARY, true, false))
+    };
+    qy::Specification spec1 (cols [0], Cell("value"), qy::Predicate::EQUALS);
+    qy::Specification spec2 (cols [1], Cell(128), qy::Predicate::SMALLER);
+    qy::Row row (table, cols, std::vector {Cell("cell"), Cell(234)}, vector {spec1, spec2});
 
     GIVEN ("Different Create queries") {
         WHEN ("I create a database") {
@@ -40,15 +46,14 @@ SCENARIO ("Issuing queries works") {
                 CHECK (fs::is_directory (table.path));
                 CHECK (fs::exists (table.path / META_DIR));
                 CHECK (fs::is_directory (table.path / META_DIR));
+                CHECK (fs::is_empty (table.path / META_DIR));
                 CHECK (fs::exists (table.path / INDEX_DIR));
                 CHECK (fs::is_directory (table.path / INDEX_DIR));
+                CHECK (!fs::is_empty (table.path / INDEX_DIR));
             }
-        }
-        WHEN ("I create columns") {
-            CHECK_NOTHROW (DBMS::create (col1));
-            CHECK_NOTHROW (DBMS::create (col2));
-            THEN ("Table and Columns get created") {
-                // TODO: check if columns were deleted
+            THEN ("the indices get created") {
+                for (auto const & meta : *table.metae)
+                    LOG_ASSERT (fs::exists (table.path / INDEX_DIR / (STR + meta.name + ".idx")));
             }
         }
         WHEN ("I create a row") {
@@ -64,7 +69,8 @@ SCENARIO ("Issuing queries works") {
                 // TODO: check if folder was created
             }
         }
-        WHEN ("I create a table") {
+        WHEN ("I create a "
+              "table") {
             THEN ("the Table gets created") {
                 // TODO: check if folder was created
             }
