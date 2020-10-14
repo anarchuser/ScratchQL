@@ -7,6 +7,7 @@
 #include "Meta/Meta.h"
 #include "../../Util/Tokens.h"
 #include "../../Language/Target/Target.h"
+#include "../FileHandler/FileHandler.h"
 
 #include <algorithm>
 #include <functional>
@@ -28,11 +29,12 @@ public:
     std::string const name;
 
     /// Creates a new Table where each element in `header` equals the name of one column
-    Table (std::vector <Meta> meta, std::string dbname, std::string tablename);
+    Table (std::string db, std::string tablename, std::optional <std::vector <Meta>> meta);
     explicit Table (qy::Table const & table);
 
     /// Append row
     void createRow (std::vector <Cell> const & row);
+    void createRow (std::unordered_map <std::string, Cell> const & row);
 
     /// Replace row with index `row_index` with `row`
     void updateRow (std::size_t row_index, std::vector <Cell> const & row);
@@ -45,6 +47,7 @@ public:
 
     /// Remove row from table
     void deleteRow (std::size_t row_index);
+    void deleteRow (std::unordered_map <std::string, Cell> const & row);
 
     bool isRowEmpty (std::size_t row_index) const;
     static bool isRowEmpty (std::vector <Cell> const & row);
@@ -57,7 +60,7 @@ public:
      * DO NOT USE TO RETRIEVE SINGLE CELLS!!!
      * If a single cell is needed, always use `table [col][row]`!
      * Never use table [row][col]!!! */
-    std::unordered_map <std::string, Cell> operator [] (std::size_t row_index);
+    std::unordered_map <std::string, Cell> operator [] (std::size_t row_index) const;
 
     std::vector <std::string> const & getHeader() const;
 

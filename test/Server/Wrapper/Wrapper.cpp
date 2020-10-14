@@ -100,7 +100,7 @@ TEST_CASE ("I can encode and decode Meta information") {
 }
 
 TEST_CASE ("I can encode and decode Tables") {
-    std::vector <Meta> const header {
+    std::vector <Meta> header {
         {"surname", TEXT, PRIMARY, true, false},
         {"name", TEXT, PRIMARY, true, false},
         {"age", SHORT, NORMAL, true, false},
@@ -112,7 +112,9 @@ TEST_CASE ("I can encode and decode Tables") {
         {Cell (std::string ("Tom")), Cell (std::string ("Oiuyt")), Cell (short (10)), Cell (std::string ("Kfefefsu"))},
         {Cell (std::string ("Bob")), Cell (std::string ("Qwerty")), Cell (short (40)), Cell (std::string ("Engineer"))},
     };
-    kj::Own <Table> table = kj::heap <Table> (header, std::string("hi"), std::string("there"));
+
+    kj::Own <Table> table = kj::heap <Table> (std::string("hi"), std::string("there"), header);
+
     for (auto const & row : content) table->createRow (row);
 
     kj::Own <capnp::MallocMessageBuilder> tableBuilder = wrap (* table);

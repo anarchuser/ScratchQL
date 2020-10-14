@@ -1,23 +1,35 @@
 #include "Table.h"
 
 
-Table::Table (std::vector <Meta> meta, std::string dbname, std::string tablename):
-    database {std::move(dbname)},
-    name {std::move(tablename)}
+Table::Table (std::string db, std::string tablename, std::optional <std::vector <Meta>> meta) :
+    database {std::move (db)},
+    name {std::move (tablename)}
 {
-    if (meta.empty()) THROW (std::invalid_argument ("Expected some columns; found none!"));
-    for (auto const & column : meta) {
-        sv::checkName (column.name);
-        this->header.emplace_back (column.name);
-        this->meta.push_back (column);
+    std::filesystem::path meta_path = DB_DIR / database / name / META_FILE;
+    if (meta) {
+        auto & metae = * meta;
+        if (metae.empty()) THROW (std::invalid_argument ("Expected some columns; found none!"));
+        for (auto const & column : metae) {
+            sv::checkName (column.name);
+            this->header.emplace_back (column.name);
+        }
+        FileHandler::create (qy::Table (database, name, metae));
+        Meta::save (metae, meta_path);
+        this->meta = std::move (metae);
+    } else {
+        FileHandler::create (qy::Table (database, name, std::nullopt));
+        try {
+            meta = Meta::load (meta_path);
+            LOG (ERROR) << "Couldn't load meta information";
+        } catch (std::exception & e) THROW (e);
     }
     for (auto const & key : header) {
         table.insert (std::make_pair (key, std::vector<Cell>()));
     }
 }
 
-Table::Table (qy::Table const & table):
-    Table (* table.metae, table.parent.name, table.name) {}
+Table::Table (qy::Table const & table) :
+        Table (table.parent.name, table.name, * table.metae) {}
 
 void Table::createRow (std::vector <Cell> const & row) {
     LOG (INFO) << "Creating Row in Table...";
@@ -29,6 +41,23 @@ void Table::createRow (std::vector <Cell> const & row) {
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         std::vector <Cell> & column = table [header [col_index]];
         column.push_back (row [col_index]);
+    }
+
+    LOG (INFO) << "Created Row in Table.";
+}
+void Table::createRow (std::unordered_map <std::string, Cell> const & row) {
+    LOG (INFO) << "Creating Row in Table...";
+
+    if (row.size() != columnCount()) {
+        THROW (std::range_error ("Invalid amount of columns to insert"));
+    }
+
+    std::cout << row << std::endl << std::endl;
+
+    // FIXME: not thread-safe
+    for (auto const & entry : row) {
+        std::vector <Cell> & column = table [entry.first];
+        column.push_back (entry.second);
     }
 
     LOG (INFO) << "Created Row in Table.";
@@ -91,6 +120,9 @@ void Table::deleteRow (std::size_t row_index) {
 
     LOG (INFO) << "Deleted Row from Table.";
 }
+void Table::deleteRow (std::unordered_map <std::string, Cell> const & row) {
+    // TODO: implement
+}
 
 bool Table::isRowEmpty (std::size_t row_index) const {
     LOG (INFO) << "Checking if Row in Table is empty...";
@@ -121,7 +153,7 @@ bool Table::isCellEmpty (std::string const & key, std::size_t row_index) const {
 std::vector <Cell> Table::operator [] (std::string const & key) const {
     return table.at (key);
 }
-std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index) {
+std::unordered_map <std::string, Cell> Table::operator [] (std::size_t row_index) const {
     return readRow (row_index);
 }
 
@@ -153,6 +185,7 @@ bool Table::operator ! () const {
 }
 
 std::ostream & operator << (std::ostream & os, Table const & table) {
+    os << table.database << ':' << table.name << '\n';
     if (table.columnCount ()) {
         for (auto const & col : table.getHeader()) os << col << "\t";
         os << std::endl;

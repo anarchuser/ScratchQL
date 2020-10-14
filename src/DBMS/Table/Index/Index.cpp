@@ -111,7 +111,7 @@ void Index::load (std::string const & path) {
                         row.second.push_back (std::stoi (val));
                     } catch (std::exception & e) {
                         LOG (WARNING) << "Can't convert value '" << val << "' to int - ignoring it...";
-                    };
+                    }
             }
             data.push_back (row);
         }

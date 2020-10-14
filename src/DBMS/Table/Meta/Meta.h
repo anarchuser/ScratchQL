@@ -4,6 +4,7 @@
 #include "../../Cell/Cell.h"
 
 #include <variant>
+#include <fstream>
 
 namespace Key {
     using Reference = std::variant <std::monostate, std::string>;
@@ -23,6 +24,9 @@ struct Meta {
     Meta (std::string name, CellType dataType, std::string reference, bool index, bool nullable, std::size_t stringLength = 10);
 
     bool operator == (Meta const & other) const;
+
+    static void save (std::vector <Meta> const & metae, const std::string & path);
+    static std::vector <Meta> load (const std::string & path);
 };
 
 std::ostream & operator << (std::ostream & os, Meta const & meta);

@@ -25,6 +25,8 @@ int main (int argc, char * argv[]) {
     LOG (INFO) << "Project Folder: " << PROJECT_ROOT;
     LOG (INFO) << "DB Storage Loc: " << DB_DIR;
 
+    std::ios_base::sync_with_stdio (false);
+
     std::string address (argc > 2 ? argv[2] : STR+ "*:" + std::to_string (PORT));
     auto execServer = [] (std::string const & address, bool never_done = false) -> kj::Own <capnp::EzRpcServer> {
         (std::cout << "Setting database up on '" << address << "'...").flush();

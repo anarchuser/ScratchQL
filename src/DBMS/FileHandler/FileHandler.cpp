@@ -12,13 +12,6 @@ FileHandler::FileHandler (std::string const & database, std::string table,
     columnLength(columnLen),
     columnType(std::move(colType)) {}
 
-FileHandler::FileHandler (Table const & table) :
-    FileHandler (
-            table.database,
-            table.name,
-            table.getColumnLengths(),
-            table.getDataTypes()) {}
-
 void FileHandler::createLine (std::vector <Cell> const & content) {
     std::ofstream out;
     try {
@@ -169,14 +162,15 @@ void FileHandler::create (qy::Database const & db) {
     LOG_ASSERT (std::filesystem::exists (db.path));
 }
 void FileHandler::create (qy::Table const & table) {
+    create (table.parent);
+
     LOG (INFO) << "Create table:    " << table.path;
 
     LOG_ASSERT (table.metae);
+    LOG_ASSERT (!table.metae->empty());
 
     sv::checkName (table.name);
-    create (table.parent);
     std::filesystem::create_directory (table.path, DB_DIR);
-    std::filesystem::create_directory (table.path / META_DIR, DB_DIR);
     std::filesystem::create_directory (table.path / INDEX_DIR, DB_DIR);
 
     for (auto const & col : * table.metae) {
@@ -185,22 +179,13 @@ void FileHandler::create (qy::Table const & table) {
                     save (table.path / INDEX_DIR / (STR+ col.name + ".idx"));
         }
     }
-
-    LOG_ASSERT (std::filesystem::exists (table.path / META_DIR));
-    LOG_ASSERT (std::filesystem::exists (table.path / INDEX_DIR));
 }
 void FileHandler::create (qy::Column const & column) {
+    create (column.parent);
+
     LOG (INFO) << "Create column:   " << column;
 
     sv::checkName (column.name);
-    create (column.parent);
-}
-void FileHandler::create (qy::Row const & row) {
-    LOG (INFO) << "Create row:      " << row;
-
-    create (row.parent);
-    for (auto const & col : row.columns)
-        create (col);
 }
 
 void FileHandler::remove (qy::Database const & db) {
@@ -220,12 +205,8 @@ void FileHandler::remove (qy::Table const & table) {
 void FileHandler::remove (qy::Column const & column) {
     LOG (INFO) << "Remove column:   " << column;
 
-    LOG_ASSERT (!std::filesystem::exists (column.parent.path / META_DIR / column.name));
+    LOG_ASSERT (!std::filesystem::exists (column.parent.path / META_FILE / column.name));
     LOG_ASSERT (!std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
-}
-void FileHandler::remove (qy::Row const & row) {
-    LOG (INFO) << "Remove row:      " << row;
-
 }
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

@@ -44,9 +44,7 @@ SCENARIO ("Issuing queries works") {
             THEN ("the Table gets created") {
                 CHECK (fs::exists (table.path));
                 CHECK (fs::is_directory (table.path));
-                CHECK (fs::exists (table.path / META_DIR));
-                CHECK (fs::is_directory (table.path / META_DIR));
-                CHECK (fs::is_empty (table.path / META_DIR));
+                CHECK (fs::exists (table.path / META_FILE));
                 CHECK (fs::exists (table.path / INDEX_DIR));
                 CHECK (fs::is_directory (table.path / INDEX_DIR));
                 CHECK (!fs::is_empty (table.path / INDEX_DIR));
@@ -58,6 +56,7 @@ SCENARIO ("Issuing queries works") {
         }
         WHEN ("I create a row") {
             CHECK_NOTHROW (DBMS::create (row));
+
             THEN ("All columns are created") {
                 // TODO: check if row was created
             }
@@ -69,8 +68,7 @@ SCENARIO ("Issuing queries works") {
                 // TODO: check if folder was created
             }
         }
-        WHEN ("I create a "
-              "table") {
+        WHEN ("I create a table") {
             THEN ("the Table gets created") {
                 // TODO: check if folder was created
             }
@@ -125,16 +123,9 @@ SCENARIO ("Issuing queries works") {
         }
     }
     GIVEN ("Different Remove queries") {
-        WHEN ("I remove a database") {
-            CHECK_NOTHROW (DBMS::remove (db));
-            CHECK_NOTHROW (DBMS::remove (db));
-            THEN ("The corresponding folder gets created") {
-                // TODO: check if folder was deleted
-            }
-        }
-        WHEN ("I remove a table") {
-            THEN ("the Table gets created") {
-                // TODO: check if folder was deleted
+        WHEN ("I remove a row") {
+            THEN ("All columns are created") {
+                // TODO: check if row was deleted
             }
         }
         WHEN ("I remove columns") {
@@ -142,9 +133,18 @@ SCENARIO ("Issuing queries works") {
                 // TODO: check if columns were deleted
             }
         }
-        WHEN ("I remove a row") {
-            THEN ("All columns are created") {
-                // TODO: check if row was deleted
+        WHEN ("I remove a table") {
+            CHECK_NOTHROW (DBMS::remove (table));
+            CHECK_NOTHROW (DBMS::remove (table));
+            THEN ("the Table gets removed") {
+                CHECK (!fs::exists (table.path));
+            }
+        }
+        WHEN ("I remove a database") {
+            CHECK_NOTHROW (DBMS::remove (db));
+            CHECK_NOTHROW (DBMS::remove (db));
+            THEN ("The corresponding folder gets removed") {
+                CHECK (!fs::exists (db.path));
             }
         }
     }
