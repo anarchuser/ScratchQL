@@ -12,6 +12,7 @@ namespace qy {
     struct Table {
         Table (Database parent, std::string name, std::optional <std::vector <Meta>> meta = std::nullopt);
         Table (std::string parent, std::string name, std::optional <std::vector <Meta>> meta = std::nullopt);
+        Table (Table const & table, Meta meta);
 
         std::string const name;
         Database const parent;

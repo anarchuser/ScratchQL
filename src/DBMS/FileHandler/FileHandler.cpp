@@ -2,22 +2,17 @@
 
 #include <utility>
 
-FileHandler::FileHandler (std::string const & database, std::string table,
-        std::vector <std::size_t> const & columnLen, std::vector <CellType> colType) :
-    db_root{DB_DIR},
-    database{database},
-    name{std::move(table)},
-    path{db_root + database + '/' + name + "/table.tsv"},       //purely for transition path coexists with the other three directory paths
-    lineLength{calcLineLength(columnLen)},
-    columnLength(columnLen),
-    columnType(std::move(colType)) {}
-
-FileHandler::FileHandler (Table const & table) :
-    FileHandler (
-            table.database,
-            table.name,
-            table.getColumnLengths(),
-            table.getDataTypes()) {}
+FileHandler::FileHandler (std::string const & database,
+                          std::string table,
+                          std::vector <std::size_t> const & columnLen,
+                          std::vector <CellType> colType) :
+    db_root {DB_DIR},
+    database {database},
+    name {std::move (table)},
+    path {DB_DIR / database / name / TABLE_FILE},
+    lineLength {calcLineLength(columnLen)},
+    columnLength (columnLen),
+    columnType (std::move (colType)) {}
 
 void FileHandler::createLine (std::vector <Cell> const & content) {
     std::ofstream out;
@@ -40,8 +35,6 @@ void FileHandler::createLine (std::vector <Cell> const & content) {
 
 std::vector <Cell> FileHandler::readLine (std::size_t index) const {
     std::vector <std::string> contentStringVector;
-    std::vector <Cell> content;
-
     std::ifstream in (path, std::ios::in);
     if (!in.is_open ()) THROW (std::ios_base::failure (STR+
     "Could not open file " + path));
@@ -55,6 +48,7 @@ std::vector <Cell> FileHandler::readLine (std::size_t index) const {
         contentStringVector.emplace_back(std::string(tmp_line));
         in.read(waste, 1);
     }
+    std::vector <Cell> content (contentStringVector.size());
     in.close();
     std::size_t counter = 0;
     for (std::string element : contentStringVector){
@@ -170,32 +164,30 @@ void FileHandler::create (qy::Database const & db) {
     LOG_ASSERT (std::filesystem::exists (db.path));
 }
 void FileHandler::create (qy::Table const & table) {
+    create (table.parent);
+
     LOG (INFO) << "Create table:    " << table.path;
 
-    create (table.parent);
+    LOG_ASSERT (table.metae);
+    LOG_ASSERT (!table.metae->empty());
+
     sv::checkName (table.name);
     std::filesystem::create_directory (table.path, DB_DIR);
-    std::filesystem::create_directory (table.path / META_DIR, DB_DIR);
     std::filesystem::create_directory (table.path / INDEX_DIR, DB_DIR);
 
-    LOG_ASSERT (std::filesystem::exists (table.path / META_DIR));
-    LOG_ASSERT (std::filesystem::exists (table.path / INDEX_DIR));
+    for (auto const & col : * table.metae) {
+        if (col.index) {
+            Index (col.dataType, col.keyType == KeyType::PRIMARY).
+                    save (table.path / INDEX_DIR / (STR+ col.name + ".idx"));
+        }
+    }
 }
 void FileHandler::create (qy::Column const & column) {
+    create (column.parent);
+
     LOG (INFO) << "Create column:   " << column;
 
-    create (column.parent);
     sv::checkName (column.name);
-
-//    LOG_ASSERT (std::filesystem::exists (column.parent.path / META_DIR / column.name));
-//    LOG_ASSERT (std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
-}
-void FileHandler::create (qy::Row const & row) {
-    LOG (INFO) << "Create row:      " << row;
-
-    create (row.parent);
-    for (auto const & col : row.columns)
-        create (col);
 }
 
 void FileHandler::remove (qy::Database const & db) {
@@ -215,17 +207,8 @@ void FileHandler::remove (qy::Table const & table) {
 void FileHandler::remove (qy::Column const & column) {
     LOG (INFO) << "Remove column:   " << column;
 
-    LOG_ASSERT (!std::filesystem::exists (column.parent.path / META_DIR / column.name));
+    LOG_ASSERT (!std::filesystem::exists (column.parent.path / META_FILE / column.name));
     LOG_ASSERT (!std::filesystem::exists (column.parent.path / INDEX_DIR / column.name));
 }
-void FileHandler::remove (qy::Row const & row) {
-    LOG (INFO) << "Remove row:      " << row;
-
-}
-
-//LOG (INFO) << "Create database: " << db.path;
-//LOG (INFO) << "Create table:    " << table.path;
-//LOG (INFO) << "Create column:   " << column;
-//LOG (INFO) << "Create row:      " << row;
 
 /* Copyright (C) 2020 Aaron Alef & Felix Bachstein */

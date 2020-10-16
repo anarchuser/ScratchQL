@@ -2,8 +2,10 @@
 
 interface RPCServer {
     struct Table {
-        meta @0 :List(Meta);
-        content @1 :List(Row);
+        database @0 :Text;
+        name @1 :Text;
+        meta @2 :List(Meta);
+        content @3 :List(Row);
 
         struct Meta {
             name @0 :Text;

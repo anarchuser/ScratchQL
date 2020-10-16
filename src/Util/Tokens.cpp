@@ -1,6 +1,5 @@
 #include "Tokens.h"
 
-
 std::vector <std::string> sv::splitTokens (std::string line, char delimiter) {
     std::vector <std::string> tokens;
     while(line.size()){
@@ -18,19 +17,12 @@ std::vector <std::string> sv::splitTokens (std::string line, char delimiter) {
 }
 
 std::string const & sv::checkName (std::string const & name) {
-    if (name == META_DIR) {
-
-    }
     if (name.empty()) {
         THROW (std::invalid_argument ("Name expected, got an empty string!"));
     }
     for (auto c : name) if (!std::isalnum (c)) {
         THROW (std::invalid_argument (STR+ "Expected valid name, got '" + name + "'!"));
     }
-    return name;
-}
-std::string       & sv::checkName (std::string       & name) {
-    checkName (std::as_const (name));
     return name;
 }
 

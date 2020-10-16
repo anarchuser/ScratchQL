@@ -4,6 +4,9 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Table const & table) {
     kj::Own <capnp::MallocMessageBuilder> responseBuilder = kj::heap <capnp::MallocMessageBuilder>();
 
     RPCServer::Table::Builder builder = responseBuilder->initRoot <::RPCServer::Table>();
+    builder.setDatabase (table.database);
+    builder.setName (table.name);
+
     auto metaBuilder = builder.initMeta (table.columnCount ());
     std::vector <Meta> meta = table.getMeta();
     std::size_t idx = 0;
@@ -28,8 +31,7 @@ kj::Own <capnp::MallocMessageBuilder> Wrapper::wrap (Table const & table) {
 kj::Own <Table> Wrapper::unwrap (::RPCServer::Table::Reader reader) {
     std::vector <Meta> metae;
     for (auto const & meta : reader.getMeta ()) metae.push_back (unwrap (meta));
-    kj::Own <Table> table = kj::heap <Table> (metae, "", "");
-    //TODO: Serialise Database- and Tablename
+    kj::Own <Table> table = kj::heap <Table> (reader.getDatabase(), reader.getName(), metae);
 
     for (auto const & row : reader.getContent ()) {
         std::vector <Cell> newRow;
@@ -163,11 +165,10 @@ qy::Table Wrapper::unwrap (::RPCServer::Target::Table::Reader reader) {
     return qy::Table (unwrap (reader.getParent()), reader.getName(), metae);
 }
 qy::Column Wrapper::unwrap (::RPCServer::Target::Column::Reader reader) {
-    std::optional <Meta> meta {
-        (reader.getMeta().isNothing()) ?
-                std::nullopt :
-                std::make_optional <Meta> (unwrap (reader.getMeta().getValue()))};
-    return qy::Column (unwrap (reader.getParent()), reader.getName(), meta);
+    qy::Table table = unwrap (reader.getParent());
+    return (reader.getMeta().isNothing()) ?
+            qy::Column (table, reader.getName()) :
+            qy::Column (table, unwrap (reader.getMeta().getValue()));
 }
 qy::Row Wrapper::unwrap (::RPCServer::Target::Row::Reader reader) {
     return qy::Row (unwrap (reader.getParent()),
@@ -258,18 +259,18 @@ RPCServer::Target::Column::Reader Wrapper::init (RPCServer::Target::Column::Buil
 void Wrapper::init (RPCServer::Target::Row::Builder builder, qy::Row const & target) {
     init (builder.initParent(), target.parent);
 
-    auto colBuilder = builder.initColumns (target.columns.size());
+    auto colBuilder = builder.initColumns (target.data.size());
     std::size_t idx = 0;
-    for (auto const & col : target.columns) {
+    for (auto const & entry : target.data) {
         auto msg = kj::heap <capnp::MallocMessageBuilder>();
         auto tmpBuilder = msg->initRoot<RPCServer::Target::Column>();
-        colBuilder.setWithCaveats (idx++, init (tmpBuilder, col));
+        colBuilder.setWithCaveats (idx++, init (tmpBuilder, qy::Column (target.parent, entry.first)));
     }
 
     auto dataBuilder = builder.initData (target.data.size());
     idx = 0;
     for (auto const & data : target.data) {
-        auto msg = wrap (data);
+        auto msg = wrap (data.second);
         auto tmpBuilder = msg->getRoot<RPCServer::Table::Cell>();
         dataBuilder.setWithCaveats (idx++, tmpBuilder);
     }

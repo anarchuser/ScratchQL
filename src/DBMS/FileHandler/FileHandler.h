@@ -3,10 +3,9 @@
 
 #include "../../config.h"
 #include "../Cell/Cell.h"
-#include "../Table/Table.h"
-#include "../Table/Meta/Meta.h"
 #include "../../Util/Tokens.h"
 #include "../../Language/Target/Target.h"
+#include "../Table/Index/Index.h"
 
 #include <cstdio>
 #include <cctype>
@@ -16,6 +15,7 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 
 class FileHandler {
@@ -33,8 +33,7 @@ private:
     std::string fit (Cell const & cell, std::size_t length);
 
 public:
-    FileHandler(std::string const & database, std::string  table, std::vector <std::size_t> const & columnLen, std::vector <CellType>  colType);
-    explicit FileHandler (Table const & table);
+    FileHandler(std::string const & database, std::string table, std::vector <std::size_t> const & columnLen, std::vector <CellType> colType);
 
     void createLine (std::vector <Cell> const & content);                         // Appends a line
     [[nodiscard]] std::vector <Cell> readLine (std::size_t index) const;                                     //
@@ -48,12 +47,10 @@ public:
     static void create (qy::Database const & db);
     static void create (qy::Table const & table);
     static void create (qy::Column const & column);
-    static void create (qy::Row const & row);
 
     static void remove (qy::Database const & db);
     static void remove (qy::Table const & table);
     static void remove (qy::Column const & column);
-    static void remove (qy::Row const & row);
 };
 
 std::size_t calcLineLength(std::vector <std::size_t> const & colLength);

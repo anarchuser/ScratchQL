@@ -32,7 +32,8 @@
 
 std::string const STR = std::string();
 
-std::string const META_DIR (".meta");
+std::string const TABLE_FILE ("table.tsv");
+std::string const META_FILE (".meta.inf");
 std::string const INDEX_DIR (".index");
 std::filesystem::path const DEFAULT_DB_DIR ("/var/db/scratchql/");
 std::filesystem::path const DB_DIR = []() -> std::filesystem::path {

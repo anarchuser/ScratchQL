@@ -1,21 +1,21 @@
 #include "../../main.h"
 #include "../../../src/DBMS/Table/Table.h"
-#include "../../../src/DBMS/FileHandler/FileHandler.h"
+#include "../../../src/DBMS/DBMS.h"
 
 SCENARIO ("I can create a table, modify and print it") {
     GIVEN ("Some test data") {
         std::string testdbname = "TableTestDatabase";
         std::string testtablename = "TableTestTable";
-        CHECK_THROWS_AS (Table (std::vector <Meta> (), testdbname, testtablename), std::invalid_argument);
-        CHECK_THROWS_AS (Table (std::vector <Meta> ({}, {}), testdbname, testtablename), std::invalid_argument);
+        CHECK_THROWS_AS (Table (testdbname, testtablename, std::vector <Meta> ()), std::invalid_argument);
+        CHECK_THROWS_AS (Table (testdbname, testtablename, std::vector <Meta> ({}, {})), std::invalid_argument);
 
         std::vector <Meta> columns = {
                 {"ID",       SHORT, PRIMARY,  true,  false,   },
                 {"Name",     TEXT,  NORMAL,   false, false, 20},
                 {"Birthday", TEXT,  "Events", true,  true,  10},
         };
-        REQUIRE_NOTHROW (Table (columns, testdbname, testtablename));
-        Table t1 (columns, testdbname, testtablename);
+        REQUIRE_NOTHROW (Table (testdbname, testtablename, columns));
+        Table t1 (testdbname, testtablename, columns);
 
         std::vector <std::vector <Cell>> rows {
                 { short(1), std::string("John"),   std::string("2020-02-02") },
@@ -56,6 +56,7 @@ SCENARIO ("I can create a table, modify and print it") {
             THEN ("Printing gives something meaningful") {
                 std::stringstream ss;
                 std::stringstream ts;
+                ts << testdbname << ':' << testtablename << '\n';
                 for (auto const & col : columns) ts << col.name + "\t";
                 ts << "\n\n";
 
@@ -67,7 +68,7 @@ SCENARIO ("I can create a table, modify and print it") {
                 }
 
                 CHECK (& (ss << t1) == & ss);
-                CHECK (ss.str() == ts.str());
+                CHECK (+ t1 == ts.str());
             }
 
             THEN ("I can successfully modify lines") {
@@ -85,13 +86,8 @@ SCENARIO ("I can create a table, modify and print it") {
                     CHECK (t1.rowCount () == row_counter--);
                     CHECK_NOTHROW (t1.deleteRow (row_counter));
                 }
-
-                Table const tc1 (t1);
                 CHECK (! t1.rowCount ());
                 CHECK (!t1);
-
-                CHECK (! tc1.rowCount ());
-                CHECK (!tc1);
             }
         }
     }

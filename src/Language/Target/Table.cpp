@@ -14,6 +14,11 @@ qy::Table::Table (std::string parent, std::string name, std::optional <std::vect
                 std::move (name),
                 std::move (meta)) {}
 
+qy::Table::Table (Table const & table, Meta meta) :
+        name {table.name},
+        parent {table.parent},
+        metae {table.metae ?: std::vector <Meta> {std::move (meta)}} {}
+
 bool qy::Table::operator == (Table const & other) const {
     return  other.path   == path   &&
             other.parent == parent &&

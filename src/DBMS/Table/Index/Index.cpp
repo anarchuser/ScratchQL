@@ -23,7 +23,7 @@ Index::Index (std::string const & path) {
     load (path);
 }
 
-Index & Index::operator = (Index && other) {
+Index & Index::operator = (Index && other) noexcept {
     this->index = std::move (index);
     return * this;
 }
@@ -111,7 +111,7 @@ void Index::load (std::string const & path) {
                         row.second.push_back (std::stoi (val));
                     } catch (std::exception & e) {
                         LOG (WARNING) << "Can't convert value '" << val << "' to int - ignoring it...";
-                    };
+                    }
             }
             data.push_back (row);
         }
