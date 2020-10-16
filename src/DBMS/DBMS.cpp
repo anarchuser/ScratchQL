@@ -42,7 +42,7 @@ Table DBMS::select (Target const & target) {
 void  DBMS::modify (qy::Row const & target) {
 }
 void  DBMS::insert (qy::Row const & target) {
-    Table (target.parent);
+    Table (target.parent).createRow(target.data);
 }
 void  DBMS::remove (Target const & target) {
     switch (target.index()) {

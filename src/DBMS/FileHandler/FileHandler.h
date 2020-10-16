@@ -33,7 +33,7 @@ private:
     std::string fit (Cell const & cell, std::size_t length);
 
 public:
-    FileHandler(std::string const & database, std::string  table, std::vector <std::size_t> const & columnLen, std::vector <CellType>  colType);
+    FileHandler(std::string const & database, std::string table, std::vector <std::size_t> const & columnLen, std::vector <CellType> colType);
 
     void createLine (std::vector <Cell> const & content);                         // Appends a line
     [[nodiscard]] std::vector <Cell> readLine (std::size_t index) const;                                     //

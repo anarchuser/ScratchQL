@@ -16,6 +16,7 @@
 #include <vector>
 #include <utility>
 #include <iostream>
+#include <memory>
 
 /// In-memory representation of one table; contains column names and cell data
 class Table {
@@ -23,6 +24,8 @@ private:
     std::vector <std::string> header;
     std::vector <Meta> meta;
     std::unordered_map <std::string, std::vector <Cell>> table;
+
+    std::shared_ptr <FileHandler> fh;
 
 public:
     std::string const database;

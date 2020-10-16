@@ -2,15 +2,17 @@
 
 #include <utility>
 
-FileHandler::FileHandler (std::string const & database, std::string table,
-        std::vector <std::size_t> const & columnLen, std::vector <CellType> colType) :
-    db_root{DB_DIR},
-    database{database},
-    name{std::move(table)},
-    path{db_root + database + '/' + name + "/table.tsv"},       //purely for transition path coexists with the other three directory paths
-    lineLength{calcLineLength(columnLen)},
-    columnLength(columnLen),
-    columnType(std::move(colType)) {}
+FileHandler::FileHandler (std::string const & database,
+                          std::string table,
+                          std::vector <std::size_t> const & columnLen,
+                          std::vector <CellType> colType) :
+    db_root {DB_DIR},
+    database {database},
+    name {std::move (table)},
+    path {DB_DIR / database / name / TABLE_FILE},
+    lineLength {calcLineLength(columnLen)},
+    columnLength (columnLen),
+    columnType (std::move (colType)) {}
 
 void FileHandler::createLine (std::vector <Cell> const & content) {
     std::ofstream out;

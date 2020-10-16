@@ -26,6 +26,7 @@ Table::Table (std::string db, std::string tablename, std::optional <std::vector 
     for (auto const & key : header) {
         table.insert (std::make_pair (key, std::vector<Cell>()));
     }
+    fh = std::make_shared <FileHandler> (database, name, getColumnLengths(), getDataTypes());
 }
 
 Table::Table (qy::Table const & table) :
@@ -38,6 +39,7 @@ void Table::createRow (std::vector <Cell> const & row) {
         THROW (std::range_error ("Invalid amount of columns to insert"));
     }
 
+    fh->createLine (row);
     for (std::size_t col_index = 0; col_index < row.size(); col_index++) {
         std::vector <Cell> & column = table [header [col_index]];
         column.push_back (row [col_index]);
@@ -46,21 +48,12 @@ void Table::createRow (std::vector <Cell> const & row) {
     LOG (INFO) << "Created Row in Table.";
 }
 void Table::createRow (std::unordered_map <std::string, Cell> const & row) {
-    LOG (INFO) << "Creating Row in Table...";
-
-    if (row.size() != columnCount()) {
-        THROW (std::range_error ("Invalid amount of columns to insert"));
-    }
-
-    std::cout << row << std::endl << std::endl;
-
     // FIXME: not thread-safe
+    std::vector <Cell> cells;
     for (auto const & entry : row) {
-        std::vector <Cell> & column = table [entry.first];
-        column.push_back (entry.second);
+        cells.push_back (entry.second);
     }
-
-    LOG (INFO) << "Created Row in Table.";
+    createRow (cells);
 }
 void Table::updateRow (std::size_t row_index, std::vector <Cell> const & row) {
     LOG (INFO) << "Updating Row in Table...";

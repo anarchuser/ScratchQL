@@ -5,9 +5,7 @@ using namespace std;
 namespace fs = std::filesystem;
 
 SCENARIO ("Issuing queries works") {
-    for (auto const & db : fs::directory_iterator (DB_DIR))
-        fs::remove_all (db);
-    REQUIRE (fs::is_empty (DB_DIR));
+    CLEAR();
 
     std::vector <Meta> metae {
             Meta ("TestCol1", CellType::TEXT, KeyType::NORMAL, true, false),
@@ -24,6 +22,8 @@ SCENARIO ("Issuing queries works") {
     qy::Row row (table, cols, std::vector {Cell("cell"), Cell(234)}, vector {spec1, spec2});
 
     GIVEN ("Different Create queries") {
+        CLEAR();
+
         WHEN ("I create a database") {
             REQUIRE (!fs::exists (db.path));
 
@@ -37,7 +37,6 @@ SCENARIO ("Issuing queries works") {
             }
         }
         WHEN ("I create a table") {
-            REQUIRE (!fs::exists (table.path));
 
             CHECK_NOTHROW (DBMS::create (table));
 
@@ -123,14 +122,13 @@ SCENARIO ("Issuing queries works") {
         }
     }
     GIVEN ("Different Remove queries") {
+        REQUIRE_NOTHROW (DBMS::create (row));
+        REQUIRE (fs::exists (row.parent.path / TABLE_FILE));
         WHEN ("I remove a row") {
+
+            CHECK_NOTHROW (DBMS::remove (row));
             THEN ("All columns are created") {
                 // TODO: check if row was deleted
-            }
-        }
-        WHEN ("I remove columns") {
-            THEN ("Table and Columns get created") {
-                // TODO: check if columns were deleted
             }
         }
         WHEN ("I remove a table") {
@@ -148,10 +146,6 @@ SCENARIO ("Issuing queries works") {
             }
         }
     }
-
-    for (auto const & folder : fs::directory_iterator (DB_DIR))
-        fs::remove_all (folder);
-    REQUIRE (fs::is_empty (DB_DIR));
 }
 
 
